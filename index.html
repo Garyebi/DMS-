@@ -130,7 +130,10 @@ table.t tr.click{cursor:pointer} table.t tr.click:hover td{background:var(--acce
 .form label{display:grid;gap:3px;font-size:.86rem;color:var(--muted);font-weight:500}
 .form input,.form select,.form textarea{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:7px 9px;color:var(--ink);font-size:.95rem}
 .form textarea{min-height:64px;resize:vertical}
-.check{display:flex;gap:6px;align-items:center;color:var(--ink);font-size:.9rem}
+.check,.form label.check{display:flex;gap:6px;align-items:center;color:var(--ink);font-size:.9rem;font-weight:400}
+.collabs{display:flex;flex-wrap:wrap;gap:6px 16px}
+.section-t{font-family:var(--display);font-size:1.08rem;font-weight:600;border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
+.form .form{margin:0}
 .notice{border-radius:6px;padding:9px 12px;font-size:.9rem;border:1px solid}
 .notice.ok{background:var(--ok-soft);border-color:var(--ok)}
 .notice.warn{background:var(--warn-soft);border-color:var(--warn)}
@@ -182,7 +185,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.3.0", dateVersion: "17 novembre 2026"
+  version: "0.4.0", dateVersion: "17 novembre 2026"
 };
 
 </script>
@@ -215,6 +218,8 @@ function httpApi(base) {
     ecarts: f => call("GET", "/ecarts" + qs(f)),
     ecart: id => call("GET", "/ecarts/" + id),
     creerEcart: d => call("POST", "/ecarts", d),
+    creerEcartComplet: d => call("POST", "/ecarts", d),
+    traiterEcart: (id, d) => call("POST", `/ecarts/${id}/traitement`, d),
     escalader: (id, d) => call("POST", `/ecarts/${id}/escalade`, d),
     regler: (id, d) => call("POST", `/ecarts/${id}/reglement`, d),
     retourLu: id => call("POST", `/ecarts/${id}/retour-lu`, {}),
@@ -448,6 +453,19 @@ function demoApi() {
         save(); return wait(vEcart(e)); } catch (err) { return fail(err.message); } },
     retourLu: id => { const e = S.ecarts.find(x => x.id === Number(id)); if (!e || e.statut !== "RetourT1") return fail("Aucun retour en attente pour cet écart.");
       e.statut = "Ferme"; e.dateRetourLu = today(); e.mouvements.push({ date: today(), genre: "RetourLu", texte: "Solution lue à l'équipe " + eq(e.equipeOrigine).nom, par: pers(userId).nom }); save(); return wait(vEcart(e)); },
+    traiterEcart: async (id, d) => {
+      const e = S.ecarts.find(x => x.id === Number(id)); if (!e || e.statut !== "Ouvert") return fail("Seul un écart ouvert peut être traité.");
+      if (d.cause) { e.cause = d.cause; e.causeDetail = d.causeDetail || null; }
+      if (d.procedureModifiee) { e.procedureModifiee = true; e.procedureNom = d.procedureNom || "À nommer"; }
+      (d.collaborateurs || []).forEach(c => { if (!e.collaborateurs.includes(c)) e.collaborateurs.push(c); });
+      (d.actions || []).filter(a => (a.texte || "").trim()).forEach(a => S.actions.push({ id: ++S.seq.a, ecartId: e.id, sujetId: null, horizon: a.horizon, texte: a.texte.trim(), responsable: a.responsable, echeance: a.echeance, statut: "AFaire" }));
+      save();
+      if (d.suite === "regler") return api.regler(id, { cause: e.cause, causeDetail: e.causeDetail, solution: d.solution, procedureModifiee: e.procedureModifiee, procedureNom: e.procedureNom, collaborateurs: [], actions: [] });
+      if (d.suite === "escalader") return api.escalader(id, { raison: d.raison, texte: d.texte });
+      return wait(vEcart(e)); },
+    creerEcartComplet: async d => { const e = await api.creerEcart(d);
+      if (d.suite === "regler" && !(d.cause && d.causeDetail && (d.solution || "").trim())) { S.ecarts = S.ecarts.filter(x => x.id !== e.id); save(); return fail("Pour régler : la cause (6M), la cause en une phrase et la solution sont obligatoires."); }
+      return api.traiterEcart(e.id, Object.assign({}, d, { suite: d.suite === "caucus" ? "enregistrer" : d.suite })); },
     actions: f => { f = f || {}; let l = S.actions.map(vAction);
       if (f.responsable) l = l.filter(a => a.responsable === f.responsable);
       if (f.statut === "ouvertes") l = l.filter(a => a.statut === "AFaire" || a.statut === "EnCours"); else if (f.statut === "retard") l = l.filter(a => a.enRetard);
@@ -503,6 +521,8 @@ function supabaseApi(cfg) {
       const r = ok(e); if (!r) throw new Error("Écart introuvable");
       return Object.assign(mapE(r), { actions: ok(a).map(mapA), mouvements: ok(m).map(x => ({ date: x.date, genre: x.genre, texte: x.texte, par: x.par })) }); },
     creerEcart: d => rpc("creer_ecart", { p: d }),
+    creerEcartComplet: d => rpc("creer_ecart_complet", { p: d }),
+    traiterEcart: (id, d) => rpc("traiter_ecart", { p_id: Number(id), p: d }),
     escalader: (id, d) => rpc("escalader_ecart", { p_id: Number(id), p_raison: d.raison, p_texte: d.texte }),
     regler: (id, d) => rpc("regler_ecart", { p_id: Number(id), p: d }),
     retourLu: id => rpc("retour_lu", { p_id: Number(id) }),
@@ -806,6 +826,44 @@ async function vAdmin() {
 function modal(html) { $("#modal-root").innerHTML = `<div class="overlay" data-act="overlay"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`; const f = document.querySelector(".modal input,.modal select,.modal textarea"); if (f) f.focus(); }
 const closeModal = () => { $("#modal-root").innerHTML = ""; };
 const formErr = (id, m) => { const el = document.getElementById(id); if (el) el.innerHTML = `<div class="notice bad">${esc(m)}</div>`; };
+/* Un seul écran : l'écart, sa cause, ses actions et la suite (caucus, régler, escalader) */
+function detailsHtml(e) {
+  e = e || {};
+  const pers = REF.personnes.filter(p => p.actif !== false);
+  const deja = e.collaborateurs || [];
+  return `<div class="full section-t">Cause et actions <span class="muted small">(si on les connaît déjà)</span></div>
+  <label for="d-cause">Cause (6M)<select id="d-cause"><option value="">À déterminer</option>${REF.causes.map(c => `<option ${e.cause === c ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+  <label for="d-cd">Cause en une phrase<input id="d-cd" maxlength="140" value="${esc(e.causeDetail || "")}"></label>
+  <div class="full">${(e.actions || []).length ? `<div class="small muted" style="margin-bottom:4px">Actions déjà inscrites</div><ul class="small" style="margin:0 0 8px;padding-left:18px">${e.actions.map(a => `<li>${a.horizon} · ${esc(a.texte)} · ${esc(a.responsable)} · ${fmtD(a.echeance)} · ${ASTATUT[a.statut]}</li>`).join("")}</ul>` : ""}
+   <div class="small muted" style="margin-bottom:4px">Actions court (CT), moyen (MT) et long terme (LT)</div><div id="d-acts">${actRowHtml("CT")}</div><button class="btn small" type="button" data-act="add-act">+ Ajouter une action</button></div>
+  <div class="full"><div class="small muted" style="margin-bottom:4px">Collaborateurs abonnés à l'écart</div><div class="collabs">${pers.map(p => `<label class="check" for="dc-${p.id}"><input type="checkbox" class="d-col" value="${esc(p.nom)}" id="dc-${p.id}" ${deja.includes(p.nom) ? "checked disabled" : ""}>${esc(p.nom)}</label>`).join("")}</div></div>
+  <label class="check full" for="d-proc"><input type="checkbox" id="d-proc" ${e.procedureModifiee ? "checked" : ""}>La solution change une procédure ou une méthode EBI</label>
+  <label class="full" for="d-pn">Procédure touchée<input id="d-pn" maxlength="120" value="${esc(e.procedureNom || "")}" placeholder="Ex. Émission des dessins : vérification croisée"></label>`;
+}
+function actRowHtml(h) {
+  return `<div class="act-row"><select class="a-h" aria-label="Horizon">${opt([["CT", "CT"], ["MT", "MT"], ["LT", "LT"]], h)}</select><input class="a-t" placeholder="Action" aria-label="Action" maxlength="160"><select class="a-r" aria-label="Responsable">${REF.personnes.filter(p => p.actif !== false).map(p => `<option ${p.nom === ME.nom ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}</select><input class="a-e" type="date" value="${isoPlus(7)}" aria-label="Échéance"></div>`;
+}
+function suiteHtml(t, defaut, nouveau) {
+  const up = t && t.parent ? eq(t.parent) : null;
+  const choix = [[nouveau ? "caucus" : "enregistrer", nouveau ? "Présenter au prochain kick-off de l'équipe" : `Enregistrer seulement (reste ouvert au T${t.strate})`], ["regler", `Régler maintenant au T${t ? t.strate : 1}`]];
+  if (up) choix.push(["escalader", `Escalader au T${up.strate} : ${up.nom}`]);
+  return `<div class="full section-t">Suite</div>
+  <div class="full grid" style="gap:6px">${choix.map(([v, l]) => `<label class="check" for="s-${v}"><input type="radio" name="suite" id="s-${v}" value="${v}" ${v === defaut ? "checked" : ""}>${esc(l)}</label>`).join("")}</div>
+  <div class="full" id="z-regler" hidden><div class="form"><label class="full" for="d-sol">Solution retenue<input id="d-sol" maxlength="200"></label>
+   <div class="full notice info">${t && t.strate > 1 ? "La solution redescendra au T1 qui a vu l'écart, qui confirmera l'avoir lue à l'équipe." : "Réglé au T1 : l'écart sera fermé."}</div></div></div>
+  <div class="full" id="z-escalader" hidden><div class="form"><label for="d-raison">Pourquoi on escalade<select id="d-raison">${opt(REF.raisons.map(r => [r, r]), "")}</select></label><label for="d-texte">Ce que le niveau suivant doit décider<input id="d-texte" maxlength="200"></label></div></div>`;
+}
+function suiteActive() { const r = document.querySelector('input[name="suite"]:checked'); return r ? r.value : "caucus"; }
+function majSuite(btn, nouveau) {
+  const s = suiteActive(); $("#z-regler").hidden = s !== "regler"; $("#z-escalader").hidden = s !== "escalader";
+  btn.textContent = s === "regler" ? (nouveau ? "Enregistrer et régler" : "Régler") : s === "escalader" ? (nouveau ? "Enregistrer et escalader" : "Escalader") : "Enregistrer";
+}
+function lireDetails() {
+  return { cause: $("#d-cause").value, causeDetail: $("#d-cd").value.trim(), procedureModifiee: $("#d-proc").checked, procedureNom: $("#d-pn").value.trim(),
+    collaborateurs: [...document.querySelectorAll(".d-col:checked:not(:disabled)")].map(x => x.value),
+    actions: [...document.querySelectorAll("#d-acts .act-row")].map(r => ({ horizon: r.querySelector(".a-h").value, texte: r.querySelector(".a-t").value.trim(), responsable: r.querySelector(".a-r").value, echeance: r.querySelector(".a-e").value || isoPlus(7) })).filter(a => a.texte),
+    suite: suiteActive(), solution: ($("#d-sol") || {}).value || "", raison: ($("#d-raison") || {}).value || "", texte: ($("#d-texte") || {}).value || "" };
+}
 function openNew(team) {
   const t1 = REF.equipes.filter(t => t.strate === 1); const def = team || (myTeams().find(c => eq(c) && eq(c).strate === 1)) || "T1-PAN";
   modal(`<h2>Documenter un écart</h2><form id="f-new" class="form">
@@ -819,47 +877,33 @@ function openNew(team) {
   <label for="n-cout">Coût direct ($)<input id="n-cout" type="number" min="0" value="0"></label>
   <label class="full" for="n-desc">Ce qui s'est passé (140 caractères max.)<input id="n-desc" maxlength="140" placeholder="Un fait observable, pas une opinion" required></label>
   <div class="full"><div class="small muted" style="margin-bottom:3px">Titre généré</div><div class="preview-title" id="n-prev">–</div></div>
+  <div class="full" id="n-bareme"></div>
+  ${detailsHtml(null)}
+  <div class="full" id="n-suite"></div>
   <div class="full" id="n-msg"></div>
-  <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit" id="n-save">Enregistrer l'écart</button></div></form>`);
+  <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit" id="n-save">Enregistrer</button></div></form>`);
+  const suite = () => { const cur = suiteActive(); $("#n-suite").innerHTML = `<div class="form">${suiteHtml(eq($("#n-team").value), document.querySelector('input[name="suite"]') ? cur : "caucus", true)}</div>`; majSuite($("#n-save"), true); };
   const upd = () => { const cat = $("#n-cat").value, sel = $("#n-type"), cur = sel.value;
     sel.innerHTML = REF.types.filter(t => t.cat === cat && t.actif).map(t => `<option value="${t.id}" ${String(t.id) === cur ? "selected" : ""}>${esc(t.nom)}</option>`).join("");
     const tn = sel.selectedOptions[0] ? sel.selectedOptions[0].textContent : ""; $("#n-prev").textContent = tn + " · " + ($("#n-poste").value.trim() || "…");
     const b = REF.bareme, ok = (cat === "S" && b.securiteToujours) || Number($("#n-min").value) >= b.minutesMin || Number($("#n-cout").value) >= b.coutMin;
-    $("#n-msg").innerHTML = ok ? `<div class="notice ok">Au barème : l'écart sera présenté au prochain kick-off de l'équipe.</div>` : `<div class="notice warn">Sous le barème (${b.minutesMin} min ou ${b.coutMin} $) : réglez-le sur place, sans fiche.</div>`;
+    $("#n-bareme").innerHTML = ok ? `<div class="notice ok">Au barème : l'écart se documente.</div>` : `<div class="notice warn">Sous le barème (${b.minutesMin} min ou ${b.coutMin} $) : réglez-le sur place, sans fiche.</div>`;
     $("#n-save").disabled = !ok; };
-  ["n-cat", "n-type", "n-poste", "n-min", "n-cout"].forEach(id => document.getElementById(id).addEventListener("input", upd)); upd();
+  ["n-cat", "n-type", "n-poste", "n-min", "n-cout"].forEach(id => document.getElementById(id).addEventListener("input", upd));
+  $("#n-team").addEventListener("change", suite); $("#n-suite").addEventListener("change", () => majSuite($("#n-save"), true));
+  upd(); suite();
   $("#f-new").addEventListener("submit", async ev => { ev.preventDefault();
-    try { await Api.creerEcart({ equipeOrigine: $("#n-team").value, dateEcart: $("#n-date").value, typeId: Number($("#n-type").value), poste: $("#n-poste").value, noFab: $("#n-fab").value.trim() || null, minutes: Number($("#n-min").value) || 0, cout: Number($("#n-cout").value) || 0, description: $("#n-desc").value });
+    try { await Api.creerEcartComplet(Object.assign({ equipeOrigine: $("#n-team").value, dateEcart: $("#n-date").value, typeId: Number($("#n-type").value), poste: $("#n-poste").value, noFab: $("#n-fab").value.trim() || null, minutes: Number($("#n-min").value) || 0, cout: Number($("#n-cout").value) || 0, description: $("#n-desc").value }, lireDetails()));
       closeModal(); render(); } catch (err) { formErr("n-msg", err.message); } });
 }
-async function openRegler(id) {
+async function openTraiter(id, suite) {
   const e = await Api.ecart(id); const t = eq(e.equipeCourante);
-  const persOpt = REF.personnes.map(p => `<option>${esc(p.nom)}</option>`).join("");
-  const row = h => `<div class="act-row"><select class="a-h" aria-label="Horizon">${opt([["CT", "CT"], ["MT", "MT"], ["LT", "LT"]], h)}</select><input class="a-t" placeholder="Action" aria-label="Action" maxlength="160"><select class="a-r" aria-label="Responsable">${persOpt}</select><input class="a-e" type="date" value="${isoPlus(7)}" aria-label="Échéance"></div>`;
-  modal(`<h2>Régler au T${t.strate} : ${esc(e.titre)}</h2><p class="small muted" style="margin-top:0">${e.no} · ${esc(e.description)}</p><form id="f-reg" class="form">
-  <label for="r-cause">Cause (6M)<select id="r-cause">${opt(REF.causes.map(c => [c, c]), "")}</select></label>
-  <label for="r-cd">Cause en une phrase<input id="r-cd" maxlength="140" required></label>
-  <label class="full" for="r-sol">Solution retenue<input id="r-sol" maxlength="200" required></label>
-  <div class="full"><div class="small muted" style="margin-bottom:4px">Actions court (CT), moyen (MT) et long terme (LT)</div><div id="r-acts">${row("CT")}</div><button class="btn small" type="button" id="r-add">+ Ajouter une action</button></div>
-  <div class="full"><div class="small muted" style="margin-bottom:4px">Collaborateurs abonnés à l'écart</div><div class="row">${REF.personnes.map(p => `<label class="check" for="rc-${p.id}"><input type="checkbox" class="r-col" value="${esc(p.nom)}" id="rc-${p.id}">${esc(p.nom)}</label>`).join("")}</div></div>
-  <label class="check full" for="r-proc"><input type="checkbox" id="r-proc">La solution change une procédure ou une méthode EBI</label>
-  <label class="full" for="r-pn">Procédure touchée<input id="r-pn" maxlength="120" placeholder="Ex. Émission des dessins : vérification croisée"></label>
-  <div class="full notice info">${t.strate > 1 ? `La solution redescendra au ${esc(eq(e.equipeOrigine).nom)} (T1), qui confirmera l'avoir lue à l'équipe.` : "Réglé au T1 : l'écart sera fermé."}</div>
-  <div class="full" id="r-msg"></div>
-  <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer le règlement</button></div></form>`);
-  $("#r-add").addEventListener("click", () => $("#r-acts").insertAdjacentHTML("beforeend", row("MT")));
-  $("#f-reg").addEventListener("submit", async ev => { ev.preventDefault();
-    const actions = [...document.querySelectorAll("#r-acts .act-row")].map(r => ({ horizon: r.querySelector(".a-h").value, texte: r.querySelector(".a-t").value, responsable: r.querySelector(".a-r").value, echeance: r.querySelector(".a-e").value || isoPlus(7) }));
-    try { await Api.regler(id, { cause: $("#r-cause").value, causeDetail: $("#r-cd").value, solution: $("#r-sol").value, procedureModifiee: $("#r-proc").checked, procedureNom: $("#r-pn").value.trim(), collaborateurs: [...document.querySelectorAll(".r-col:checked")].map(x => x.value), actions });
-      if (ui.run) ui.run.traites++; closeModal(); render(); } catch (err) { formErr("r-msg", err.message); } });
-}
-async function openEscalade(id) {
-  const e = await Api.ecart(id); const t = eq(e.equipeCourante), up = eq(t.parent);
-  modal(`<h2>Escalader au T${up.strate} : ${esc(up.nom)}</h2><p class="small muted" style="margin-top:0">${e.no} · ${esc(e.titre)}</p><form id="f-esc" class="form">
-  <label class="full" for="x-r">Pourquoi on escalade<select id="x-r">${opt(REF.raisons.map(r => [r, r]), "")}</select></label>
-  <label class="full" for="x-n">Ce que le niveau suivant doit décider<input id="x-n" maxlength="200" required></label><div class="full" id="x-msg"></div>
-  <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Escalader</button></div></form>`);
-  $("#f-esc").addEventListener("submit", async ev => { ev.preventDefault(); try { await Api.escalader(id, { raison: $("#x-r").value, texte: $("#x-n").value }); if (ui.run) ui.run.traites++; closeModal(); render(); } catch (err) { formErr("x-msg", err.message); } });
+  modal(`<h2>Traiter au T${t.strate} : ${esc(e.titre)}</h2><p class="small muted" style="margin-top:0">${e.no} · ${fmtD(e.dateEcart)} · ${e.minutes} min perdues${e.cout ? " · " + e.cout.toLocaleString("fr-CA") + " $" : ""} · ${esc(e.description)}</p>
+  <form id="f-tr" class="form">${detailsHtml(e)}${suiteHtml(t, suite || "regler", false)}<div class="full" id="t-msg"></div>
+  <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit" id="t-save">Enregistrer</button></div></form>`);
+  $("#f-tr").addEventListener("change", ev => { if (ev.target.name === "suite") majSuite($("#t-save"), false); }); majSuite($("#t-save"), false);
+  $("#f-tr").addEventListener("submit", async ev => { ev.preventDefault();
+    try { const d = lireDetails(); await Api.traiterEcart(id, d); if (ui.run && d.suite !== "enregistrer") ui.run.traites++; closeModal(); render(); } catch (err) { formErr("t-msg", err.message); } });
 }
 async function openDetail(id) {
   const e = await Api.ecart(id); const t = eq(e.equipeCourante);
@@ -909,8 +953,9 @@ document.addEventListener("click", async ev => {
     if (act === "close") closeModal();
     else if (act === "new") openNew(a.dataset.team || "");
     else if (act === "detail") await openDetail(a.dataset.id);
-    else if (act === "regler") await openRegler(a.dataset.id);
-    else if (act === "escalader") await openEscalade(a.dataset.id);
+    else if (act === "regler") await openTraiter(a.dataset.id, "regler");
+    else if (act === "escalader") await openTraiter(a.dataset.id, "escalader");
+    else if (act === "add-act") $("#d-acts").insertAdjacentHTML("beforeend", actRowHtml("MT"));
     else if (act === "retour-lu") { await Api.retourLu(a.dataset.id); render(); }
     else if (act === "csv") await openCsv();
     else if (act === "copy-csv") { const ta = $("#csv"), msg = $("#csv-msg"); try { await navigator.clipboard.writeText(ta.value); msg.textContent = "Copié."; } catch (e) { ta.select(); msg.textContent = "Sélectionné : faites Ctrl+C."; } }
