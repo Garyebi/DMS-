@@ -161,6 +161,52 @@ table.t tr.click{cursor:pointer} table.t tr.click:hover td{background:var(--acce
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
 footer{max-width:1360px;margin:0 auto;padding:0 20px 30px;color:var(--muted);font-size:.82rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Bilans de rencontres (suites) */
+.bil{display:grid;gap:14px}
+.bil input,.bil select,.bil textarea{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:6px 8px;color:var(--ink);font-size:.93rem;width:100%;min-width:0}
+.bil textarea{min-height:58px;resize:vertical;line-height:1.4}
+.bil label{display:grid;gap:3px;align-content:start;font-size:.82rem;color:var(--muted);font-weight:500}
+.bil .span2{grid-column:span 2}
+.bil-title{font-family:var(--display);font-size:1.55rem!important;font-weight:600;border-color:transparent!important;background:transparent!important}
+.bil-title:hover,.bil-title:focus{border-color:var(--line)!important;background:var(--paper)!important}
+.bil-meta{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){.bil-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bil-act{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.1fr) minmax(0,1.6fr);gap:10px;border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--surface)}
+.bil-act[data-st="fait"]{border-left-color:var(--ok)}
+.bil-act[data-st="bloque"]{border-left-color:var(--bad)}
+@media (max-width:1000px){.bil-act{grid-template-columns:1fr}}
+.bil-act-f{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;align-content:start}
+.bil-prec{margin-top:4px;padding:4px 8px;border-left:3px solid var(--line);background:var(--paper);border-radius:0 4px 4px 0}
+.bil-pt{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;background:var(--surface)}
+.bil-pt-h{display:flex;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bil-pt-h .ag-n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;font-size:.85rem;flex:none}
+.bil-pt-h .bil-sujet{flex:1 1 260px;width:auto;font-weight:600}
+.bil-pt-h .w-resp{flex:0 1 210px;width:auto}
+.bil-pt-h .w-min{flex:0 0 76px;width:76px}
+.bil-pt-b{padding:10px 12px}
+.bil-new{display:grid;grid-template-columns:minmax(0,1fr) 190px 150px 110px auto;gap:6px;align-items:center;margin-top:6px}
+.bil-new[data-st="fait"] > input:first-child{text-decoration:line-through;color:var(--muted)}
+.bil-add input{background:var(--surface)}
+@media (max-width:800px){.bil-new{grid-template-columns:1fr}.bil .span2{grid-column:auto}}
+.bil-lbl textarea{min-height:80px}
+.etat{font-size:.84rem}.etat.bad{color:var(--bad)}
+.chg{margin-bottom:12px}.chg h3{display:flex;gap:8px;align-items:center;margin-bottom:4px}.chg ul{margin:0;padding-left:18px;display:grid;gap:4px}
+#print-area{display:none}
+@page{margin:14mm}
+@media print{
+  body.printing > *:not(#print-area){display:none!important}
+  body.printing #print-area{display:block;font-family:var(--body);color:#000;font-size:11pt}
+  #print-area h1{font-family:var(--display);font-size:20pt;margin:8px 0 2px}
+  #print-area h2{font-family:var(--display);font-size:14pt;border-bottom:2px solid #0b2545;margin:14px 0 6px;padding-bottom:2px}
+  #print-area h3{font-size:12pt;margin:10px 0 4px}
+  #print-area table{width:100%;border-collapse:collapse;margin:4px 0 8px;font-size:9.5pt}
+  #print-area th,#print-area td{border:1px solid #bbb;padding:3px 5px;text-align:left;vertical-align:top}
+  #print-area th{background:#e6eef9}
+  #print-area tr,#print-area .pr-pt{break-inside:avoid}
+  .pr-h{display:flex;justify-content:space-between;background:#0b2545;color:#fff;padding:6px 10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pr-m{color:#444;font-size:10pt}.pr-r{font-weight:400;color:#444}.pr-av{color:#333;font-style:italic;margin-top:2px}
+  .pr-f{margin-top:16px;border-top:1px solid #bbb;padding-top:4px;font-size:8.5pt;color:#555}
+}
 
 </style>
 </head>
@@ -187,7 +233,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.5.0", dateVersion: "17 novembre 2026"
+  version: "0.6.0", dateVersion: "17 novembre 2026"
 };
 
 </script>
@@ -239,6 +285,23 @@ function httpApi(base) {
     majBareme: d => call("PUT", "/admin/bareme", d),
     creerType: d => call("POST", "/admin/types", d),
     majType: (id, d) => call("PATCH", "/admin/types/" + id, d),
+    suites: () => call("GET", "/suites"),
+    tenuesSuite: code => call("GET", `/suites/${code}/tenues`),
+    creerSerie: d => call("POST", "/suites", d),
+    majSerie: (code, d) => call("PATCH", "/suites/" + code, d),
+    partagerSerie: (code, ids) => call("PUT", `/suites/${code}/acces`, { personnes: ids }),
+    nouvelleTenue: (code, date) => call("POST", `/suites/${code}/tenues`, { date }),
+    bilan: id => call("GET", "/bilans/" + id),
+    majTenue: (id, d) => call("PATCH", "/bilans/" + id, d),
+    supprimerTenue: id => call("DELETE", "/bilans/" + id),
+    ajouterPoint: (t, d) => call("POST", `/bilans/${t}/points`, d || {}),
+    majPoint: (id, d) => call("PATCH", "/points/" + id, d),
+    deplacerPoint: (id, dir) => call("POST", `/points/${id}/deplacer`, { dir }),
+    supprimerPoint: id => call("DELETE", "/points/" + id),
+    ajouterRaction: (t, d) => call("POST", `/bilans/${t}/actions`, d),
+    majRaction: (id, t, d) => call("PATCH", "/actions-rencontre/" + id, Object.assign({ tenue: t }, d)),
+    supprimerRaction: id => call("DELETE", "/actions-rencontre/" + id),
+    ractions: f => call("GET", "/actions-rencontre" + qs(f)),
     exportCsvUrl: () => base + "/export/ecarts.csv"
   };
 }
@@ -492,7 +555,116 @@ function demoApi() {
     majType: (id, d) => { if (!pers(userId).admin) return fail("Réservé à l'administrateur du DMS."); const t = type(Number(id)); if (!t) return fail("Type introuvable"); t.actif = !!d.actif; save(); return wait(t); },
     exportCsvUrl: () => null
   };
+  Object.assign(api, bilansDemo());
   return api;
+
+  /* Suites de rencontres et bilans, version démo (mêmes règles que la base) */
+  function bilansDemo() {
+    const B = () => { if (!S.b) { S.b = seedB(); save(); } return S.b; };
+    const nomP = id => (pers(id) || {}).nom || "";
+    const peut = s => s && (!s.prive || s.proprietaireId === userId || s.acces.includes(userId));
+    const suite = code => { const s = B().suites.find(x => x.code === code); need(s, "Rencontre introuvable."); need(peut(s), "Cette rencontre est privée. Demandez à son propriétaire de vous y donner accès."); return s; };
+    const tenue = id => { const t = B().tenues.find(x => x.id === Number(id)); need(t, "Rencontre introuvable."); suite(t.rencontre); return t; };
+    const cmp = (a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id;
+    const respNom = a => a.responsableId ? nomP(a.responsableId) : (a.responsableTexte || "");
+    const resp = d => { const id = d.responsableId ? Number(d.responsableId) : ((persNom((d.responsable || "").trim()) || {}).id || null); return { responsableId: id, responsableTexte: id ? null : ((d.responsable || "").trim() || null) }; };
+    const txt = (d, k, old) => k in d ? (String(d[k] ?? "").trim() || null) : old;
+    const run = f => { try { const r = f(); save(); return wait(r); } catch (err) { return fail(err.message); } };
+    const suiteOut = s => { const b = B(), ts = b.tenues.filter(t => t.rencontre === s.code);
+      return { code: s.code, nom: s.nom, equipe: null, dept: null, frequence: s.frequence, dureeMin: s.dureeMin, participants: s.participants, libre: true, prive: s.prive, actif: s.actif,
+        proprietaire: nomP(s.proprietaireId), estProprietaire: s.proprietaireId === userId, acces: s.acces.map(id => ({ id, nom: nomP(id) })),
+        nbTenues: ts.length, derniere: ts.map(t => t.date).sort().pop() || null, actionsOuvertes: b.actions.filter(a => a.rencontre === s.code && a.statut !== "fait").length }; };
+    const proprio = code => { const s = suite(code); need(s.proprietaireId === userId, "Seul le propriétaire de la rencontre peut faire ce changement."); return s; };
+    const suiviUpsert = (a, tid, d) => { const b = B(); let r = b.suivis.find(x => x.actionId === a.id && x.tenueId === tid);
+      if (!r) { r = { actionId: a.id, tenueId: tid, avancement: null }; b.suivis.push(r); }
+      if ("avancement" in d) r.avancement = (d.avancement || "").trim() || null;
+      Object.assign(r, { statut: a.statut, echeance: a.echeance, responsable: respNom(a), texte: a.texte, le: new Date().toISOString() }); };
+    return {
+      suites: () => wait(B().suites.filter(peut).map(suiteOut).sort((x, y) => (y.derniere || "").localeCompare(x.derniere || ""))),
+      tenuesSuite: code => run(() => { suite(code); const b = B();
+        return b.tenues.filter(t => t.rencontre === code).sort(cmp).reverse().map(t => ({ id: t.id, date: t.date, titre: t.titre, lieu: t.lieu,
+          nbPoints: b.points.filter(p => p.tenueId === t.id).length, nbNouvelles: b.actions.filter(a => a.tenueOrigine === t.id).length, nbFermees: b.actions.filter(a => a.rencontre === code && a.fermeLe === t.date).length })); }),
+      creerSerie: d => run(() => { const nom = (d.nom || "").trim(); need(nom, "Donnez un nom à la suite de rencontres.");
+        const code = "S" + Date.now(); B().suites.push({ code, nom, frequence: (d.frequence || "").trim() || "Au besoin", dureeMin: 60, participants: (d.participants || "").trim() || null, prive: d.prive !== false, proprietaireId: userId, acces: [], actif: true }); return code; }),
+      majSerie: (code, d) => run(() => { const s = proprio(code); if ((d.nom || "").trim()) s.nom = d.nom.trim(); if ("frequence" in d) s.frequence = (d.frequence || "").trim() || s.frequence; s.participants = txt(d, "participants", s.participants); if ("prive" in d) s.prive = !!d.prive; if ("actif" in d) s.actif = !!d.actif; return null; }),
+      partagerSerie: (code, ids) => run(() => { const s = proprio(code); s.acces = (ids || []).map(Number).filter(id => id !== userId && pers(id)); return null; }),
+      nouvelleTenue: (code, date) => run(() => { suite(code); const b = B(); const prev = b.tenues.filter(t => t.rencontre === code).sort(cmp).pop();
+        const t = { id: ++b.seq.t, rencontre: code, date: date || today(), titre: prev ? prev.titre : suite(code).nom, heureDebut: prev ? prev.heureDebut : null, heureFin: prev ? prev.heureFin : null, lieu: prev ? prev.lieu : null, projet: prev ? prev.projet : null, redacteur: prev ? prev.redacteur : null, prochaine: null, presents: prev ? prev.presents : null, absents: null, divers: null, tags: prev ? prev.tags : null, animeePar: userId };
+        b.tenues.push(t);
+        const src = prev ? b.points.filter(p => p.tenueId === prev.id).sort((x, y) => x.ordre - y.ordre) : [];
+        if (src.length) src.forEach((p, i) => b.points.push({ id: ++b.seq.p, tenueId: t.id, ordre: i + 1, sujet: p.sujet, responsable: p.responsable, dureeMin: p.dureeMin, objectif: p.objectif, discussion: null, decisions: null, reporte: false }));
+        else b.points.push({ id: ++b.seq.p, tenueId: t.id, ordre: 1, sujet: "", responsable: null, dureeMin: null, objectif: null, discussion: null, decisions: null, reporte: false });
+        return t.id; }),
+      bilan: id => run(() => { const t = tenue(id), b = B(), s = suite(t.rencontre); const ts = b.tenues.filter(x => x.rencontre === t.rencontre).sort(cmp);
+        const i = ts.indexOf(t), prec = ts[i - 1], suiv = ts[i + 1];
+        const acts = b.actions.filter(a => a.rencontre === t.rencontre && (a.tenueOrigine === t.id || (a.depuis <= t.date && (!a.fermeLe || a.fermeLe >= t.date) && (!a.tenueOrigine || cmp(b.tenues.find(x => x.id === a.tenueOrigine), t) < 0))));
+        const sv = (a, tt) => { const r = b.suivis.find(x => x.actionId === a.id && x.tenueId === tt.id); return r ? { avancement: r.avancement, statut: r.statut, echeance: r.echeance, responsable: r.responsable, texte: r.texte } : null; };
+        return { tenue: Object.assign({}, t, { animeePar: nomP(t.animeePar) }), serie: { code: s.code, nom: s.nom, libre: true, prive: s.prive, proprietaire: nomP(s.proprietaireId), estProprietaire: s.proprietaireId === userId },
+          precedente: prec ? { id: prec.id, date: prec.date } : null, suivante: suiv ? { id: suiv.id, date: suiv.date } : null,
+          points: b.points.filter(p => p.tenueId === t.id).sort((x, y) => x.ordre - y.ordre),
+          actions: acts.map(a => { const pr = b.suivis.filter(x => x.actionId === a.id).map(x => ({ x, tt: b.tenues.find(y => y.id === x.tenueId) })).filter(o => o.tt && cmp(o.tt, t) < 0).sort((o, p) => cmp(o.tt, p.tt)).pop();
+            return { id: a.id, texte: a.texte, responsable: respNom(a), responsableId: a.responsableId, echeance: a.echeance, statut: a.statut, depuis: a.depuis, fermeLe: a.fermeLe, pointId: a.pointId, nouveau: a.tenueOrigine === t.id,
+              suivi: sv(a, t), prec: pr ? Object.assign(sv(a, pr.tt), { date: pr.tt.date }) : null }; })
+            .sort((x, y) => (x.nouveau - y.nouveau) || x.depuis.localeCompare(y.depuis) || x.id - y.id) }; }),
+      majTenue: (id, d) => run(() => { const t = tenue(id);
+        for (const k of ["titre", "heureDebut", "heureFin", "lieu", "projet", "redacteur", "presents", "absents", "divers", "tags", "prochaine"]) t[k] = txt(d, k, t[k]);
+        if ((d.date || "").trim()) t.date = d.date.trim(); return null; }),
+      supprimerTenue: id => run(() => { const t = tenue(id), b = B(), s = suite(t.rencontre); need(s.proprietaireId === userId || t.animeePar === userId, "Seul le propriétaire de la rencontre peut la retirer.");
+        const ids = b.actions.filter(a => a.tenueOrigine === t.id).map(a => a.id);
+        b.suivis = b.suivis.filter(x => x.tenueId !== t.id && !ids.includes(x.actionId)); b.actions = b.actions.filter(a => !ids.includes(a.id));
+        const pids = b.points.filter(p => p.tenueId === t.id).map(p => p.id); b.actions.forEach(a => { if (pids.includes(a.pointId)) a.pointId = null; });
+        b.points = b.points.filter(p => p.tenueId !== t.id); b.tenues = b.tenues.filter(x => x.id !== t.id); return null; }),
+      ajouterPoint: (tid, d) => run(() => { const t = tenue(tid), b = B(); d = d || {}; const n = Math.max(0, ...b.points.filter(p => p.tenueId === t.id).map(p => p.ordre)) + 1;
+        const p = { id: ++b.seq.p, tenueId: t.id, ordre: n, sujet: (d.sujet || "").trim(), responsable: (d.responsable || "").trim() || null, dureeMin: d.dureeMin ? Number(d.dureeMin) : null, objectif: (d.objectif || "").trim() || null, discussion: null, decisions: null, reporte: false };
+        b.points.push(p); return p.id; }),
+      majPoint: (id, d) => run(() => { const p = B().points.find(x => x.id === Number(id)); need(p, "Point introuvable."); tenue(p.tenueId);
+        if ("sujet" in d) p.sujet = (d.sujet || "").trim(); for (const k of ["responsable", "objectif", "discussion", "decisions"]) p[k] = txt(d, k, p[k]);
+        if ("dureeMin" in d) p.dureeMin = d.dureeMin === "" || d.dureeMin == null ? null : Number(d.dureeMin); if ("reporte" in d) p.reporte = !!d.reporte; return null; }),
+      deplacerPoint: (id, dir) => run(() => { const b = B(), p = b.points.find(x => x.id === Number(id)); need(p, "Point introuvable."); tenue(p.tenueId);
+        const l = b.points.filter(x => x.tenueId === p.tenueId).sort((x, y) => x.ordre - y.ordre); const o = l[l.indexOf(p) + (dir < 0 ? -1 : 1)];
+        if (o) [p.ordre, o.ordre] = [o.ordre, p.ordre]; return null; }),
+      supprimerPoint: id => run(() => { const b = B(), p = b.points.find(x => x.id === Number(id)); need(p, "Point introuvable."); tenue(p.tenueId);
+        b.actions.forEach(a => { if (a.pointId === p.id) a.pointId = null; }); b.points = b.points.filter(x => x.id !== p.id);
+        b.points.filter(x => x.tenueId === p.tenueId).sort((x, y) => x.ordre - y.ordre).forEach((x, i) => { x.ordre = i + 1; }); return null; }),
+      ajouterRaction: (tid, d) => run(() => { const t = tenue(tid), b = B(); need((d.texte || "").trim(), "Décrivez l'action.");
+        const a = Object.assign({ id: ++b.seq.a, rencontre: t.rencontre, tenueOrigine: t.id, pointId: d.pointId ? Number(d.pointId) : null, texte: d.texte.trim(), echeance: d.echeance || null, statut: "cours", depuis: t.date, fermeLe: null }, resp(d));
+        b.actions.push(a); return a.id; }),
+      majRaction: (id, tid, d) => run(() => { const b = B(), a = b.actions.find(x => x.id === Number(id)); need(a, "Action introuvable."); suite(a.rencontre);
+        const t = tid ? tenue(tid) : null; need(!t || t.rencontre === a.rencontre, "Cette action n'appartient pas à cette rencontre.");
+        if ("statut" in d) need(["cours", "bloque", "fait"].includes(d.statut), "Statut inconnu.");
+        if ((d.texte || "").trim()) a.texte = d.texte.trim();
+        if ("responsable" in d || "responsableId" in d) Object.assign(a, resp(d));
+        if ("echeance" in d) a.echeance = d.echeance || null;
+        if ("statut" in d) { if (d.statut === "fait" && a.statut !== "fait") a.fermeLe = t ? t.date : today(); if (d.statut !== "fait") a.fermeLe = null; a.statut = d.statut; }
+        if (t) suiviUpsert(a, t.id, d); return null; }),
+      supprimerRaction: id => run(() => { const b = B(), a = b.actions.find(x => x.id === Number(id)); need(a, "Action introuvable."); suite(a.rencontre);
+        b.suivis = b.suivis.filter(x => x.actionId !== a.id); b.actions = b.actions.filter(x => x.id !== a.id); return null; }),
+      ractions: f => { f = f || {}; const b = B();
+        let l = b.actions.filter(a => peut(b.suites.find(s => s.code === a.rencontre)));
+        if (f.rencontre) l = l.filter(a => a.rencontre === f.rencontre); if (f.statut === "ouvertes") l = l.filter(a => a.statut !== "fait");
+        return wait(l.map(a => { const sv = b.suivis.filter(x => x.actionId === a.id && x.avancement).sort((x, y) => (y.le || "").localeCompare(x.le || ""))[0];
+          return { id: a.id, rencontre: a.rencontre, serie: b.suites.find(s => s.code === a.rencontre).nom, texte: a.texte, responsable: respNom(a), echeance: a.echeance, statut: a.statut, depuis: a.depuis, fermeLe: a.fermeLe,
+            enRetard: a.statut !== "fait" && !!a.echeance && a.echeance < today(), dernierAvancement: sv ? sv.avancement : null, tenueOrigine: a.tenueOrigine }; })
+          .sort((x, y) => (x.echeance || "9999").localeCompare(y.echeance || "9999") || x.id - y.id)); }
+    };
+  }
+  function seedB() {
+    const b = { suites: [], tenues: [], points: [], actions: [], suivis: [], seq: { t: 0, p: 0, a: 0 } };
+    b.suites.push({ code: "SDEMO", nom: "Suivi hebdo avec le VP (démo)", frequence: "Hebdomadaire", dureeMin: 60, participants: "Gary Doyon, VP Opérations", prive: true, proprietaireId: 1, acces: [], actif: true });
+    const mkT = (ago, extra) => { const t = Object.assign({ id: ++b.seq.t, rencontre: "SDEMO", date: iso(ago), titre: "Suivi hebdo avec le VP", heureDebut: "13:00", heureFin: "14:00", lieu: "Salle de conférence", projet: "Production", redacteur: "Gary Doyon", prochaine: iso(ago - 7), presents: "Gary Doyon\nVP Opérations", absents: null, divers: null, tags: "production, suivi-hebdo", animeePar: 1 }, extra || {}); b.tenues.push(t); return t; };
+    const mkP = (t, l) => l.forEach(([sujet, responsable, discussion, decisions], i) => b.points.push({ id: ++b.seq.p, tenueId: t.id, ordre: i + 1, sujet, responsable, dureeMin: null, objectif: null, discussion, decisions, reporte: false }));
+    const t1 = mkT(14);
+    mkP(t1, [["Moteurs et approvisionnement", "Gary Doyon", "Commande de conteneur à préparer; risque de surplus sur deux modèles.", "Valider la simulation avant la commande."], ["Panneaux et qualité", "Contremaître Panneaux", "Reprises après test en hausse sur les relais.", null]]);
+    b.actions.push({ id: ++b.seq.a, rencontre: "SDEMO", tenueOrigine: t1.id, pointId: 1, texte: "Valider la simulation des frames avec la planificatrice", responsableId: 1, responsableTexte: null, echeance: iso(10), statut: "cours", depuis: t1.date, fermeLe: null });
+    b.actions.push({ id: ++b.seq.a, rencontre: "SDEMO", tenueOrigine: t1.id, pointId: 2, texte: "Pareto des reprises après test du mois", responsableId: 3, responsableTexte: null, echeance: iso(0), statut: "cours", depuis: t1.date, fermeLe: null });
+    const t2 = mkT(7);
+    mkP(t2, [["Moteurs et approvisionnement", "Gary Doyon", "Simulation présentée; commande ajustée.", null], ["Panneaux et qualité", "Contremaître Panneaux", null, null]]);
+    b.suivis.push({ actionId: 1, tenueId: t2.id, avancement: "Simulation faite, commande passée avec un modèle partagé moitié-moitié.", statut: "fait", echeance: iso(10), responsable: "Gary Doyon", texte: b.actions[0].texte, le: iso(7) });
+    b.actions[0].statut = "fait"; b.actions[0].fermeLe = t2.date;
+    b.suivis.push({ actionId: 2, tenueId: t2.id, avancement: "Données extraites, graphique à faire.", statut: "cours", echeance: iso(0), responsable: "Contremaître Panneaux", texte: b.actions[1].texte, le: iso(7) });
+    b.actions.push({ id: ++b.seq.a, rencontre: "SDEMO", tenueOrigine: t2.id, pointId: null, texte: "Préparer la rencontre avec les chefs (rôles et délégation)", responsableId: null, responsableTexte: "Gary", echeance: iso(-3), statut: "cours", depuis: t2.date, fermeLe: null });
+    return b;
+  }
 }
 
 /* Implémentation Supabase : lecture par les vues, écriture par les fonctions (RPC) qui appliquent les règles. */
@@ -505,6 +677,7 @@ function supabaseApi(cfg) {
   const mapA = r => ({ id: r.id, ecartId: r.ecart_id, sujetId: r.sujet_id, horizon: r.horizon, texte: r.texte, responsable: r.responsable, echeance: r.echeance, statut: r.statut, noEcart: r.no_ecart, dept: r.dept, enRetard: r.en_retard });
   const mapS = r => ({ id: r.id, rencontre: r.rencontre, titre: r.titre, responsable: r.responsable, statut: r.statut, prochaineRevue: r.prochaine_revue, notes: r.notes || [] });
   const mapT = r => ({ id: r.id, rencontre: r.rencontre, debut: r.debut, dureeMin: r.duree_min, decisions: r.decisions, animeePar: r.animee_par });
+  const mapR = r => ({ id: r.id, rencontre: r.rencontre, serie: r.serie, texte: r.texte, responsable: r.responsable, echeance: r.echeance, statut: r.statut, depuis: r.depuis, fermeLe: r.ferme_le, enRetard: r.en_retard, dernierAvancement: r.dernier_avancement, tenueOrigine: r.tenue_origine });
   const propre = q => String(q || "").replace(/[,()*%\\]/g, " ").trim();
   return {
     mode: "supabase",
@@ -556,6 +729,26 @@ function supabaseApi(cfg) {
       if (f.table) q = q.eq("table_nom", f.table);
       if (f.lignes) q = q.in("ligne", f.lignes.map(String));
       return ok(await q.order("le", { ascending: false }).limit(f.limite || 100)); },
+    suites: () => rpc("suites"),
+    tenuesSuite: code => rpc("tenues", { p_code: code }),
+    creerSerie: d => rpc("creer_serie", { p: d }),
+    majSerie: (code, d) => rpc("maj_serie", { p_code: code, p: d }),
+    partagerSerie: (code, ids) => rpc("partager_serie", { p_code: code, p_ids: ids }),
+    nouvelleTenue: (code, date) => rpc("nouvelle_tenue", { p_code: code, p_date: date || null }),
+    bilan: id => rpc("bilan", { p_tenue: Number(id) }),
+    majTenue: (id, d) => rpc("maj_tenue", { p_id: Number(id), p: d }),
+    supprimerTenue: id => rpc("supprimer_tenue", { p_id: Number(id) }),
+    ajouterPoint: (t, d) => rpc("ajouter_point", { p_tenue: Number(t), p: d || {} }),
+    majPoint: (id, d) => rpc("maj_point", { p_id: Number(id), p: d }),
+    deplacerPoint: (id, dir) => rpc("deplacer_point", { p_id: Number(id), p_dir: dir }),
+    supprimerPoint: id => rpc("supprimer_point", { p_id: Number(id) }),
+    ajouterRaction: (t, d) => rpc("ajouter_raction", { p_tenue: Number(t), p: d }),
+    majRaction: (id, t, d) => rpc("maj_raction", { p_id: Number(id), p_tenue: t ? Number(t) : null, p: d }),
+    supprimerRaction: id => rpc("supprimer_raction", { p_id: Number(id) }),
+    ractions: async f => { f = f || {}; let q = sb.from("v_raction").select("*");
+      if (f.rencontre) q = q.eq("rencontre", f.rencontre);
+      if (f.statut === "ouvertes") q = q.neq("statut", "fait");
+      return ok(await q.order("echeance", { ascending: true, nullsFirst: false }).order("id").limit(2000)).map(mapR); },
     exportCsvUrl: () => null
   };
 }
@@ -568,6 +761,260 @@ window.Api = (() => {
     return demoApi();
   } catch (err) { window.ApiErreur = err.message; return null; }
 })();
+
+</script>
+<script>
+/* Suites de rencontres et bilans (fusion de l'app « Rencontres EBI »).
+   Une suite regroupe des rencontres répétées (ex. Suivi hebdo avec Julien). Chaque rencontre a un bilan :
+   informations, présents, points (objectif, discussion, décisions), actions nouvelles et suivi des actions ouvertes.
+   Les suites sont privées par défaut : seuls le propriétaire et les personnes invitées les voient (règle appliquée par la base). */
+"use strict";
+
+let SUITES = [], BIL = null, BCONF = null;
+const BST = { cours: "En cours", bloque: "Bloqué", fait: "Fait" };
+const fmtL = iso => iso ? new Date(iso.slice(0, 10) + "T12:00:00").toLocaleDateString("fr-CA", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
+const bOpt = v => Object.entries(BST).map(([k, l]) => `<option value="${k}" ${v === k ? "selected" : ""}>${l}</option>`).join("");
+const bAttr = (k, id, f, t) => `data-b="${k}" data-id="${id}" data-f="${f}"${t !== undefined ? ` data-t="${t}"` : ""}`;
+const dlPers = () => `<datalist id="dl-pers">${(REF.personnes || []).map(p => `<option value="${esc(p.nom)}"></option>`).join("")}</datalist>`;
+const lignes = s => String(s || "").split(/\n/).map(x => x.trim()).filter(Boolean);
+const confid = s => s.prive ? (s.acces && s.acces.length ? `Privée · ${esc(s.proprietaire || "")} et ${s.acces.map(p => esc(p.nom)).join(", ")}` : `Privée · visible par ${s.estProprietaire ? "toi" : esc(s.proprietaire || "le propriétaire")} seulement`) : "Visible par tous les membres du DMS";
+const stOf = (a, t) => a.suivi ? a.suivi.statut : (a.fermeLe && a.fermeLe > t.date ? "cours" : a.statut);
+const ufR = () => (ui.fR = ui.fR || { statut: "ouvertes", suite: "" });
+
+async function chargerSuites() { SUITES = Api.suites ? await Api.suites() : []; return SUITES; }
+
+/* ---------- Liste de gauche ---------- */
+function suitesAside() {
+  if (!Api.suites) return "";
+  const l = SUITES.filter(s => s.actif !== false);
+  return `<div class="dept">Mes suites de rencontres</div>${l.map(s => `<button type="button" class="meet-item" data-act="b-suite" data-code="${esc(s.code)}" aria-pressed="${ui.suite === s.code}"><span class="n">${esc(s.nom)}</span> ${s.prive ? `<span class="pill neutral">Privée</span>` : `<span class="pill lvl">Partagée</span>`}<div class="f">${s.nbTenues} rencontre(s)${s.derniere ? " · dernière " + fmtD(s.derniere) : ""}${s.actionsOuvertes ? ` · ${s.actionsOuvertes} action(s) ouverte(s)` : ""}</div></button>`).join("")}
+  <button class="btn small" type="button" data-act="b-new-suite" style="margin:2px 0 4px">+ Nouvelle suite</button>`;
+}
+
+/* ---------- Vue d'une suite ---------- */
+async function vSuite(aside) {
+  const s = SUITES.find(x => x.code === ui.suite);
+  if (!s) { ui.suite = null; ui.tenue = null; return null; }
+  if (ui.tenue) return vBilan();
+  const [tenues, acts] = await Promise.all([Api.tenuesSuite(s.code), Api.ractions({ rencontre: s.code, statut: "ouvertes" })]);
+  const head = `<div class="meet-head"><div><h2>${esc(s.nom)}</h2><div class="meta"><span>${esc(s.frequence || "")}</span>${s.participants ? `<span>Participants : ${esc(s.participants)}</span>` : ""}</div>
+    <div class="meta"><span class="pill ${s.prive ? "neutral" : "lvl"}">${confid(s)}</span></div></div>
+    <div class="row">${s.estProprietaire ? `<button class="btn" type="button" data-act="b-params">Paramètres et partage</button>` : ""}<button class="btn primary" type="button" data-act="b-new-tenue">+ Nouvelle rencontre</button></div></div>`;
+  const hist = tenues.length ? `<div class="scroll"><table class="t"><thead><tr><th>Date</th><th>Titre</th><th>Lieu</th><th>Points</th><th>Actions nouvelles</th><th>Actions réglées</th></tr></thead><tbody>${tenues.map(t => `<tr class="click" data-act="b-open" data-id="${t.id}"><td class="num">${fmtD(t.date)} ${t.date.slice(0, 4)}</td><td>${esc(t.titre || s.nom)}</td><td>${esc(t.lieu || "")}</td><td class="num">${t.nbPoints}</td><td class="num">${t.nbNouvelles}</td><td class="num">${t.nbFermees}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Aucune rencontre pour l'instant. Commencez par « Nouvelle rencontre ».</div>`;
+  return `<div class="layout-meet"><aside class="meet-list" aria-label="Rencontres">${aside}</aside><section>${head}
+   <div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">Historique</h3>${hist}</div>
+   <div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">Actions ouvertes (${acts.length})</h3>${acts.length ? ractTable(acts, false) : `<div class="empty">Aucune action ouverte.</div>`}</div></section></div>`;
+}
+
+/* ---------- Éditeur de bilan ---------- */
+async function vBilan() {
+  const b = BIL = await Api.bilan(ui.tenue); const t = b.tenue, id = t.id;
+  const suivis = b.actions.filter(a => !a.nouveau), nouv = b.actions.filter(a => a.nouveau);
+  const nav = `<div class="row between" style="margin-bottom:12px"><div class="row"><button class="btn small" type="button" data-act="b-back">← ${esc(b.serie.nom)}</button>
+     ${b.precedente ? `<button class="btn small" type="button" data-act="b-open" data-id="${b.precedente.id}">‹ ${fmtD(b.precedente.date)}</button>` : ""}${b.suivante ? `<button class="btn small" type="button" data-act="b-open" data-id="${b.suivante.id}">${fmtD(b.suivante.date)} ›</button>` : ""}</div>
+     <div class="row"><button class="btn small" type="button" data-act="b-chg">Changements</button><button class="btn small" type="button" data-act="b-md">Copier en Markdown</button><button class="btn small" type="button" data-act="b-obs">Télécharger .md (Obsidian)</button><button class="btn small" type="button" data-act="b-pdf">PDF / imprimer</button></div></div>`;
+  const f = (k, l, v, type, ph) => `<label for="bt-${k}">${l}<input id="bt-${k}" ${type ? `type="${type}"` : ""} ${bAttr("tenue", id, k)} value="${esc(v || "")}" ${ph ? `placeholder="${ph}"` : ""}></label>`;
+  const head = `<div class="card"><input class="bil-title" ${bAttr("tenue", id, "titre")} value="${esc(t.titre || b.serie.nom)}" aria-label="Titre de la rencontre">
+    <div class="row between" style="margin:2px 6px 10px"><span class="muted">${esc(fmtL(t.date))}</span><span id="b-etat" class="etat muted" role="status">Enregistrement automatique</span></div>
+    <div class="form bil-meta">${f("date", "Date", t.date, "date")}${f("heureDebut", "Début", t.heureDebut, "", "11:00")}${f("heureFin", "Fin", t.heureFin, "", "12:00")}${f("prochaine", "Prochaine rencontre", t.prochaine, "date")}
+    ${f("lieu", "Lieu", t.lieu)}${f("projet", "Projet", t.projet)}${f("redacteur", "Rédacteur", t.redacteur)}${f("tags", "Étiquettes", t.tags, "", "production, moteurs")}
+    <label class="span2" for="bt-presents">Présents (un par ligne)<textarea id="bt-presents" ${bAttr("tenue", id, "presents")}>${esc(t.presents || "")}</textarea></label>
+    <label class="span2" for="bt-absents">Absents<textarea id="bt-absents" ${bAttr("tenue", id, "absents")}>${esc(t.absents || "")}</textarea></label></div></div>`;
+  const suiviH = `<div class="card"><div class="row between"><h3>Suivi des actions (${suivis.length})</h3><span class="small muted">${b.precedente ? "Actions ouvertes reportées des rencontres précédentes." : "Première rencontre de la suite."}</span></div>
+    <div style="margin-top:10px">${suivis.length ? suivis.map(a => actSuiviHtml(a, t)).join("") : `<div class="empty">Aucune action à suivre.</div>`}</div></div>`;
+  const pts = b.points.map((p, i) => pointHtml(p, i, b.points.length, nouv.filter(a => a.pointId === p.id), id)).join("");
+  const libres = nouv.filter(a => !b.points.some(p => p.id === a.pointId));
+  const ptsH = `<div class="card"><h3 style="margin-bottom:10px">Points de la rencontre</h3>${pts || `<div class="empty">Aucun point.</div>`}
+    ${libres.length ? `<div class="bil-pt"><div class="bil-pt-h"><strong>Autres actions de cette rencontre</strong></div><div style="padding:10px">${libres.map(a => actNewHtml(a)).join("")}</div></div>` : ""}
+    <button class="btn" type="button" data-act="b-add-pt">+ Ajouter un point</button></div>`;
+  const div = `<div class="card"><label class="bil-lbl" for="bt-divers">Divers<textarea id="bt-divers" ${bAttr("tenue", id, "divers")}>${esc(t.divers || "")}</textarea></label></div>`;
+  return `<div class="bil">${dlPers()}${nav}${head}${suiviH}${ptsH}${div}<div class="row between"><span class="small muted">Animée par ${esc(t.animeePar || "")} · ${esc(confid(b.serie))}</span><button class="btn small" type="button" data-act="b-del-tenue">Retirer cette rencontre</button></div></div>`;
+}
+function actSuiviHtml(a, t) {
+  const s = a.suivi || {}, st = stOf(a, t);
+  const resp = a.suivi ? s.responsable : a.responsable, ech = a.suivi ? s.echeance : a.echeance;
+  const prec = a.prec && a.prec.avancement ? `<div class="small muted bil-prec">Au ${fmtD(a.prec.date)} : ${esc(a.prec.avancement)}</div>` : "";
+  return `<div class="bil-act" data-st="${st}"><div><label>Action<textarea ${bAttr("ract", a.id, "texte", t.id)} rows="3">${esc(a.texte)}</textarea></label>${prec}<div class="small muted">Depuis le ${fmtD(a.depuis)}${ech && ech < t.date && st !== "fait" ? ` · <span class="pill bad">échéance dépassée</span>` : ""}</div></div>
+   <div class="bil-act-f"><label class="span2">Responsable<input list="dl-pers" ${bAttr("ract", a.id, "responsable", t.id)} value="${esc(resp || "")}"></label>
+    <label>Échéance<input type="date" ${bAttr("ract", a.id, "echeance", t.id)} value="${esc(ech || "")}"></label><label>Statut<select ${bAttr("ract", a.id, "statut", t.id)}>${bOpt(st)}</select></label></div>
+   <label>Avancement à cette rencontre<textarea ${bAttr("ract", a.id, "avancement", t.id)} rows="3">${esc(s.avancement || "")}</textarea></label></div>`;
+}
+function actNewHtml(a) {
+  return `<div class="bil-new" data-st="${a.statut}"><input ${bAttr("ract", a.id, "texte", "")} value="${esc(a.texte)}" aria-label="Action"><input list="dl-pers" ${bAttr("ract", a.id, "responsable", "")} value="${esc(a.responsable || "")}" placeholder="Responsable" aria-label="Responsable">
+   <input type="date" ${bAttr("ract", a.id, "echeance", "")} value="${esc(a.echeance || "")}" aria-label="Échéance"><select ${bAttr("ract", a.id, "statut", "")} aria-label="Statut">${bOpt(a.statut)}</select>
+   <button class="btn small" type="button" data-act="b-del-act" data-id="${a.id}" aria-label="Retirer l'action" title="Retirer l'action">✕</button></div>`;
+}
+function pointHtml(p, i, n, acts, tid) {
+  const a = (f, l, ta) => ta ? `<label>${l}<textarea ${bAttr("point", p.id, f)}>${esc(p[f] || "")}</textarea></label>` : `<label class="span2">${l}<input ${bAttr("point", p.id, f)} value="${esc(p[f] || "")}"></label>`;
+  return `<div class="bil-pt"><div class="bil-pt-h"><span class="ag-n">${i + 1}</span><input class="bil-sujet" ${bAttr("point", p.id, "sujet")} value="${esc(p.sujet)}" placeholder="Sujet" aria-label="Sujet du point ${i + 1}">
+    <input class="w-resp" list="dl-pers" ${bAttr("point", p.id, "responsable")} value="${esc(p.responsable || "")}" placeholder="Responsable" aria-label="Responsable du point">
+    <input class="w-min" type="number" min="0" ${bAttr("point", p.id, "dureeMin")} value="${p.dureeMin ?? ""}" placeholder="min" aria-label="Durée en minutes">
+    <button class="btn small" type="button" data-act="b-up" data-id="${p.id}" ${i === 0 ? "disabled" : ""} aria-label="Monter le point" title="Monter">↑</button><button class="btn small" type="button" data-act="b-down" data-id="${p.id}" ${i === n - 1 ? "disabled" : ""} aria-label="Descendre le point" title="Descendre">↓</button><button class="btn small" type="button" data-act="b-del-pt" data-id="${p.id}" aria-label="Retirer le point" title="Retirer">✕</button></div>
+   <div class="form bil-pt-b">${a("objectif", "Objectif")}${a("discussion", "Discussion", 1)}${a("decisions", "Décisions", 1)}
+    <div class="span2"><div class="small muted" style="margin-bottom:2px">Actions</div>${acts.map(actNewHtml).join("")}
+     <div class="bil-new bil-add" data-point="${p.id}"><input class="na-t" placeholder="Nouvelle action…" aria-label="Nouvelle action"><input class="na-r" list="dl-pers" placeholder="Responsable" aria-label="Responsable de la nouvelle action"><input class="na-e" type="date" aria-label="Échéance de la nouvelle action"><span></span><button class="btn small" type="button" data-act="b-add-act" data-point="${p.id}">Ajouter</button></div></div></div></div>`;
+}
+
+/* ---------- Actions de rencontres (onglet Actions et vue d'une suite) ---------- */
+function ractTable(list, withSuite) {
+  return `<div class="scroll"><table class="t"><thead><tr>${withSuite ? "<th>Suite</th>" : ""}<th>Action</th><th>Responsable</th><th>Échéance</th><th>Depuis</th><th>Statut</th><th>Dernier avancement</th></tr></thead><tbody>${list.map(a => `<tr>${withSuite ? `<td><button class="btn small" type="button" data-act="b-goto" data-code="${esc(a.rencontre)}">${esc(a.serie)}</button></td>` : ""}<td style="min-width:260px">${esc(a.texte)}</td><td>${esc(a.responsable || "")}</td><td class="num">${a.enRetard ? `<span class="pill bad">${fmtD(a.echeance)}</span>` : fmtD(a.echeance)}</td><td class="num">${fmtD(a.depuis)}</td>
+   <td><select ${bAttr("ract", a.id, "statut", "")} data-rr="1" aria-label="Statut">${bOpt(a.statut)}</select></td><td class="small">${esc(a.dernierAvancement || "")}</td></tr>`).join("")}</tbody></table></div>`;
+}
+async function ractionsCard() {
+  if (!Api.ractions) return "";
+  const f = ufR(); const list = await Api.ractions({ statut: f.statut, rencontre: f.suite });
+  return `<div class="card" style="margin-top:14px"><h3>Actions de rencontres</h3><p class="small muted" style="margin:2px 0 0">Actions décidées dans les suites de rencontres (bilans), suivies à part des actions d'écarts.</p>
+   <div class="filters"><select id="fr-suite" aria-label="Suite">${opt([["", "Toutes les suites"], ...SUITES.map(s => [s.code, s.nom])], f.suite)}</select><select id="fr-statut" aria-label="Statut">${opt([["ouvertes", "Ouvertes"], ["", "Toutes"]], f.statut)}</select><span class="muted small">${list.length} action(s)</span></div>
+   ${list.length ? ractTable(list, true) : `<div class="empty">Aucune action.</div>`}</div>`;
+}
+
+/* ---------- Enregistrement automatique ---------- */
+const bTimers = new Map();
+function setEtat(m, bad) { const e = $("#b-etat"); if (e) { e.textContent = m; e.classList.toggle("bad", !!bad); } }
+function bSave(el) {
+  const k = el.dataset.b, id = el.dataset.id, f = el.dataset.f; const v = el.value;
+  if (el.dataset.v === v) return Promise.resolve();
+  el._p = (el._p || Promise.resolve()).then(async () => {
+    if (el.dataset.v === v) return;
+    setEtat("Enregistrement…");
+    try {
+      const d = { [f]: f === "dureeMin" ? (v === "" ? "" : Number(v)) : v };
+      if (k === "tenue") await Api.majTenue(id, d);
+      else if (k === "point") await Api.majPoint(id, d);
+      else if (k === "ract") await Api.majRaction(id, el.dataset.t || null, d);
+      el.dataset.v = v;
+      setEtat("Enregistré à " + new Date().toLocaleTimeString("fr-CA", { hour: "2-digit", minute: "2-digit" }));
+      if (k === "ract" && f === "statut") { const r = el.closest("[data-st]"); if (r) r.dataset.st = v; if (el.dataset.rr) { chargerSuites(); render(); } }
+      if (k === "tenue" && f === "date") render();
+    } catch (err) { setEtat("Non enregistré : " + err.message, true); alertBox(err.message); }
+  });
+  return el._p;
+}
+async function bFlush() { const l = [...bTimers.entries()]; bTimers.clear(); for (const [el, h] of l) { clearTimeout(h); await bSave(el); } }
+
+/* ---------- Changements, exports ---------- */
+function bChangements(b) {
+  const t = b.tenue, acts = b.actions.filter(a => !a.nouveau);
+  const g = { regle: [], bloque: [], avance: [], sans: [] };
+  acts.forEach(a => { const st = stOf(a, t); if (st === "fait") g.regle.push(a); else if (st === "bloque") g.bloque.push(a); else if (a.suivi && a.suivi.avancement) g.avance.push(a); else g.sans.push(a); });
+  const nouv = b.actions.filter(a => a.nouveau);
+  const bloc = (l, titre, cls) => `<div class="chg"><h3><span class="pill ${cls}">${l.length}</span> ${titre}</h3>${l.length ? `<ul>${l.map(a => `<li><strong>${esc(a.texte.length > 160 ? a.texte.slice(0, 157) + "…" : a.texte)}</strong><span class="small muted"> · ${esc(a.responsable || "sans responsable")}</span>${a.suivi && a.suivi.avancement ? `<div class="small">${esc(a.suivi.avancement)}</div>` : ""}</li>`).join("")}</ul>` : `<div class="small muted">Aucune.</div>`}</div>`;
+  return `<h2>Changements depuis ${b.precedente ? "le " + fmtD(b.precedente.date) : "le début"}</h2>
+   ${bloc(g.regle, "Réglées", "ok")}${bloc(g.avance, "Avancées", "lvl")}${bloc(g.bloque, "Bloquées", "bad")}${bloc(nouv, "Nouvelles", "warn")}${bloc(g.sans, "Sans changement", "neutral")}
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" type="button" data-act="close">Fermer</button></div>`;
+}
+function bMarkdown(b, obsidian) {
+  const t = b.tenue, L = [], q = s => `"${String(s || "").replace(/"/g, "'")}"`;
+  const tags = String(t.tags || "").split(/[,;]/).map(x => x.trim().replace(/\s+/g, "-")).filter(Boolean);
+  if (obsidian) L.push("---", `titre: ${q(t.titre || b.serie.nom)}`, `date: ${t.date}`, `serie: ${q(b.serie.nom)}`, `lieu: ${q(t.lieu)}`, `projet: ${q(t.projet)}`, `redacteur: ${q(t.redacteur)}`, ...(t.prochaine ? [`prochaine: ${t.prochaine}`] : []), `tags: [${tags.join(", ")}]`, "---", "");
+  L.push(`# ${t.titre || b.serie.nom} — ${fmtL(t.date)}`, "");
+  const meta = [t.heureDebut || t.heureFin ? `**Heure** : ${t.heureDebut || ""}${t.heureFin ? " à " + t.heureFin : ""}` : "", t.lieu ? `**Lieu** : ${t.lieu}` : "", t.projet ? `**Projet** : ${t.projet}` : "", t.redacteur ? `**Rédacteur** : ${t.redacteur}` : "", t.prochaine ? `**Prochaine rencontre** : ${fmtL(t.prochaine)}` : ""].filter(Boolean);
+  if (meta.length) L.push(meta.join("  \n"), "");
+  if (lignes(t.presents).length) L.push(`**Présents** : ${lignes(t.presents).join(", ")}`);
+  if (lignes(t.absents).length) L.push(`**Absents** : ${lignes(t.absents).join(", ")}`);
+  L.push("");
+  const act = (a, st, av, resp, ech) => { L.push(`- [${st === "fait" ? "x" : " "}] ${a.texte.replace(/\n+/g, " ")} — *${resp || "sans responsable"}*${ech ? `, échéance ${ech}` : ""} · **${BST[st]}**`); if (av) L.push(`  - Avancement : ${av.replace(/\n+/g, " ")}`); };
+  const suivis = b.actions.filter(a => !a.nouveau);
+  if (suivis.length) { L.push("## Suivi des actions", ""); suivis.forEach(a => act(a, stOf(a, t), a.suivi && a.suivi.avancement, a.suivi ? a.suivi.responsable : a.responsable, a.suivi ? a.suivi.echeance : a.echeance)); L.push(""); }
+  if (b.points.length) L.push("## Points", "");
+  b.points.forEach((p, i) => {
+    L.push(`### ${i + 1}. ${p.sujet || "Sans titre"}${p.responsable ? ` (${p.responsable})` : ""}${p.dureeMin ? ` · ${p.dureeMin} min` : ""}`, "");
+    if (p.objectif) L.push(`**Objectif** : ${p.objectif}`, "");
+    if (p.discussion) L.push("**Discussion**", "", p.discussion, "");
+    if (p.decisions) L.push("**Décisions**", "", p.decisions, "");
+    const acts = b.actions.filter(a => a.nouveau && a.pointId === p.id);
+    if (acts.length) { L.push("**Actions**", ""); acts.forEach(a => act(a, a.statut, null, a.responsable, a.echeance)); L.push(""); }
+  });
+  const autres = b.actions.filter(a => a.nouveau && !b.points.some(p => p.id === a.pointId));
+  if (autres.length) { L.push("## Autres actions", ""); autres.forEach(a => act(a, a.statut, null, a.responsable, a.echeance)); L.push(""); }
+  if (t.divers) L.push("## Divers", "", t.divers, "");
+  return L.join("\n").replace(/\n{3,}/g, "\n\n");
+}
+function bPrintHtml(b) {
+  const t = b.tenue, br = s => esc(s || "").replace(/\n/g, "<br>"), cfg = window.DMS_CONFIG || {};
+  const actRow = (a, st, av, resp, ech) => `<tr><td>${br(a.texte)}${av ? `<div class="pr-av">${br(av)}</div>` : ""}</td><td>${esc(resp || "")}</td><td>${ech ? fmtD(ech) : ""}</td><td>${BST[st]}</td></tr>`;
+  const suivis = b.actions.filter(a => !a.nouveau);
+  return `<div class="pr-h"><div><strong>EBI Electric</strong> · Bilan de rencontre</div><div>${esc(b.serie.nom)}</div></div>
+   <h1>${esc(t.titre || b.serie.nom)}</h1><div class="pr-m">${esc(fmtL(t.date))}${t.heureDebut ? ` · ${esc(t.heureDebut)}${t.heureFin ? "–" + esc(t.heureFin) : ""}` : ""}${t.lieu ? " · " + esc(t.lieu) : ""}${t.projet ? " · " + esc(t.projet) : ""}</div>
+   <div class="pr-m">${[t.redacteur ? "Rédacteur : " + esc(t.redacteur) : "", t.prochaine ? "Prochaine rencontre : " + esc(fmtL(t.prochaine)) : ""].filter(Boolean).join(" · ")}</div>
+   <p><strong>Présents :</strong> ${esc(lignes(t.presents).join(", "))}${lignes(t.absents).length ? `<br><strong>Absents :</strong> ${esc(lignes(t.absents).join(", "))}` : ""}</p>
+   ${suivis.length ? `<h2>Suivi des actions</h2><table><thead><tr><th>Action et avancement</th><th>Responsable</th><th>Échéance</th><th>Statut</th></tr></thead><tbody>${suivis.map(a => actRow(a, stOf(a, t), a.suivi && a.suivi.avancement, a.suivi ? a.suivi.responsable : a.responsable, a.suivi ? a.suivi.echeance : a.echeance)).join("")}</tbody></table>` : ""}
+   ${b.points.length ? "<h2>Points</h2>" : ""}${b.points.map((p, i) => { const acts = b.actions.filter(a => a.nouveau && a.pointId === p.id);
+     return `<div class="pr-pt"><h3>${i + 1}. ${esc(p.sujet || "Sans titre")}${p.responsable ? ` <span class="pr-r">(${esc(p.responsable)})</span>` : ""}</h3>${p.objectif ? `<p><strong>Objectif :</strong> ${br(p.objectif)}</p>` : ""}${p.discussion ? `<p><strong>Discussion :</strong><br>${br(p.discussion)}</p>` : ""}${p.decisions ? `<p><strong>Décisions :</strong><br>${br(p.decisions)}</p>` : ""}
+       ${acts.length ? `<table><thead><tr><th>Action</th><th>Responsable</th><th>Échéance</th><th>Statut</th></tr></thead><tbody>${acts.map(a => actRow(a, a.statut, null, a.responsable, a.echeance)).join("")}</tbody></table>` : ""}</div>`; }).join("")}
+   ${t.divers ? `<h2>Divers</h2><p>${br(t.divers)}</p>` : ""}
+   <div class="pr-f">Portail DMS EBI v${esc(cfg.version || "")} · imprimé le ${new Date().toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" })}</div>`;
+}
+function bFichier(b) { return (b.tenue.date + " " + (b.serie.nom || "rencontre")).replace(/[\\/:*?"<>|]+/g, "-").trim() + ".md"; }
+
+/* ---------- Fenêtres ---------- */
+function bConfirm(titre, texte, fn) { BCONF = fn; modal(`<h2>${esc(titre)}</h2><p>${esc(texte)}</p><div class="row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="button" data-act="b-ok">Retirer</button></div>`); }
+function bNouvelleSuite() {
+  modal(`<h2>Nouvelle suite de rencontres</h2><form id="f-suite" class="form"><label class="full" for="ns-nom">Nom<input id="ns-nom" maxlength="120" required placeholder="Ex. Suivi hebdo avec Julien"></label>
+   <label for="ns-freq">Fréquence<input id="ns-freq" maxlength="60" value="Hebdomadaire"></label><label for="ns-part">Participants<input id="ns-part" maxlength="300"></label>
+   <label class="check full" for="ns-prive"><input type="checkbox" id="ns-prive" checked>Privée : visible par toi seulement (tu pourras inviter des personnes ensuite)</label>
+   <div id="ns-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Créer</button></div></form>`);
+}
+function bParams(s) {
+  const autres = (REF.personnes || []).filter(p => p.id !== ME.id);
+  modal(`<h2>Paramètres et partage</h2><form id="f-params" class="form"><label class="full" for="sp-nom">Nom<input id="sp-nom" maxlength="120" value="${esc(s.nom)}" required></label>
+   <label for="sp-freq">Fréquence<input id="sp-freq" maxlength="60" value="${esc(s.frequence || "")}"></label><label for="sp-part">Participants<input id="sp-part" maxlength="300" value="${esc(s.participants || "")}"></label>
+   <label class="check full" for="sp-prive"><input type="checkbox" id="sp-prive" ${s.prive ? "checked" : ""}>Privée : seuls toi et les personnes cochées ci-dessous la voient</label>
+   <div class="full"><div class="small muted" style="margin-bottom:4px">Personnes invitées</div>${autres.length ? `<div class="collabs">${autres.map(p => `<label class="check" for="sp-p${p.id}"><input type="checkbox" class="sp-acc" value="${p.id}" id="sp-p${p.id}" ${(s.acces || []).some(x => x.id === p.id) ? "checked" : ""}>${esc(p.nom)}</label>`).join("")}</div>` : `<div class="small muted">Aucune autre personne n'est inscrite dans le DMS pour l'instant. Une personne ajoutée dans Administration pourra être invitée ici.</div>`}</div>
+   <div class="full small muted">Les invités voient et modifient les bilans de cette suite. L'administrateur du DMS ne voit pas une suite privée s'il n'est pas invité.</div>
+   <div id="sp-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`);
+}
+
+/* ---------- Événements ---------- */
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='b-']"); if (!a || a.disabled) return; const act = a.dataset.act;
+  try {
+    if (act === "b-suite") { await bFlush(); ui.suite = a.dataset.code; ui.tenue = null; ui.run = null; render(); }
+    else if (act === "b-goto") { ui.suite = a.dataset.code; ui.tenue = null; if (route() === "rencontres") render(); else location.hash = "rencontres"; }
+    else if (act === "b-new-suite") bNouvelleSuite();
+    else if (act === "b-params") bParams(SUITES.find(s => s.code === ui.suite));
+    else if (act === "b-open") { await bFlush(); ui.tenue = Number(a.dataset.id); await render(); window.scrollTo(0, 0); }
+    else if (act === "b-back") { await bFlush(); ui.tenue = null; await chargerSuites(); render(); }
+    else if (act === "b-new-tenue") modal(`<h2>Nouvelle rencontre</h2><form id="f-tenue" class="form"><label for="nt-date">Date<input id="nt-date" type="date" value="${isoToday()}" required></label>
+       <div class="full small muted">Les informations et les points de la dernière rencontre sont repris. Les actions ouvertes se reportent automatiquement dans le suivi.</div>
+       <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Créer</button></div></form>`);
+    else if (act === "b-add-pt") { await bFlush(); const id = await Api.ajouterPoint(ui.tenue, {}); await render(); const el = document.querySelector(`[data-b="point"][data-id="${id}"][data-f="sujet"]`); if (el) el.focus(); }
+    else if (act === "b-up" || act === "b-down") { await bFlush(); await Api.deplacerPoint(a.dataset.id, act === "b-up" ? -1 : 1); render(); }
+    else if (act === "b-del-pt") bConfirm("Retirer ce point?", "Le point et son contenu seront retirés de ce bilan. Ses actions restent dans la liste.", async () => { await Api.supprimerPoint(a.dataset.id); });
+    else if (act === "b-del-act") bConfirm("Retirer cette action?", "L'action et son historique de suivi seront retirés.", async () => { await Api.supprimerRaction(a.dataset.id); });
+    else if (act === "b-del-tenue") bConfirm("Retirer cette rencontre?", "Le bilan, ses points et les actions créées à cette rencontre seront retirés. Les autres rencontres de la suite restent.", async () => { await Api.supprimerTenue(ui.tenue); ui.tenue = null; await chargerSuites(); });
+    else if (act === "b-ok") { const fn = BCONF; BCONF = null; closeModal(); await bFlush(); if (fn) await fn(); render(); }
+    else if (act === "b-add-act") { const box = a.closest(".bil-add"); const texte = box.querySelector(".na-t").value.trim();
+      if (!texte) { box.querySelector(".na-t").focus(); return; }
+      await bFlush(); await Api.ajouterRaction(ui.tenue, { texte, responsable: box.querySelector(".na-r").value.trim(), echeance: box.querySelector(".na-e").value, pointId: Number(a.dataset.point) || null }); await render();
+      const nb = document.querySelector(`.bil-add[data-point="${a.dataset.point}"] .na-t`); if (nb) nb.focus(); }
+    else if (act === "b-chg") { await bFlush(); modal(bChangements(await Api.bilan(ui.tenue))); }
+    else if (act === "b-md") { await bFlush(); const md = bMarkdown(await Api.bilan(ui.tenue), false);
+      try { await navigator.clipboard.writeText(md); setEtat("Bilan copié en Markdown."); }
+      catch (e) { modal(`<h2>Bilan en Markdown</h2><textarea id="md-out" style="width:100%;min-height:340px;font-family:ui-monospace,monospace;font-size:.85rem">${esc(md)}</textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><span class="small muted">Sélectionnez puis Ctrl+C.</span><button class="btn" type="button" data-act="close">Fermer</button></div>`); $("#md-out").select(); } }
+    else if (act === "b-obs") { await bFlush(); const b = await Api.bilan(ui.tenue); const url = URL.createObjectURL(new Blob([bMarkdown(b, true)], { type: "text/markdown;charset=utf-8" }));
+      const l = document.createElement("a"); l.href = url; l.download = bFichier(b); document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); setEtat("Fichier " + bFichier(b) + " téléchargé."); }
+    else if (act === "b-pdf") { await bFlush(); const b = await Api.bilan(ui.tenue); let pa = $("#print-area"); if (!pa) { pa = document.createElement("div"); pa.id = "print-area"; document.body.appendChild(pa); }
+      pa.innerHTML = bPrintHtml(b); document.body.classList.add("printing"); const prev = document.title; document.title = bFichier(b).replace(/\.md$/, "");
+      setTimeout(() => { window.print(); document.title = prev; document.body.classList.remove("printing"); }, 50); }
+  } catch (err) { alertBox(err.message); }
+});
+document.addEventListener("input", ev => { const el = ev.target; if (!el.dataset || !el.dataset.b || el.tagName === "SELECT" || el.type === "date") return;
+  clearTimeout(bTimers.get(el)); bTimers.set(el, setTimeout(() => { bTimers.delete(el); bSave(el); }, 1200)); setEtat("Modifications en cours…"); });
+document.addEventListener("change", ev => { const el = ev.target;
+  if (el.dataset && el.dataset.b) { clearTimeout(bTimers.get(el)); bTimers.delete(el); bSave(el); return; }
+  if (el.id === "fr-suite") { ufR().suite = el.value; render(); } else if (el.id === "fr-statut") { ufR().statut = el.value; render(); } });
+document.addEventListener("submit", async ev => {
+  const id = ev.target.id; if (!["f-suite", "f-params", "f-tenue"].includes(id)) return; ev.preventDefault();
+  try {
+    if (id === "f-suite") { const code = await Api.creerSerie({ nom: $("#ns-nom").value, frequence: $("#ns-freq").value, participants: $("#ns-part").value, prive: $("#ns-prive").checked });
+      await chargerSuites(); ui.suite = code; ui.tenue = null; closeModal(); if (route() === "rencontres") render(); else location.hash = "rencontres"; }
+    if (id === "f-params") { const code = ui.suite; await Api.majSerie(code, { nom: $("#sp-nom").value, frequence: $("#sp-freq").value, participants: $("#sp-part").value, prive: $("#sp-prive").checked });
+      await Api.partagerSerie(code, [...document.querySelectorAll(".sp-acc:checked")].map(x => Number(x.value))); await chargerSuites(); closeModal(); render(); }
+    if (id === "f-tenue") { const tid = await Api.nouvelleTenue(ui.suite, $("#nt-date").value); closeModal(); await chargerSuites(); ui.tenue = Number(tid); await render(); window.scrollTo(0, 0); }
+  } catch (err) { const m = $("#ns-msg") || $("#sp-msg"); if (m) formErr(m.id, err.message); else alertBox(err.message); }
+});
+window.addEventListener("beforeunload", ev => { if (bTimers.size) { bFlush(); ev.preventDefault(); ev.returnValue = ""; } });
 
 </script>
 <script>
@@ -606,13 +1053,14 @@ async function boot() {
   }
   try {
     [ME, REF, RENC] = await Promise.all([Api.moi(), Api.referentiels(), Api.rencontres()]);
+    await chargerSuites();
   } catch (err) {
     if (Api.mode === "supabase") { await Api.deconnexion(); showLogin(err.message); return; }
     $("#app").innerHTML = `<div class="error">Le portail n'arrive pas à joindre le serveur DMS : ${esc(err.message)}</div>`; return; }
   const cfg = window.DMS_CONFIG;
   $("#version").textContent = `v${cfg.version} · ${cfg.dateVersion}`;
   renderWho();
-  if (!ui.meeting) ui.meeting = (RENC.find(r => myTeams().includes(r.equipe)) || RENC[0]).code;
+  if (!ui.meeting && RENC.length) ui.meeting = (RENC.find(r => myTeams().includes(r.equipe)) || RENC[0]).code;
   render();
 }
 function showLogin(msg) {
@@ -659,7 +1107,7 @@ async function vAccueil() {
   const date = new Date().toLocaleDateString("fr-CA", { weekday: "long", day: "numeric", month: "long" });
   return `<div class="row between" style="margin-bottom:14px"><div><h2>Bonjour ${esc(prenom)}</h2><div class="muted">${date} · ${esc(ME.role || "")}</div></div><button class="btn primary" type="button" data-act="new">+ Documenter un écart</button></div>
   <div class="home">
-   <div class="card"><h3>Mes rencontres</h3>${meets.length ? `<ul class="list-plain">${meets.map(r => `<li><span><strong>${esc(r.nom)}</strong><br><span class="small muted">${esc(r.frequence)} · ${r.dureeMin} min</span></span><button class="btn small" type="button" data-act="goto-meet" data-code="${r.code}">Ouvrir</button></li>`).join("")}</ul>` : `<div class="empty">Aucune rencontre attitrée.</div>`}</div>
+   <div class="card"><h3>Mes rencontres</h3>${meets.length || SUITES.length ? `<ul class="list-plain">${meets.map(r => `<li><span><strong>${esc(r.nom)}</strong><br><span class="small muted">${esc(r.frequence)} · ${r.dureeMin} min</span></span><button class="btn small" type="button" data-act="goto-meet" data-code="${r.code}">Ouvrir</button></li>`).join("")}${SUITES.filter(s => s.actif !== false).map(s => `<li><span><strong>${esc(s.nom)}</strong> ${s.prive ? `<span class="pill neutral">Privée</span>` : ""}<br><span class="small muted">${s.nbTenues} rencontre(s)${s.derniere ? " · dernière " + fmtD(s.derniere) : ""}${s.actionsOuvertes ? ` · ${s.actionsOuvertes} action(s) ouverte(s)` : ""}</span></span><button class="btn small" type="button" data-act="b-goto" data-code="${esc(s.code)}">Ouvrir</button></li>`).join("")}</ul>` : `<div class="empty">Aucune rencontre attitrée.</div>`}</div>
    <div class="card"><h3>À traiter dans mes équipes</h3>${aTraiter.length ? `<ul class="list-plain">${aTraiter.map(x => `<li><span><span class="pill lvl">T${x.t.strate}</span> ${esc(x.t.nom)}${x.r ? `<br><span class="small muted">${x.r} solution(s) à lire à l'équipe</span>` : ""}</span><span class="count num">${x.n}</span></li>`).join("")}</ul>` : `<div class="empty">Aucune équipe attitrée.</div>`}</div>
    <div class="card"><h3>Mes actions <span class="pill ${mine.some(a => a.enRetard) ? "bad" : "ok"}">${mine.filter(a => a.enRetard).length} en retard</span></h3>${mine.length ? `<ul class="list-plain">${mine.slice(0, 6).map(a => `<li><span>${esc(a.texte)}<br><span class="small muted">${a.noEcart || ""} · ${a.horizon}</span></span><span class="num small">${a.enRetard ? `<span class="pill bad">${fmtD(a.echeance)}</span>` : fmtD(a.echeance)}</span></li>`).join("")}</ul>` : `<div class="empty">Aucune action ouverte à votre nom.</div>`}</div>
    <div class="card"><h3>Indicateurs hors cible</h3>${hors.length ? `<ul class="list-plain">${hors.map(k => `<li><span><span class="sq">${k.cat}</span> ${esc(deptNom(k.dept))} · ${esc(k.nom)}</span><span class="num"><strong>${nf(last(k))}${unit(k)}</strong> <span class="small muted">cible ${k.sens === "+" ? "≥" : "≤"} ${nf(k.cible)}</span></span></li>`).join("")}</ul>` : `<div class="empty">Tous les indicateurs de vos départements sont dans la cible.</div>`}</div>
@@ -668,10 +1116,14 @@ async function vAccueil() {
 
 /* ---------- Rencontres ---------- */
 async function vRencontres() {
-  const m = RENC.find(r => r.code === ui.meeting); const t = eq(m.equipe);
+  const groups0 = [["PAN", "Panneaux"], ["MOT", "Moteurs"], ["VIS", "Vision"], ["DES", "Dessin"], [null, "Direction"]];
+  const aside = suitesAside() + groups0.map(([g, l]) => { const rs = RENC.filter(r => r.dept === g && eq(r.equipe)); return rs.length ? `<div class="dept">${l}</div>` + rs.map(r => `<button type="button" class="meet-item" data-act="meet" data-code="${r.code}" aria-pressed="${!ui.suite && ui.meeting === r.code}"><span class="n">${esc(r.nom)}</span> <span class="pill lvl">T${eq(r.equipe).strate}</span><div class="f">${esc(r.frequence)} · ${r.dureeMin} min</div></button>`).join("") : ""; }).join("");
+  if (ui.suite) { const h = await vSuite(aside); if (h) return h; }
+  const m = RENC.find(r => r.code === ui.meeting);
+  if (!m) return `<div class="layout-meet"><aside class="meet-list" aria-label="Rencontres">${aside}</aside><section><div class="empty">Choisissez une rencontre ou créez une suite.</div></section></div>`;
+  const t = eq(m.equipe);
   const [ecarts, actions, sujets, tenues, kpi] = await Promise.all([Api.ecarts({}), Api.actions({ statut: "ouvertes" }), Api.sujets(m.code), Api.tenues(m.code), Api.kpi("")]);
-  const groups = [["PAN", "Panneaux"], ["MOT", "Moteurs"], ["VIS", "Vision"], ["DES", "Dessin"], [null, "Direction"]];
-  const list = groups.map(([g, l]) => `<div class="dept">${l}</div>` + RENC.filter(r => r.dept === g).map(r => `<button type="button" class="meet-item" data-act="meet" data-code="${r.code}" aria-pressed="${ui.meeting === r.code}"><span class="n">${esc(r.nom)}</span> <span class="pill lvl">T${eq(r.equipe).strate}</span><div class="f">${esc(r.frequence)} · ${r.dureeMin} min</div></button>`).join("")).join("");
+  const list = aside;
   const run = ui.run && ui.run.code === m.code ? ui.run : null;
   const el = run ? Math.floor((Date.now() - run.start) / 1000) : 0;
   const ctx = { m, t, ecarts, actions, sujets, kpi };
@@ -758,19 +1210,19 @@ const statutPill = e => `<span class="pill ${e.statut === "Ferme" ? "ok" : e.sta
 const opt = (pairs, v) => pairs.map(([k, l]) => `<option value="${esc(k)}" ${String(v) === String(k) ? "selected" : ""}>${esc(l)}</option>`).join("");
 
 /* ---------- Journal des modifications ---------- */
-const JT = { ecart: "Écart", action: "Action", sujet_suivi: "Sujet suivi", sujet_note: "Note de sujet", rencontre_tenue: "Compte rendu", kpi: "KPI", kpi_valeur: "Valeur de KPI", type_ecart: "Type d'écart", personne: "Personne", equipe_membre: "Membre d'équipe", bareme: "Barème", ecart_collaborateur: "Collaborateur", rencontre_modele: "Rencontre", odj_point: "Ordre du jour" };
-const JC = { statut: "statut", echeance: "échéance", date_fait: "date faite", equipe_courante: "équipe", cible: "cible", actif: "actif", prochaine_revue: "prochaine revue", responsable_id: "responsable", titre: "titre", texte: "texte", email: "courriel", admin: "administrateur", minutes_min: "minutes min.", cout_min: "coût min.", cause: "cause", cause_detail: "détail de la cause", solution: "solution", strate_reglement: "réglé au", date_reglement: "date de règlement", date_retour_lu: "retour lu le", procedure_modifiee: "procédure modifiée", procedure_nom: "procédure", decisions: "décisions", valeur: "valeur", nom: "nom", role: "rôle", horizon: "horizon", poste: "poste", minutes: "minutes perdues", cout: "coût", description: "description" };
-const CACHES = ["regle_par", "saisi_le", "saisi_par", "par", "demo", "id"];
+const JT = { ecart: "Écart", action: "Action", sujet_suivi: "Sujet suivi", sujet_note: "Note de sujet", rencontre_tenue: "Compte rendu", kpi: "KPI", kpi_valeur: "Valeur de KPI", type_ecart: "Type d'écart", personne: "Personne", equipe_membre: "Membre d'équipe", bareme: "Barème", ecart_collaborateur: "Collaborateur", rencontre_modele: "Rencontre", odj_point: "Ordre du jour", bilan_point: "Point de bilan", raction: "Action de rencontre", raction_suivi: "Suivi d'action", rencontre_acces: "Accès à une suite" };
+const JC = { statut: "statut", echeance: "échéance", date_fait: "date faite", equipe_courante: "équipe", cible: "cible", actif: "actif", prochaine_revue: "prochaine revue", responsable_id: "responsable", titre: "titre", texte: "texte", email: "courriel", admin: "administrateur", minutes_min: "minutes min.", cout_min: "coût min.", cause: "cause", cause_detail: "détail de la cause", solution: "solution", strate_reglement: "réglé au", date_reglement: "date de règlement", date_retour_lu: "retour lu le", procedure_modifiee: "procédure modifiée", procedure_nom: "procédure", decisions: "décisions", valeur: "valeur", nom: "nom", role: "rôle", horizon: "horizon", poste: "poste", minutes: "minutes perdues", cout: "coût", description: "description", sujet: "sujet", discussion: "discussion", objectif: "objectif", avancement: "avancement", responsable: "responsable", responsable_texte: "responsable", date_tenue: "date", lieu: "lieu", projet: "projet", redacteur: "rédacteur", presents: "présents", absents: "absents", divers: "divers", tags: "étiquettes", prochaine: "prochaine rencontre", heure_debut: "début", heure_fin: "fin", ordre: "ordre", prive: "privée", ferme_le: "fermée le", duree_min: "durée" };
+const CACHES = ["regle_par", "saisi_le", "saisi_par", "par", "demo", "id", "le", "maj_le", "cree_par"];
 function jVal(k, v) {
   if (v == null || v === "") return "—";
-  if (k === "statut") return ASTATUT[v] || SSTATUT[v] || STATUT[v] || v;
+  if (k === "statut") return ASTATUT[v] || SSTATUT[v] || STATUT[v] || BST[v] || v;
   if (k === "responsable_id") return ((REF.personnes || []).find(p => p.id === v) || {}).nom || v;
   if (typeof v === "boolean") return v ? "oui" : "non";
   return String(v);
 }
 function jSujet(j) { const r = j.apres || j.avant || {};
   if (j.table_nom === "ecart") return "E-" + String(r.id).padStart(5, "0");
-  return r.titre || r.texte || r.nom || r.code || r.kpi || j.ligne; }
+  return r.titre || r.sujet || r.texte || r.avancement || r.nom || r.code || r.kpi || j.ligne; }
 function jTexte(j) {
   if (j.operation === "Ajout") return "ajouté";
   if (j.operation === "Suppression") return "supprimé";
@@ -802,7 +1254,8 @@ async function vActions() {
   <div class="filters"><select id="fa-resp" aria-label="Responsable">${opt([["", "Tous les responsables"], [ME.nom, "Mes actions"], ...REF.personnes.filter(p => p.nom !== ME.nom).map(p => [p.nom, p.nom])], f.responsable)}</select>
   <select id="fa-statut" aria-label="Statut">${opt([["ouvertes", "Ouvertes"], ["retard", "En retard"], ["", "Toutes"]], f.statut)}</select>
   <span class="muted small">Une action en retard déclenche une relance au responsable par Teams ou courriel.</span></div>
-  <div class="card">${list.length ? actionsTable(list) : `<div class="empty">Aucune action.</div>`}</div>`;
+  <div class="card"><h3 style="margin-bottom:8px">Actions des écarts</h3>${list.length ? actionsTable(list) : `<div class="empty">Aucune action.</div>`}</div>
+  ${await ractionsCard()}`;
 }
 
 /* ---------- Tableaux de bord ---------- */
@@ -990,8 +1443,8 @@ document.addEventListener("click", async ev => {
     else if (act === "retour-lu") { await Api.retourLu(a.dataset.id); render(); }
     else if (act === "csv") await openCsv();
     else if (act === "copy-csv") { const ta = $("#csv"), msg = $("#csv-msg"); try { await navigator.clipboard.writeText(ta.value); msg.textContent = "Copié."; } catch (e) { ta.select(); msg.textContent = "Sélectionné : faites Ctrl+C."; } }
-    else if (act === "meet") { if (ui.run && ui.run.code !== a.dataset.code) ui.run = null; ui.meeting = a.dataset.code; render(); }
-    else if (act === "goto-meet") { ui.meeting = a.dataset.code; location.hash = "rencontres"; }
+    else if (act === "meet") { await bFlush(); if (ui.run && ui.run.code !== a.dataset.code) ui.run = null; ui.meeting = a.dataset.code; ui.suite = null; ui.tenue = null; render(); }
+    else if (act === "goto-meet") { ui.meeting = a.dataset.code; ui.suite = null; ui.tenue = null; if (route() === "rencontres") render(); else location.hash = "rencontres"; }
     else if (act === "start-meet") { ui.run = { code: ui.meeting, start: Date.now(), idx: 0, traites: 0 }; render(); }
     else if (act === "next") { const m = RENC.find(r => r.code === ui.run.code); ui.run.idx = Math.min(ui.run.idx + 1, m.points.length); render(); }
     else if (act === "close-meet") openClose();
