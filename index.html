@@ -104,6 +104,8 @@ main{padding:18px 20px 40px;max-width:1360px;margin:0 auto}
 .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 .kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);border-top:4px solid var(--line)}
 .kpi.ok{border-top-color:var(--ok)} .kpi.bad{border-top-color:var(--bad)} .kpi.warn{border-top-color:var(--warn)}
+.kpi-click{cursor:pointer}
+.kpi-click:hover{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
 .kpi .k-l{display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}
 .kpi .k-v{font-family:var(--display);font-size:1.9rem;font-weight:600;line-height:1.1}
 .kpi .k-c{font-size:.78rem;color:var(--muted)}
@@ -185,7 +187,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.4.0", dateVersion: "17 novembre 2026"
+  version: "0.5.0", dateVersion: "17 novembre 2026"
 };
 
 </script>
@@ -233,6 +235,7 @@ function httpApi(base) {
     majSujet: (id, d) => call("PATCH", "/sujets/" + id, d),
     kpi: dept => call("GET", "/kpi" + qs({ dept })),
     majCible: (code, d) => call("PUT", `/kpi/${code}/cible`, d),
+    saisirKpi: (code, d) => call("PUT", `/kpi/${code}/valeurs`, d),
     majBareme: d => call("PUT", "/admin/bareme", d),
     creerType: d => call("POST", "/admin/types", d),
     majType: (id, d) => call("PATCH", "/admin/types/" + id, d),
@@ -402,10 +405,11 @@ function demoApi() {
     return null;
   }
   function kpiOut(k) {
-    let valeurs;
-    if (k.calc) { valeurs = []; for (let w = 7; w >= 0; w--) valeurs.push({ debut: iso(w * 7), valeur: kpiCalc(k, iso(w * 7)) }); }
-    else valeurs = k.serie.map((v, i) => ({ debut: iso((7 - i) * 7), valeur: v }));
-    return { code: k.code, dept: k.dept, cat: k.cat, nom: k.nom, unite: k.unite, sens: k.sens, cible: S.cibles[k.code], source: k.source, calcule: !!k.calc, valeurs };
+    const sais = ((S.saisies || {})[k.code] || []).slice().sort((a, b) => a.date < b.date ? 1 : -1);
+    const manuel = fin => { const deb = new Date(Date.parse(fin) - 7 * 864e5).toISOString().slice(0, 10); const m = sais.find(x => x.date <= fin && x.date > deb); return m ? m.valeur : undefined; };
+    const valeurs = []; for (let w = 7; w >= 0; w--) { const fin = iso(w * 7), m = manuel(fin);
+      valeurs.push({ debut: fin, valeur: m !== undefined ? m : k.calc ? kpiCalc(k, fin) : k.serie[7 - w] }); }
+    return { code: k.code, dept: k.dept, cat: k.cat, nom: k.nom, unite: k.unite, sens: k.sens, cible: S.cibles[k.code], source: k.source, calcule: !!k.calc, valeurs, saisies: sais };
   }
   const moi = () => { const p = pers(userId); return Object.assign({}, p, { demo: true }); };
   const need = (cond, msg) => { if (!cond) throw new Error(msg); };
@@ -480,6 +484,9 @@ function demoApi() {
     majSujet: (id, d) => { const s = S.sujets.find(x => x.id === Number(id)); if (!s) return fail("Sujet introuvable"); Object.assign(s, { titre: d.titre || s.titre, responsable: d.responsable || s.responsable, statut: d.statut || s.statut, prochaineRevue: d.prochaineRevue || s.prochaineRevue }); if (d.note) s.notes.push({ date: today(), texte: d.note }); save(); return wait(s); },
     kpi: dept => wait(KPIDEF.filter(k => !dept || k.dept === dept).map(kpiOut)),
     majCible: (code, d) => { if (!(code in S.cibles)) return fail("KPI introuvable"); S.cibles[code] = Number(d.cible); save(); return wait({ ok: true }); },
+    saisirKpi: (code, d) => { if (!(code in S.cibles)) return fail("KPI introuvable"); if (!d.date || d.date > today()) return fail("La date ne peut pas être dans le futur.");
+      S.saisies = S.saisies || {}; const l = (S.saisies[code] = (S.saisies[code] || []).filter(x => x.date !== d.date));
+      if (d.valeur !== null && d.valeur !== "") l.push({ date: d.date, valeur: Number(d.valeur), par: pers(userId).nom }); save(); return wait({ ok: true }); },
     majBareme: d => { if (!pers(userId).admin) return fail("Réservé à l'administrateur du DMS."); S.bareme = { minutesMin: Math.max(0, Number(d.minutesMin) || 0), coutMin: Math.max(0, Number(d.coutMin) || 0), securiteToujours: !!d.securiteToujours }; save(); return wait(S.bareme); },
     creerType: d => { if (!pers(userId).admin) return fail("Réservé à l'administrateur du DMS."); const n = (d.nom || "").trim(); if (!n) return fail("Nom obligatoire."); if (S.types.some(t => t.cat === d.cat && t.nom.toLowerCase() === n.toLowerCase())) return fail("Ce type existe déjà."); const t = { id: Math.max(...S.types.map(x => x.id)) + 1, cat: d.cat, nom: n, actif: true }; S.types.push(t); save(); return wait(t); },
     majType: (id, d) => { if (!pers(userId).admin) return fail("Réservé à l'administrateur du DMS."); const t = type(Number(id)); if (!t) return fail("Type introuvable"); t.actif = !!d.actif; save(); return wait(t); },
@@ -539,6 +546,7 @@ function supabaseApi(cfg) {
     majSujet: (id, d) => rpc("maj_sujet", { p_id: Number(id), p: d }),
     kpi: dept => rpc("kpi_liste", { p_dept: dept || null }),
     majCible: (code, d) => rpc("maj_cible", { p_code: code, p_cible: Number(d.cible) }),
+    saisirKpi: (code, d) => rpc("saisir_kpi", { p_code: code, p_debut: d.date, p_valeur: d.valeur === null || d.valeur === "" ? null : Number(d.valeur) }),
     majBareme: d => rpc("maj_bareme", { p_min: Number(d.minutesMin), p_cout: Number(d.coutMin), p_secu: !!d.securiteToujours }),
     creerType: d => rpc("creer_type", { p_cat: d.cat, p_nom: d.nom }),
     majType: (id, d) => rpc("maj_type", { p_id: Number(id), p_actif: !!d.actif }),
@@ -702,8 +710,29 @@ function spark(vals, st) { const arr = vals.map(v => v.valeur).filter(v => v != 
   const pts = arr.map((v, i) => [(i / (arr.length - 1)) * (w - 4) + 2, h - 3 - ((v - mn) / r) * (h - 6)]); const line = pts.map(p => p.map(n => n.toFixed(1)).join(",")).join(" ");
   const col = st === "bad" ? "var(--bad)" : st === "ok" ? "var(--ok)" : "var(--accent)"; const l = pts.at(-1);
   return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="2,${h - 1} ${line} ${w - 2},${h - 1}" fill="${col}" fill-opacity=".12" stroke="none"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="1.6"/><circle cx="${l[0].toFixed(1)}" cy="${l[1].toFixed(1)}" r="2.6" fill="${col}"/></svg>`; }
+const kpiManuelCourant = k => (k.saisies || []).some(x => x.date > isoPlus(-7) && x.date <= isoToday());
+function kpiOrigine(k) { if (kpiManuelCourant(k)) return "saisie manuelle"; if (k.calcule) return "calculé (" + k.source + ")"; return (k.saisies || []).length ? "saisie à faire" : k.source + " (démo)"; }
 function kpiTile(k) { const st = kpiState(k);
-  return `<div class="kpi ${st}"><div class="k-l"><span class="sq">${k.cat}</span>${esc(k.nom)}</div><div class="row between" style="align-items:flex-end"><div class="k-v num">${nf(last(k))}${unit(k)}</div>${spark(k.valeurs, st)}</div><div class="k-c">Cible ${k.sens === "+" ? "≥" : "≤"} ${nf(k.cible)}${unit(k)} · source ${esc(k.source)}${k.calcule ? "" : " (démo)"}</div></div>`; }
+  return `<div class="kpi kpi-click ${st}" data-act="kpi" data-code="${esc(k.code)}" role="button" tabindex="0" title="Cliquer pour saisir une valeur"><div class="k-l"><span class="sq">${k.cat}</span>${esc(k.nom)}</div><div class="row between" style="align-items:flex-end"><div class="k-v num">${nf(last(k))}${unit(k)}</div>${spark(k.valeurs, st)}</div><div class="k-c">Cible ${k.sens === "+" ? "≥" : "≤"} ${nf(k.cible)}${unit(k)} · ${esc(kpiOrigine(k))}</div></div>`; }
+async function openKpi(code) {
+  const k = (await Api.kpi("")).find(x => x.code === code); if (!k) return;
+  const st = kpiState(k);
+  modal(`<div class="row between"><h2>${esc(k.nom)}</h2><span class="pill lvl">${esc(deptNom(k.dept))}</span></div>
+  <div class="row between" style="align-items:flex-end;margin-bottom:10px"><div><div class="k-v num" style="font-family:var(--display);font-size:2.4rem;font-weight:600">${nf(last(k))}${unit(k)}</div><div class="small muted">Cible ${k.sens === "+" ? "≥" : "≤"} ${nf(k.cible)}${unit(k)} · ${esc(kpiOrigine(k))}</div></div>${spark(k.valeurs, st).replace('width="84" height="28"', 'width="220" height="56"')}</div>
+  ${k.calcule ? `<div class="notice info" style="margin-bottom:10px">Ce KPI est calculé à partir des écarts. Une valeur saisie remplace le calcul pour sa semaine; effacez-la pour revenir au calcul.</div>` : ""}
+  <form id="f-kpi" class="form"><label for="k-date">Date de la valeur<input id="k-date" type="date" value="${isoToday()}" max="${isoToday()}"></label>
+  <label for="k-val">Valeur${k.unite ? " (" + esc(k.unite) + ")" : ""}<input id="k-val" type="number" step="any"></label>
+  ${ME.admin ? `<label for="k-cible">Cible${k.unite ? " (" + esc(k.unite) + ")" : ""}<input id="k-cible" type="number" step="any" value="${k.cible}"></label><div></div>` : ""}
+  <div class="full" id="k-msg"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Fermer</button><button class="btn primary" type="submit">Enregistrer</button></div></form>
+  <div class="two" style="margin-top:12px"><div><h3 style="margin-bottom:6px">8 dernières semaines</h3><table class="t"><thead><tr><th>Semaine finissant le</th><th style="text-align:right">Valeur</th></tr></thead><tbody>${k.valeurs.slice().reverse().map(v => `<tr><td>${fmtD(v.debut)}</td><td class="num" style="text-align:right">${nf(v.valeur)}${v.valeur == null ? "" : unit(k)}</td></tr>`).join("")}</tbody></table></div>
+  <div><h3 style="margin-bottom:6px">Saisies manuelles</h3>${(k.saisies || []).length ? `<table class="t"><thead><tr><th>Date</th><th>Valeur</th><th>Par</th><th></th></tr></thead><tbody>${k.saisies.map(x => `<tr><td>${fmtD(x.date)}</td><td class="num">${nf(x.valeur)}${unit(k)}</td><td>${esc(x.par)}</td><td><button class="btn small" type="button" data-act="kpi-effacer" data-code="${esc(k.code)}" data-date="${x.date}">Effacer</button></td></tr>`).join("")}</tbody></table>` : `<div class="empty">Aucune saisie pour l'instant.</div>`}</div></div>`);
+  $("#f-kpi").addEventListener("submit", async ev => { ev.preventDefault();
+    try { const v = $("#k-val").value; const cibleChange = ME.admin && $("#k-cible") && Number($("#k-cible").value) !== Number(k.cible);
+      if (v === "" && !cibleChange) { formErr("k-msg", "Inscrivez une valeur."); return; }
+      if (v !== "") await Api.saisirKpi(k.code, { date: $("#k-date").value, valeur: Number(v) });
+      if (ME.admin && $("#k-cible") && Number($("#k-cible").value) !== Number(k.cible)) await Api.majCible(k.code, { cible: Number($("#k-cible").value) });
+      await openKpi(k.code); render(); } catch (err) { formErr("k-msg", err.message); } });
+}
 function kpiTiles(list, grouped) {
   if (!list.length) return `<div class="empty">Aucun KPI défini pour cette portée.</div>`;
   if (!grouped) return `<div class="kpis">${list.map(kpiTile).join("")}</div>`;
@@ -955,6 +984,8 @@ document.addEventListener("click", async ev => {
     else if (act === "detail") await openDetail(a.dataset.id);
     else if (act === "regler") await openTraiter(a.dataset.id, "regler");
     else if (act === "escalader") await openTraiter(a.dataset.id, "escalader");
+    else if (act === "kpi") await openKpi(a.dataset.code);
+    else if (act === "kpi-effacer") { await Api.saisirKpi(a.dataset.code, { date: a.dataset.date, valeur: null }); await openKpi(a.dataset.code); render(); }
     else if (act === "add-act") $("#d-acts").insertAdjacentHTML("beforeend", actRowHtml("MT"));
     else if (act === "retour-lu") { await Api.retourLu(a.dataset.id); render(); }
     else if (act === "csv") await openCsv();
@@ -993,7 +1024,8 @@ document.addEventListener("submit", async ev => {
   if (ev.target.id === "f-type") { ev.preventDefault(); try { await Api.creerType({ cat: $("#nt-cat").value, nom: $("#nt-nom").value }); REF = await Api.referentiels(); render(); } catch (err) { alertBox(err.message); } }
 });
 const alertBox = m => modal(`<h2>Erreur</h2><div class="notice bad">${esc(m)}</div><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" data-act="close" type="button">Fermer</button></div>`);
-document.addEventListener("keydown", ev => { if (ev.key === "Escape" && $(".overlay")) closeModal(); });
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && $(".overlay")) closeModal();
+  if ((ev.key === "Enter" || ev.key === " ") && ev.target.matches && ev.target.matches('[data-act="kpi"]')) { ev.preventDefault(); ev.target.click(); } });
 window.addEventListener("hashchange", render);
 setInterval(() => { if (!ui.run || route() !== "rencontres") return; const el = $("#timer"); if (!el) return; const m = RENC.find(r => r.code === ui.run.code); const s = Math.floor((Date.now() - ui.run.start) / 1000); el.textContent = mmss(s); el.classList.toggle("over", s > m.dureeMin * 60); }, 1000);
 boot();
