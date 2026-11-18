@@ -210,6 +210,36 @@ footer{max-width:1360px;margin:0 auto;padding:0 20px 30px;color:var(--muted);fon
 .lien-act{all:unset;cursor:pointer;color:var(--ink);border-bottom:1px dotted var(--muted)}
 .lien-act:hover{color:var(--accent);border-bottom-color:var(--accent)}
 .lien-act:focus-visible{outline:3px solid #7fb2f0;outline-offset:2px}
+/* Étiquettes, pièces jointes, archives */
+.chip{display:inline-flex;align-items:center;gap:4px;background:#e6eef9;color:var(--navy);border:1px solid #c9d8ee;border-radius:999px;padding:2px 10px;font-size:.82rem;font-weight:600;margin:2px 4px 2px 0}
+.chip.sm{font-size:.72rem;padding:0 7px;font-weight:500}
+.chip button{all:unset;cursor:pointer;font-size:.75rem;color:var(--muted);padding:0 2px}.chip button:hover{color:var(--bad)}
+.chip button:focus-visible{outline:2px solid #7fb2f0;border-radius:3px}
+.etiq-ed{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.etiq-ed input{flex:1 1 220px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--paper);color:var(--ink);font-size:.9rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-left:10px}
+.seg button{all:unset;cursor:pointer;padding:5px 12px;font-size:.88rem;font-weight:600;color:var(--muted);background:var(--surface)}
+.seg button[aria-selected="true"]{background:var(--navy);color:#fff}
+.seg button:focus-visible{outline:3px solid #7fb2f0;outline-offset:-3px}
+.pj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:6px 0}
+.pj{position:relative;margin:0;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--surface)}
+.pj img,.pj video{display:block;width:100%;height:120px;object-fit:cover;border-radius:5px;background:#000}
+.pj-lien{display:flex;flex-direction:column;justify-content:center;min-height:60px;word-break:break-word}
+.pj-i{margin-top:4px}
+.pj-del{position:absolute;top:8px;right:8px;z-index:1;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:.8rem;padding:1px 6px;color:var(--ink)}
+.pj-del.conf{background:var(--bad);color:#fff;border-color:var(--bad)}
+.pj-add{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.pj-add input{flex:1 1 180px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--paper);color:var(--ink);font-size:.9rem}
+.pj-add label.btn{cursor:pointer}
+.pj-add label.btn:focus-within{outline:3px solid #7fb2f0}
+.err-txt{color:var(--bad)}
+.jauge{height:10px;border-radius:5px;background:var(--paper);border:1px solid var(--line);overflow:hidden;margin-top:6px;max-width:420px}
+.jauge span{display:block;height:100%;background:var(--accent)}.jauge span.bad{background:var(--bad)}
+.sr-file{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.pj-add label.btn{position:relative}
+.pbi-cadre{position:relative;width:100%;aspect-ratio:16/9.6;min-height:420px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;margin-top:12px}
+.pbi-cadre iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.btn.danger{background:var(--bad);color:#fff;border-color:var(--bad)}
 
 </style>
 </head>
@@ -236,7 +266,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.6.1", dateVersion: "17 novembre 2026"
+  version: "0.7.0", dateVersion: "18 novembre 2026"
 };
 
 </script>
@@ -288,6 +318,18 @@ function httpApi(base) {
     majBareme: d => call("PUT", "/admin/bareme", d),
     creerType: d => call("POST", "/admin/types", d),
     majType: (id, d) => call("PATCH", "/admin/types/" + id, d),
+    pieces: id => call("GET", `/ecarts/${id}/pieces`),
+    ajouterFichier: (id, file, type) => { const fd = new FormData(); fd.append("type", type); fd.append("fichier", file); return fetch(base + `/ecarts/${id}/pieces`, { method: "POST", body: fd, credentials: "include" }).then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(t || r.statusText); })); },
+    ajouterLien: (id, url, nom) => call("POST", `/ecarts/${id}/pieces`, { type: "lien", url, nom }),
+    retirerPiece: pid => call("DELETE", "/pieces/" + pid),
+    majEtiquettes: (id, tags) => call("PUT", `/ecarts/${id}/etiquettes`, { etiquettes: tags }),
+    etiquettes: () => call("GET", "/etiquettes"),
+    fichiersInfo: () => call("GET", "/admin/fichiers"),
+    majArchiveJours: n => call("PUT", "/admin/archive", { jours: n }),
+    rapportsPbi: () => call("GET", "/powerbi/rapports"),
+    ajouterRapport: d => call("POST", "/powerbi/rapports", d),
+    majRapport: (id, d) => call("PATCH", "/powerbi/rapports/" + id, d),
+    retirerRapport: id => call("DELETE", "/powerbi/rapports/" + id),
     suites: () => call("GET", "/suites"),
     tenuesSuite: code => call("GET", `/suites/${code}/tenues`),
     creerSerie: d => call("POST", "/suites", d),
@@ -455,7 +497,9 @@ function demoApi() {
   const no = id => "E-" + String(id).padStart(5, "0");
   function vEcart(e) {
     const t = type(e.typeId); const acts = S.actions.filter(a => a.ecartId === e.id);
-    return Object.assign({}, e, { no: no(e.id), cat: t.cat, type: t.nom, titre: t.nom + " · " + e.poste, strateCourante: eq(e.equipeCourante).strate, ageJours: days(e.dateEcart, e.dateReglement || today()), nbActions: acts.length, nbActionsOuvertes: acts.filter(a => a.statut !== "Fait" && a.statut !== "Annule").length });
+    const aj = S.archiveJours || 30;
+    return Object.assign({}, e, { no: no(e.id), cat: t.cat, type: t.nom, titre: t.nom + " · " + e.poste, strateCourante: eq(e.equipeCourante).strate, ageJours: days(e.dateEcart, e.dateReglement || today()), nbActions: acts.length, nbActionsOuvertes: acts.filter(a => a.statut !== "Fait" && a.statut !== "Annule").length,
+      etiquettes: e.etiquettes || [], nbPieces: (S.pieces || []).filter(x => x.ecartId === e.id).length, archive: e.statut === "Ferme" && !!e.dateReglement && days(e.dateReglement, today()) > aj });
   }
   function vAction(a) { const e = S.ecarts.find(x => x.id === a.ecartId); return Object.assign({}, a, { noEcart: e ? no(e.id) : null, dept: e ? e.dept : null, enRetard: (a.statut === "AFaire" || a.statut === "EnCours") && a.echeance < today() }); }
 
@@ -496,6 +540,9 @@ function demoApi() {
       if (f.cat) l = l.filter(e => e.cat === f.cat);
       if (f.q) { const q = f.q.toLowerCase(); l = l.filter(e => (e.no + " " + e.titre + " " + e.description + " " + (e.noFab || "")).toLowerCase().includes(q)); }
       if (f.depuis) l = l.filter(e => e.dateEcart >= f.depuis);
+      if (f.vue === "registre") l = l.filter(e => !e.archive); else if (f.vue === "archives") l = l.filter(e => e.archive);
+      if (f.etiquette) l = l.filter(e => e.etiquettes.includes(f.etiquette));
+      if (f.annee) l = l.filter(e => e.dateEcart.slice(0, 4) === String(f.annee));
       return wait(l.sort((a, b) => a.dateEcart < b.dateEcart ? 1 : a.dateEcart > b.dateEcart ? -1 : b.id - a.id)); },
     ecart: id => { const e = S.ecarts.find(x => x.id === Number(id)); if (!e) return fail("Écart introuvable"); return wait(Object.assign(vEcart(e), { actions: S.actions.filter(a => a.ecartId === e.id).map(vAction) })); },
     creerEcart: d => { try {
@@ -533,6 +580,33 @@ function demoApi() {
       if (d.suite === "regler") return api.regler(id, { cause: e.cause, causeDetail: e.causeDetail, solution: d.solution, procedureModifiee: e.procedureModifiee, procedureNom: e.procedureNom, collaborateurs: [], actions: [] });
       if (d.suite === "escalader") return api.escalader(id, { raison: d.raison, texte: d.texte });
       return wait(vEcart(e)); },
+    pieces: id => wait((S.pieces || []).filter(x => x.ecartId === Number(id)).map(x => Object.assign({}, x, { ajoutePar: (pers(x.ajouteParId) || {}).nom || "" }))),
+    ajouterFichier: async (id, file, type) => { if (type === "video") return fail("Les vidéos ne sont pas conservées en mode démonstration. Elles le seront avec la base.");
+      const url = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error("Lecture du fichier impossible.")); r.readAsDataURL(file); });
+      if (url.length > 900000) return fail("Photo trop lourde pour la démonstration (limite du navigateur).");
+      S.pieces = S.pieces || []; S.seq.p = (S.seq.p || 0) + 1;
+      S.pieces.push({ id: S.seq.p, ecartId: Number(id), type, nom: file.name, taille: file.size, mime: file.type, url, ajouteLe: new Date().toISOString(), ajouteParId: userId });
+      try { localStorage.setItem(KEY, JSON.stringify({ S, userId })); } catch (err) { S.pieces.pop(); return fail("Espace du navigateur plein : retirez des photos de démonstration."); } return wait(S.seq.p); },
+    ajouterLien: (id, url, nom) => { if (!/^https?:\/\/\S+$/i.test(url || "")) return fail("Le lien doit commencer par https://");
+      S.pieces = S.pieces || []; S.seq.p = (S.seq.p || 0) + 1; S.pieces.push({ id: S.seq.p, ecartId: Number(id), type: "lien", nom: (nom || "").trim() || url, url, ajouteLe: new Date().toISOString(), ajouteParId: userId }); save(); return wait(S.seq.p); },
+    retirerPiece: pid => { const x = (S.pieces || []).find(p => p.id === Number(pid)); if (!x) return fail("Pièce introuvable.");
+      if (x.ajouteParId !== userId && !(pers(userId) || {}).admin) return fail("Seule la personne qui a ajouté la pièce, ou l'administrateur, peut la retirer.");
+      S.pieces = S.pieces.filter(p => p !== x); save(); return wait(null); },
+    majEtiquettes: (id, tags) => { const e = S.ecarts.find(x => x.id === Number(id)); if (!e) return fail("Écart introuvable.");
+      const v = []; (tags || []).map(t => String(t).trim().replace(/\s+/g, " ").slice(0, 40)).filter(Boolean).forEach(t => { if (!v.some(x => x.toLowerCase() === t.toLowerCase())) v.push(t); });
+      if (v.length > 10) return fail("Maximum de 10 étiquettes par écart."); e.etiquettes = v.sort((a, b) => a.localeCompare(b, "fr")); save(); return wait(e.etiquettes); },
+    etiquettes: () => { const n = {}; S.ecarts.forEach(e => (e.etiquettes || []).forEach(t => { n[t] = (n[t] || 0) + 1; })); return wait(Object.entries(n).map(([nom, c]) => ({ nom, n: c })).sort((a, b) => b.n - a.n || a.nom.localeCompare(b.nom, "fr"))); },
+    fichiersInfo: () => { const l = (S.pieces || []).filter(x => x.type !== "lien"); return wait({ octets: l.reduce((a, x) => a + (x.url || "").length * 0.75, 0), nb: l.length, limiteOctets: 4 * 1048576, maxFichier: 52428800, archiveJours: S.archiveJours || 30, demo: true }); },
+    rapportsPbi: () => wait((S.rapports || []).filter(r => r.portee === "tous" || r.proprietaireId === userId).map(r => Object.assign({}, r, { proprietaire: (pers(r.proprietaireId) || {}).nom || "", estProprietaire: r.proprietaireId === userId })).sort((a, b) => a.nom.localeCompare(b.nom, "fr"))),
+    ajouterRapport: d => { const e = valRapport(d); if (e) return fail(e); S.rapports = S.rapports || []; S.seq.r = (S.seq.r || 0) + 1;
+      S.rapports.push({ id: S.seq.r, nom: d.nom.trim(), url: d.url.trim(), dept: d.dept || null, portee: d.portee || "moi", proprietaireId: userId }); save(); return wait(S.seq.r); },
+    majRapport: (id, d) => { const r = (S.rapports || []).find(x => x.id === Number(id)); if (!r) return fail("Rapport introuvable.");
+      if (r.proprietaireId !== userId && !(pers(userId) || {}).admin) return fail("Seule la personne qui a ajouté le rapport, ou l'administrateur, peut le modifier.");
+      const e = valRapport(d); if (e) return fail(e); Object.assign(r, { nom: d.nom.trim(), url: d.url.trim(), dept: d.dept || null, portee: d.portee || r.portee }); save(); return wait(null); },
+    retirerRapport: id => { const r = (S.rapports || []).find(x => x.id === Number(id)); if (!r) return fail("Rapport introuvable.");
+      if (r.proprietaireId !== userId && !(pers(userId) || {}).admin) return fail("Seule la personne qui a ajouté le rapport, ou l'administrateur, peut le retirer.");
+      S.rapports = S.rapports.filter(x => x !== r); save(); return wait(null); },
+    majArchiveJours: n => { if (!(pers(userId) || {}).admin) return fail("Réservé à l'administrateur."); n = Number(n); if (!(n >= 1 && n <= 3650)) return fail("Entre 1 et 3650 jours."); S.archiveJours = n; save(); return wait(null); },
     creerEcartComplet: async d => { const e = await api.creerEcart(d);
       if (d.suite === "regler" && !(d.cause && d.causeDetail && (d.solution || "").trim())) { S.ecarts = S.ecarts.filter(x => x.id !== e.id); save(); return fail("Pour régler : la cause (6M), la cause en une phrase et la solution sont obligatoires."); }
       return api.traiterEcart(e.id, Object.assign({}, d, { suite: d.suite === "caucus" ? "enregistrer" : d.suite })); },
@@ -562,6 +636,12 @@ function demoApi() {
   return api;
 
   /* Suites de rencontres et bilans, version démo (mêmes règles que la base) */
+  function valRapport(d) {
+    if (!(d.nom || "").trim()) return "Donnez un nom au rapport.";
+    if (!/^https:\/\/app\.powerbi\.com\//i.test(d.url || "")) return "Le lien doit venir de Power BI (https://app.powerbi.com/…).";
+    if (d.portee === "tous" && !(pers(userId) || {}).admin) return "Seul l'administrateur peut afficher un rapport pour tout le monde.";
+    return null;
+  }
   function bilansDemo() {
     const B = () => { if (!S.b) { S.b = seedB(); save(); } return S.b; };
     const nomP = id => (pers(id) || {}).nom || "";
@@ -676,11 +756,12 @@ function supabaseApi(cfg) {
   const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true } });
   const ok = ({ data, error }) => { if (error) throw new Error(error.message || "Erreur Supabase"); return data; };
   const rpc = async (fn, args) => ok(await sb.rpc(fn, args || {}));
-  const mapE = r => ({ id: r.id, no: r.no, dateEcart: r.date_ecart, equipeOrigine: r.equipe_origine, equipeCourante: r.equipe_courante, strateCourante: r.strate_courante, dept: r.dept, cat: r.cat, typeId: r.type_id, type: r.type, titre: r.titre, poste: r.poste, noFab: r.no_fab, minutes: r.minutes, cout: Number(r.cout) || 0, description: r.description, statut: r.statut, cause: r.cause, causeDetail: r.cause_detail, solution: r.solution, strateReglement: r.strate_reglement, dateReglement: r.date_reglement, procedureModifiee: r.procedure_modifiee, procedureNom: r.procedure_nom, dateRetourLu: r.date_retour_lu, ageJours: r.age_jours, nbActions: r.nb_actions, nbActionsOuvertes: r.nb_actions_ouvertes, collaborateurs: r.collaborateurs || [] });
+  const mapE = r => ({ id: r.id, no: r.no, dateEcart: r.date_ecart, equipeOrigine: r.equipe_origine, equipeCourante: r.equipe_courante, strateCourante: r.strate_courante, dept: r.dept, cat: r.cat, typeId: r.type_id, type: r.type, titre: r.titre, poste: r.poste, noFab: r.no_fab, minutes: r.minutes, cout: Number(r.cout) || 0, description: r.description, statut: r.statut, cause: r.cause, causeDetail: r.cause_detail, solution: r.solution, strateReglement: r.strate_reglement, dateReglement: r.date_reglement, procedureModifiee: r.procedure_modifiee, procedureNom: r.procedure_nom, dateRetourLu: r.date_retour_lu, ageJours: r.age_jours, nbActions: r.nb_actions, nbActionsOuvertes: r.nb_actions_ouvertes, collaborateurs: r.collaborateurs || [], etiquettes: r.etiquettes || [], nbPieces: r.nb_pieces || 0, archive: !!r.archive });
   const mapA = r => ({ id: r.id, ecartId: r.ecart_id, sujetId: r.sujet_id, horizon: r.horizon, texte: r.texte, responsable: r.responsable, echeance: r.echeance, statut: r.statut, noEcart: r.no_ecart, dept: r.dept, enRetard: r.en_retard });
   const mapS = r => ({ id: r.id, rencontre: r.rencontre, titre: r.titre, responsable: r.responsable, statut: r.statut, prochaineRevue: r.prochaine_revue, notes: r.notes || [] });
   const mapT = r => ({ id: r.id, rencontre: r.rencontre, debut: r.debut, dureeMin: r.duree_min, decisions: r.decisions, animeePar: r.animee_par });
   const mapR = r => ({ id: r.id, rencontre: r.rencontre, serie: r.serie, texte: r.texte, responsable: r.responsable, echeance: r.echeance, statut: r.statut, depuis: r.depuis, fermeLe: r.ferme_le, enRetard: r.en_retard, dernierAvancement: r.dernier_avancement, tenueOrigine: r.tenue_origine });
+  const BUCKET = "ecart-fichiers";
   const propre = q => String(q || "").replace(/[,()*%\\]/g, " ").trim();
   return {
     mode: "supabase",
@@ -697,6 +778,9 @@ function supabaseApi(cfg) {
       if (f.equipe) q = q.eq("equipe_courante", f.equipe);
       if (f.cat) q = q.eq("cat", f.cat);
       if (f.depuis) q = q.gte("date_ecart", f.depuis);
+      if (f.vue === "registre") q = q.eq("archive", false); else if (f.vue === "archives") q = q.eq("archive", true);
+      if (f.etiquette) q = q.contains("etiquettes", [f.etiquette]);
+      if (f.annee) q = q.gte("date_ecart", f.annee + "-01-01").lte("date_ecart", f.annee + "-12-31");
       const t = propre(f.q); if (t) q = q.or(`titre.ilike.*${t}*,description.ilike.*${t}*,no.ilike.*${t}*,no_fab.ilike.*${t}*`);
       return ok(await q.order("date_ecart", { ascending: false }).order("id", { ascending: false }).limit(2000)).map(mapE); },
     ecart: async id => { id = Number(id);
@@ -705,6 +789,27 @@ function supabaseApi(cfg) {
       return Object.assign(mapE(r), { actions: ok(a).map(mapA), mouvements: ok(m).map(x => ({ date: x.date, genre: x.genre, texte: x.texte, par: x.par })) }); },
     creerEcart: d => rpc("creer_ecart", { p: d }),
     creerEcartComplet: d => rpc("creer_ecart_complet", { p: d }),
+    pieces: async id => { const l = ok(await sb.from("v_piece").select("*").eq("ecart_id", Number(id)).order("ajoute_le"));
+      const ch = l.filter(x => x.chemin).map(x => x.chemin); const urls = {};
+      if (ch.length) { const r = await sb.storage.from(BUCKET).createSignedUrls(ch, 3600); if (r.error) throw new Error(r.error.message); (r.data || []).forEach(u => { if (u.path) urls[u.path] = u.signedUrl; }); }
+      return l.map(x => ({ id: x.id, ecartId: x.ecart_id, type: x.type, nom: x.nom, taille: x.taille, mime: x.mime, ajouteLe: x.ajoute_le, ajoutePar: x.ajoute_par, ajouteParId: x.ajoute_par_id, url: x.chemin ? urls[x.chemin] || null : x.url })); },
+    ajouterFichier: async (id, file, type) => {
+      const nom = (file.name || "fichier").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9._-]+/g, "_").slice(-80);
+      const chemin = `ecarts/${Number(id)}/${Date.now()}-${Math.random().toString(36).slice(2, 6)}-${nom}`;
+      const up = await sb.storage.from(BUCKET).upload(chemin, file, { contentType: file.type || undefined, upsert: false });
+      if (up.error) throw new Error(/size|exceed|too large/i.test(up.error.message) ? "Fichier trop lourd : la limite est de 50 Mo." : /mime|type/i.test(up.error.message) ? "Seules les photos et les vidéos sont acceptées." : up.error.message);
+      try { return await rpc("ajouter_piece", { p_ecart: Number(id), p: { type, chemin, nom: file.name } }); }
+      catch (err) { await sb.storage.from(BUCKET).remove([chemin]); throw err; } },
+    ajouterLien: (id, url, nom) => rpc("ajouter_piece", { p_ecart: Number(id), p: { type: "lien", url, nom } }),
+    retirerPiece: async pid => { const chemin = await rpc("retirer_piece", { p_id: Number(pid) }); if (chemin) await sb.storage.from(BUCKET).remove([chemin]); return null; },
+    majEtiquettes: (id, tags) => rpc("maj_etiquettes", { p_id: Number(id), p_tags: tags }),
+    etiquettes: () => rpc("etiquettes"),
+    fichiersInfo: () => rpc("fichiers_info"),
+    majArchiveJours: n => rpc("maj_archive_jours", { p_jours: Number(n) }),
+    rapportsPbi: () => rpc("rapports_pbi"),
+    ajouterRapport: d => rpc("ajouter_rapport", { p: d }),
+    majRapport: (id, d) => rpc("maj_rapport", { p_id: Number(id), p: d }),
+    retirerRapport: id => rpc("retirer_rapport", { p_id: Number(id) }),
     traiterEcart: (id, d) => rpc("traiter_ecart", { p_id: Number(id), p: d }),
     escalader: (id, d) => rpc("escalader_ecart", { p_id: Number(id), p_raison: d.raison, p_texte: d.texte }),
     regler: (id, d) => rpc("regler_ecart", { p_id: Number(id), p: d }),
@@ -1046,6 +1151,225 @@ window.addEventListener("beforeunload", ev => { if (bTimers.size) { bFlush(); ev
 
 </script>
 <script>
+/* Photos, vidéos et liens joints aux écarts; étiquettes; vue Archives.
+   Les fichiers vont dans un espace privé : seuls les membres du DMS les voient, par des liens temporaires (1 h). */
+"use strict";
+
+const MAX_FICHIER = 50 * 1048576;
+let ETIQ = [], P_FICHIERS = [];
+const tailleTxt = o => o == null ? "" : o >= 1073741824 ? (o / 1073741824).toFixed(o % 1073741824 ? 1 : 0).replace(".", ",") + " Go" : o >= 1048576 ? (o / 1048576).toFixed(1).replace(".", ",") + " Mo" : Math.max(1, Math.round(o / 1024)) + " Ko";
+const typeFichier = f => /^video\//.test(f.type) || /\.(mp4|mov|m4v|webm|3gp|avi)$/i.test(f.name) ? "video" : "photo";
+
+/* Réduit une photo à 1600 px de côté (JPEG) avant l'envoi; laisse le fichier tel quel si le navigateur ne sait pas le lire. */
+async function compresserImage(file, max = 1600, q = 0.82) {
+  if (/gif$/i.test(file.type)) return file;
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("illisible")); i.src = url; });
+    const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    if (k === 1 && file.size < 700 * 1024) return file;
+    const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, "image/jpeg", q));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch (e) { return file; } finally { URL.revokeObjectURL(url); }
+}
+
+/* Envoie des fichiers un à un; renvoie la liste des erreurs (le reste est enregistré). */
+async function envoyerFichiers(ecartId, files, progres) {
+  const errs = [];
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i], type = typeFichier(f);
+    if (progres) progres(`Envoi ${i + 1} de ${files.length} : ${f.name}…`);
+    try {
+      const fic = type === "photo" ? await compresserImage(f) : f;
+      if (fic.size > MAX_FICHIER) throw new Error(`${tailleTxt(fic.size)}, la limite est de 50 Mo. Raccourcissez la vidéo (environ 30 secondes) ou ajoutez plutôt un lien Teams ou SharePoint.`);
+      await Api.ajouterFichier(ecartId, fic, type);
+    } catch (err) { errs.push(`${f.name} : ${err.message}`); }
+  }
+  return errs;
+}
+
+/* ---------- Étiquettes ---------- */
+async function chargerEtiquettes() { ETIQ = Api.etiquettes ? await Api.etiquettes() : []; return ETIQ; }
+const dlEtiq = () => `<datalist id="dl-etiq">${ETIQ.map(t => `<option value="${esc(t.nom)}"></option>`).join("")}</datalist>`;
+const chipsEtiq = (l, small) => (l || []).map(t => `<span class="chip${small ? " sm" : ""}">${esc(t)}</span>`).join("");
+
+/* ---------- Sections de la fiche d'un écart ---------- */
+async function sectionsEcart(e) {
+  if (!Api.pieces) return "";
+  const [pieces] = await Promise.all([Api.pieces(e.id), chargerEtiquettes()]);
+  const peutRetirer = p => p.ajouteParId === ME.id || ME.admin;
+  const vignette = p => {
+    const del = peutRetirer(p) ? `<button class="pj-del" type="button" data-act="p-del" data-id="${p.id}" data-ecart="${e.id}" aria-label="Retirer ${esc(p.nom)}" title="Retirer">✕</button>` : "";
+    const info = `<div class="pj-i small muted">${esc(p.ajoutePar || "")} · ${fmtD((p.ajouteLe || "").slice(0, 10))}${p.taille ? " · " + tailleTxt(p.taille) : ""}</div>`;
+    if (p.type === "photo") return `<figure class="pj">${del}<a href="${esc(p.url || "#")}" target="_blank" rel="noopener" title="Ouvrir en grand"><img src="${esc(p.url || "")}" alt="${esc(p.nom)}" loading="lazy"></a>${info}</figure>`;
+    if (p.type === "video") return `<figure class="pj">${del}<video src="${esc(p.url || "")}" controls preload="metadata" playsinline></video>${info}</figure>`;
+    return `<figure class="pj pj-lien">${del}<a href="${esc(p.url)}" target="_blank" rel="noopener">🔗 ${esc(p.nom)}</a>${info}</figure>`;
+  };
+  return `<h3 style="margin-top:12px">Étiquettes</h3>${dlEtiq()}
+   <div class="etiq-ed" data-ecart="${e.id}">${(e.etiquettes || []).map(t => `<span class="chip">${esc(t)}<button type="button" data-act="p-tag-del" data-ecart="${e.id}" data-tag="${esc(t)}" aria-label="Retirer l'étiquette ${esc(t)}">✕</button></span>`).join("")}
+    <input id="p-tag" list="dl-etiq" maxlength="40" placeholder="Ajouter : client, projet, fournisseur, garantie…" aria-label="Nouvelle étiquette"><button class="btn small" type="button" data-act="p-tag-add" data-ecart="${e.id}">Ajouter</button></div>
+   <h3 style="margin-top:12px">Photos, vidéos et liens (${pieces.length})</h3>
+   ${pieces.length ? `<div class="pj-grid">${pieces.map(vignette).join("")}</div>` : `<div class="small muted">Aucune pièce jointe.</div>`}
+   <div class="pj-add"><label class="btn small" for="p-file">📷 Photo ou vidéo<input id="p-file" type="file" accept="image/*,video/*" multiple data-ecart="${e.id}" class="sr-file"></label>
+    <input id="p-url" type="url" placeholder="https://… (Teams, SharePoint, OneDrive)" aria-label="Lien"><input id="p-urlnom" maxlength="80" placeholder="Nom du lien (facultatif)" aria-label="Nom du lien"><button class="btn small" type="button" data-act="p-lien" data-ecart="${e.id}">Ajouter le lien</button></div>
+   <div id="p-msg" class="small" role="status"></div>`;
+}
+
+/* ---------- Champs à la création d'un écart ---------- */
+function champsCreation() {
+  if (!Api.ajouterFichier) return "";
+  P_FICHIERS = [];
+  return `<div class="full"><div class="small muted" style="margin-bottom:4px">Photos ou vidéos (facultatif)</div>
+   <div class="pj-add"><label class="btn small" for="n-files">📷 Ajouter des photos ou vidéos<input id="n-files" type="file" accept="image/*,video/*" multiple class="sr-file"></label><span id="n-files-l" class="small muted"></span></div>
+   <div class="small muted" style="margin-top:3px">Les photos sont réduites automatiquement. Vidéos : 50 Mo au plus, environ 30 secondes.</div></div>
+   <label class="full" for="n-tags">Étiquettes (facultatif, séparées par des virgules)${dlEtiq()}<input id="n-tags" list="dl-etiq" maxlength="300" placeholder="Ex. Client Cardinal, Garantie"></label>`;
+}
+async function apresCreation(id, msgId) {
+  const tags = ($("#n-tags") ? $("#n-tags").value : "").split(",").map(t => t.trim()).filter(Boolean);
+  const errs = [];
+  if (tags.length) { try { await Api.majEtiquettes(id, tags); } catch (err) { errs.push("Étiquettes : " + err.message); } }
+  if (P_FICHIERS.length) errs.push(...await envoyerFichiers(id, P_FICHIERS, m => { const el = document.getElementById(msgId); if (el) el.innerHTML = `<div class="notice">${esc(m)}</div>`; }));
+  P_FICHIERS = [];
+  return errs;
+}
+
+/* ---------- Vue Archives et filtre d'étiquettes (onglet Écarts) ---------- */
+function filtresArchives(f) {
+  const ans = []; for (let y = new Date().getFullYear(); y >= 2026; y--) ans.push([String(y), String(y)]);
+  return `<select id="fe-etiq" aria-label="Étiquette">${opt([["", "Toutes les étiquettes"], ...ETIQ.map(t => [t.nom, `${t.nom} (${t.n})`])], f.etiquette || "")}</select>
+   ${f.vue === "archives" ? `<select id="fe-annee" aria-label="Année">${opt([["", "Toutes les années"], ...ans], f.annee || "")}</select>` : ""}`;
+}
+function ongletsEcarts(f) {
+  return `<div class="seg" role="tablist" aria-label="Vue"><button type="button" role="tab" data-act="p-vue" data-vue="registre" aria-selected="${f.vue !== "archives"}">Registre</button><button type="button" role="tab" data-act="p-vue" data-vue="archives" aria-selected="${f.vue === "archives"}">Archives</button></div>`;
+}
+
+/* ---------- Réglages (Administration) ---------- */
+async function carteFichiers() {
+  if (!Api.fichiersInfo) return "";
+  const i = await Api.fichiersInfo(); const pct = Math.min(100, Math.round(100 * i.octets / i.limiteOctets));
+  return `<div class="card"><h3>Archives et fichiers</h3>
+   <p class="small muted" style="margin:4px 0 10px">Un écart fermé passe aux archives après ce délai. Il reste consultable dans Écarts, vue « Archives », avec tout son historique.</p>
+   <div class="row"><label for="ad-arch" class="small">Délai avant l'archivage (jours)</label><input id="ad-arch" type="number" min="1" max="3650" value="${i.archiveJours}" style="width:90px" ${ME.admin ? "" : "disabled"}>${ME.admin ? `<button class="btn small" type="button" data-act="p-arch">Enregistrer</button>` : ""}<span id="ad-arch-msg" class="small"></span></div>
+   <div style="margin-top:12px" class="small">Espace utilisé par les photos et vidéos : <strong>${tailleTxt(i.octets) || "0 Ko"}</strong> sur ${tailleTxt(i.limiteOctets)} (${i.nb} fichier(s))${i.demo ? " · mode démonstration" : ""}</div>
+   <div class="jauge" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Espace utilisé"><span style="width:${pct}%" class="${pct >= 80 ? "bad" : ""}"></span></div>
+   ${pct >= 80 ? `<div class="notice warn" style="margin-top:8px">L'espace approche de la limite du forfait gratuit de Supabase. Préférez les liens Teams ou SharePoint pour les vidéos, ou passez au forfait Pro.</div>` : ""}</div>`;
+}
+
+/* ---------- Événements ---------- */
+async function majTags(id, fn) { const e = await Api.ecart(id); await Api.majEtiquettes(id, fn(e.etiquettes || [])); await openDetail(id); }
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='p-']"); if (!a || a.disabled) return; const act = a.dataset.act;
+  try {
+    if (act === "p-vue") { ui.fE.vue = a.dataset.vue; if (ui.fE.vue === "archives") ui.fE.statut = ""; else if (!ui.fE.statut) ui.fE.statut = "actifs"; render(); }
+    else if (act === "p-del") { if (!confirmerRetrait(a)) return; await Api.retirerPiece(a.dataset.id); await openDetail(Number(a.dataset.ecart)); render(); }
+    else if (act === "p-lien") { const url = $("#p-url").value.trim(); if (!url) { $("#p-url").focus(); return; } await Api.ajouterLien(Number(a.dataset.ecart), url, $("#p-urlnom").value.trim()); await openDetail(Number(a.dataset.ecart)); render(); }
+    else if (act === "p-tag-add") { const t = $("#p-tag").value.trim(); if (!t) { $("#p-tag").focus(); return; } await majTags(Number(a.dataset.ecart), l => [...l, t]); render(); }
+    else if (act === "p-tag-del") { const t = a.dataset.tag; await majTags(Number(a.dataset.ecart), l => l.filter(x => x !== t)); render(); }
+    else if (act === "p-arch") { await Api.majArchiveJours(Number($("#ad-arch").value)); $("#ad-arch-msg").textContent = "Enregistré."; }
+  } catch (err) { const m = $("#p-msg") || $("#ad-arch-msg"); if (m) m.innerHTML = `<span class="err-txt">${esc(err.message)}</span>`; else alertBox(err.message); }
+});
+/* Retrait d'une pièce : deuxième clic pour confirmer, sans fenêtre bloquante */
+function confirmerRetrait(b) { if (b.dataset.ok) return true; b.dataset.ok = "1"; b.textContent = "Retirer?"; b.classList.add("conf"); setTimeout(() => { if (b.isConnected) { delete b.dataset.ok; b.textContent = "✕"; b.classList.remove("conf"); } }, 3000); return false; }
+document.addEventListener("keydown", ev => { if (ev.key === "Enter" && ev.target.id === "p-tag") { ev.preventDefault(); const b = document.querySelector("[data-act='p-tag-add']"); if (b) b.click(); } });
+document.addEventListener("change", async ev => {
+  const el = ev.target;
+  if (el.id === "fe-etiq") { ui.fE.etiquette = el.value; render(); }
+  else if (el.id === "fe-annee") { ui.fE.annee = el.value; render(); }
+  else if (el.id === "n-files") { P_FICHIERS = [...P_FICHIERS, ...el.files]; el.value = ""; $("#n-files-l").textContent = P_FICHIERS.map(f => f.name + (f.size ? ` (${tailleTxt(f.size)})` : "")).join(", "); }
+  else if (el.id === "p-file") { const id = Number(el.dataset.ecart), files = [...el.files]; if (!files.length) return;
+    const errs = await envoyerFichiers(id, files, m => { const p = $("#p-msg"); if (p) p.textContent = m; });
+    await openDetail(id); render(); if (errs.length) { const p = $("#p-msg"); if (p) p.innerHTML = errs.map(x => `<div class="err-txt">${esc(x)}</div>`).join(""); } }
+});
+
+</script>
+<script>
+/* Rapports Power BI intégrés dans l'onglet Tableaux de bord.
+   Intégration sécurisée de Power BI (Fichier > Incorporer le rapport > Site web ou portail) : chaque personne se connecte
+   avec son compte Microsoft et ne voit que ce que Power BI lui permet de voir. Aucune API à construire. */
+"use strict";
+
+let PBI = [];
+
+/* Accepte le lien d'intégration, le code <iframe> ou le lien ordinaire d'un rapport, et renvoie le lien d'intégration. */
+function lienIntegration(txt) {
+  txt = String(txt || "").trim();
+  const m = txt.match(/src\s*=\s*["']([^"']+)["']/i); if (m) txt = m[1];
+  txt = txt.replace(/&amp;/g, "&");
+  let u; try { u = new URL(txt); } catch (e) { return null; }
+  if (u.protocol !== "https:" || u.hostname.toLowerCase() !== "app.powerbi.com") return null;
+  if (/^\/reportembed$/i.test(u.pathname)) { if (!u.searchParams.has("autoAuth")) u.searchParams.set("autoAuth", "true"); return u.toString(); }
+  const r = u.pathname.match(/\/groups\/([^/]+)\/(?:apps\/([^/]+)\/)?reports\/([0-9a-f-]{36})(?:\/([^/?#]+))?/i);
+  if (r) {
+    const e = new URL("https://app.powerbi.com/reportEmbed"); e.searchParams.set("reportId", r[3]);
+    if (r[2]) e.searchParams.set("appId", r[2]); else if (r[1].toLowerCase() !== "me") e.searchParams.set("groupId", r[1]);
+    e.searchParams.set("autoAuth", "true"); const ct = u.searchParams.get("ctid"); if (ct) e.searchParams.set("ctid", ct);
+    if (r[4] && !/^ReportSection$/i.test(r[4])) e.searchParams.set("pageName", r[4]);
+    return e.toString();
+  }
+  return u.toString();
+}
+
+function ongletsTB() {
+  if (!Api.rapportsPbi) return "";
+  return `<div class="seg" role="tablist" aria-label="Vue"><button type="button" role="tab" data-act="pb-vue" data-vue="dms" aria-selected="${ui.tbVue !== "pbi"}">Indicateurs DMS</button><button type="button" role="tab" data-act="pb-vue" data-vue="pbi" aria-selected="${ui.tbVue === "pbi"}">Rapports Power BI</button></div>`;
+}
+
+async function vPowerBI() {
+  PBI = await Api.rapportsPbi();
+  const peut = r => r.estProprietaire || ME.admin;
+  const btn = r => `<button type="button" class="meet-item" data-act="pb-voir" data-id="${r.id}" aria-pressed="${ui.pbi === r.id}"><span class="n">${esc(r.nom)}</span>${r.portee === "moi" ? ` <span class="pill neutral">Moi</span>` : ""}</button>`;
+  const groupes = [[null, "Général"], ...REF.departements.map(d => [d.code, d.nom])].map(([c, l]) => { const l2 = PBI.filter(r => r.portee === "tous" && (r.dept || null) === c); return l2.length ? `<div class="dept">${esc(l)}</div>${l2.map(btn).join("")}` : ""; }).join("");
+  const miens = PBI.filter(r => r.portee === "moi");
+  const aside = `${groupes}${miens.length ? `<div class="dept">Mes rapports</div>${miens.map(btn).join("")}` : ""}<button class="btn small" type="button" data-act="pb-new" style="margin-top:6px">+ Ajouter un rapport</button>`;
+  if (!PBI.some(r => r.id === ui.pbi)) ui.pbi = PBI.length ? PBI[0].id : null;
+  const r = PBI.find(x => x.id === ui.pbi);
+  const aide = `<ol class="small" style="margin:6px 0 0;padding-left:18px;line-height:1.6"><li>Dans Power BI (app.powerbi.com), ouvrez le rapport.</li><li>Fichier > Incorporer le rapport > <strong>Site web ou portail</strong> (pas « Publier sur le web », qui rend le rapport public).</li><li>Copiez le lien proposé, puis « + Ajouter un rapport » ici. Le lien ordinaire du rapport fonctionne aussi.</li></ol>`;
+  const main = r ? `<div class="meet-head"><div><h2>${esc(r.nom)}</h2><div class="meta"><span>${esc(r.dept ? deptNom(r.dept) : "Général")}</span><span>${r.portee === "tous" ? "Visible par tous les membres" : "Visible par moi seulement"}</span>${r.proprietaire ? `<span>Ajouté par ${esc(r.proprietaire)}</span>` : ""}</div></div>
+      <div class="row"><a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">Ouvrir dans Power BI ↗</a>${peut(r) ? `<button class="btn" type="button" data-act="pb-edit" data-id="${r.id}">Modifier</button><button class="btn" type="button" data-act="pb-del" data-id="${r.id}">Retirer</button>` : ""}</div></div>
+     <div class="pbi-cadre"><iframe title="${esc(r.nom)}" src="${esc(r.url)}" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+     <p class="small muted" style="margin-top:6px">La première fois, Power BI peut demander de se connecter avec le compte Microsoft d'EBI. L'accès suit les permissions et les licences Power BI de chaque personne.</p>`
+    : `<div class="card"><h3>Aucun rapport Power BI pour l'instant</h3><p class="small muted" style="margin:4px 0 0">Les rapports existants (Fidelio) et ceux à venir s'affichent ici, dans le portail.</p>${aide}<button class="btn primary" type="button" data-act="pb-new" style="margin-top:10px">+ Ajouter un rapport</button></div>`;
+  return `<div class="row between"><div class="row"><h2>Tableaux de bord</h2>${ongletsTB()}</div></div>
+   <div class="layout-meet" style="margin-top:12px"><aside class="meet-list" aria-label="Rapports Power BI">${aside}</aside><section>${main}</section></div>`;
+}
+
+function formRapport(r) {
+  modal(`<h2>${r ? "Modifier le rapport" : "Ajouter un rapport Power BI"}</h2><form id="f-pbi" class="form" data-id="${r ? r.id : ""}">
+   <label class="full" for="pb-nom">Nom<input id="pb-nom" maxlength="100" required value="${esc(r ? r.nom : "")}" placeholder="Ex. Heures par projet (Fidelio)"></label>
+   <label class="full" for="pb-url">Lien Power BI<textarea id="pb-url" rows="3" required placeholder="https://app.powerbi.com/reportEmbed?reportId=…">${esc(r ? r.url : "")}</textarea></label>
+   <div class="full small muted" id="pb-conv">Collez le lien de Fichier > Incorporer le rapport > Site web ou portail, le code &lt;iframe&gt;, ou le lien ordinaire du rapport.</div>
+   <label for="pb-dept">Département<select id="pb-dept">${opt([["", "Général"], ...REF.departements.map(d => [d.code, d.nom])], r ? r.dept || "" : "")}</select></label>
+   <label for="pb-portee">Visible par<select id="pb-portee" ${ME.admin ? "" : "disabled"}>${opt([["moi", "Moi seulement"], ["tous", "Tous les membres du DMS"]], r ? r.portee : (ME.admin ? "tous" : "moi"))}</select></label>
+   <div id="pb-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`);
+}
+
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='pb-']"); if (!a || a.disabled) return; const act = a.dataset.act;
+  try {
+    if (act === "pb-vue") { ui.tbVue = a.dataset.vue; render(); }
+    else if (act === "pb-voir") { ui.pbi = Number(a.dataset.id); render(); }
+    else if (act === "pb-new") formRapport(null);
+    else if (act === "pb-edit") formRapport(PBI.find(r => r.id === Number(a.dataset.id)));
+    else if (act === "pb-del") { if (!a.dataset.ok) { a.dataset.ok = "1"; a.textContent = "Confirmer le retrait"; a.classList.add("danger"); setTimeout(() => { if (a.isConnected) { delete a.dataset.ok; a.textContent = "Retirer"; a.classList.remove("danger"); } }, 3000); return; }
+      await Api.retirerRapport(Number(a.dataset.id)); ui.pbi = null; render(); }
+  } catch (err) { alertBox(err.message); }
+});
+document.addEventListener("input", ev => { if (ev.target.id !== "pb-url") return; const c = $("#pb-conv"); if (!c) return; const v = ev.target.value.trim(); if (!v) return;
+  const l = lienIntegration(v); c.innerHTML = l ? `Lien reconnu ✓` : `<span class="err-txt">Ce lien ne vient pas de Power BI (https://app.powerbi.com/…).</span>`; });
+document.addEventListener("submit", async ev => {
+  if (ev.target.id !== "f-pbi") return; ev.preventDefault();
+  const id = Number(ev.target.dataset.id) || null; const url = lienIntegration($("#pb-url").value);
+  if (!url) { formErr("pb-msg", "Ce lien ne vient pas de Power BI. Dans Power BI : Fichier > Incorporer le rapport > Site web ou portail."); return; }
+  const d = { nom: $("#pb-nom").value.trim(), url, dept: $("#pb-dept").value, portee: $("#pb-portee").value };
+  try { const nid = id ? (await Api.majRapport(id, d), id) : await Api.ajouterRapport(d); ui.pbi = Number(nid); ui.tbVue = "pbi"; closeModal(); render(); }
+  catch (err) { formErr("pb-msg", err.message); }
+});
+
+</script>
+<script>
 /* Portail DMS EBI — interface. Toute donnée passe par window.Api (js/api.js). */
 "use strict";
 const $ = s => document.querySelector(s);
@@ -1061,7 +1385,7 @@ const SSTATUT = { ADecider: "À décider", Planifie: "Planifié", EnCours: "En c
 const ROUTES = [["accueil", "Accueil"], ["rencontres", "Rencontres"], ["ecarts", "Écarts"], ["actions", "Actions"], ["tableaux", "Tableaux de bord"], ["admin", "Administration"]];
 
 let REF = null, ME = null, RENC = null;
-const ui = { meeting: null, run: null, fE: { dept: "", statut: "actifs", strate: "", cat: "", q: "" }, fA: { responsable: "", statut: "ouvertes" }, tbDept: "", tbMesure: "heures", tbJours: 28 };
+const ui = { meeting: null, run: null, fE: { dept: "", statut: "actifs", strate: "", cat: "", q: "", vue: "registre", etiquette: "", annee: "" }, fA: { responsable: "", statut: "ouvertes" }, tbDept: "", tbMesure: "heures", tbJours: 28, tbVue: "dms", pbi: null };
 let renderSeq = 0;
 
 const eq = c => REF.equipes.find(e => e.code === c);
@@ -1264,15 +1588,17 @@ function journalTable(list) {
 
 /* ---------- Écarts ---------- */
 async function vEcarts() {
-  const f = ui.fE; const list = await Api.ecarts(f);
-  return `<div class="row between"><h2>Registre des écarts</h2><div class="row"><button class="btn" data-act="csv" type="button">Exporter (CSV)</button><button class="btn primary" data-act="new" type="button">+ Documenter un écart</button></div></div>
+  const f = ui.fE; const arch = f.vue === "archives"; const [list] = await Promise.all([Api.ecarts(Object.assign({}, f, { statut: arch ? "" : f.statut })), typeof chargerEtiquettes === "function" ? chargerEtiquettes() : null]);
+  return `<div class="row between"><div class="row"><h2>${arch ? "Archives des écarts" : "Registre des écarts"}</h2>${typeof ongletsEcarts === "function" ? ongletsEcarts(f) : ""}</div><div class="row"><button class="btn" data-act="csv" type="button">Exporter (CSV)</button><button class="btn primary" data-act="new" type="button">+ Documenter un écart</button></div></div>
+  ${arch ? `<p class="small muted" style="margin:4px 0 0">Écarts fermés depuis plus longtemps que le délai d'archivage. Tout leur historique reste consultable : cliquez sur une ligne.</p>` : ""}
   <div class="filters"><select id="fe-dept" aria-label="Département">${opt([["", "Tous les départements"], ...REF.departements.map(d => [d.code, d.nom])], f.dept)}</select>
-  <select id="fe-statut" aria-label="Statut">${opt([["actifs", "Actifs (pas fermés)"], ["", "Tous les statuts"], ["Ouvert", "Ouvert"], ["RetourT1", "Retour au T1"], ["Ferme", "Fermé"]], f.statut)}</select>
+  ${arch ? "" : `<select id="fe-statut" aria-label="Statut">${opt([["actifs", "Actifs (pas fermés)"], ["", "Tous les statuts"], ["Ouvert", "Ouvert"], ["RetourT1", "Retour au T1"], ["Ferme", "Fermé"]], f.statut)}</select>`}
   <select id="fe-strate" aria-label="Strate">${opt([["", "Toutes les strates"], ["1", "T1"], ["2", "T2"], ["3", "T3"], ["4", "T4"]], f.strate)}</select>
   <select id="fe-cat" aria-label="Catégorie">${opt([["", "Toutes les catégories"], ...REF.categories.map(c => [c.code, c.code + " · " + c.nom])], f.cat)}</select>
+  ${typeof filtresArchives === "function" ? filtresArchives(f) : ""}
   <input id="fe-q" type="search" placeholder="Chercher : no, type, projet, FAB" value="${esc(f.q)}" aria-label="Recherche"><span class="muted small">${list.length} écart(s)</span></div>
   <div class="card scroll" style="padding:0">${list.length ? `<table class="t"><thead><tr><th>No</th><th>Date</th><th></th><th>Titre</th><th>Département</th><th>Strate</th><th>Statut</th><th>Min perdues</th><th>Coût</th><th>Cause</th></tr></thead><tbody>
-  ${list.map(e => `<tr class="click" data-act="detail" data-id="${e.id}"><td class="num">${e.no}</td><td class="num">${fmtD(e.dateEcart)}</td><td><span class="sq">${e.cat}</span></td><td>${esc(e.titre)}</td><td>${esc(deptNom(e.dept))}</td><td><span class="pill lvl">T${e.strateCourante}</span></td><td>${statutPill(e)}</td><td class="num">${e.minutes}</td><td class="num">${e.cout ? e.cout.toLocaleString("fr-CA") + " $" : ""}</td><td>${esc(e.cause || "")}</td></tr>`).join("")}</tbody></table>` : `<div class="empty" style="margin:14px">Aucun écart ne correspond aux filtres.</div>`}</div>`;
+  ${list.map(e => `<tr class="click" data-act="detail" data-id="${e.id}"><td class="num">${e.no}</td><td class="num">${fmtD(e.dateEcart)}</td><td><span class="sq">${e.cat}</span></td><td>${esc(e.titre)}${e.nbPieces ? ` <span class="small muted" title="${e.nbPieces} pièce(s) jointe(s)">📎${e.nbPieces}</span>` : ""}${(e.etiquettes || []).length ? `<div>${chipsEtiq(e.etiquettes, true)}</div>` : ""}</td><td>${esc(deptNom(e.dept))}</td><td><span class="pill lvl">T${e.strateCourante}</span></td><td>${statutPill(e)}</td><td class="num">${e.minutes}</td><td class="num">${e.cout ? e.cout.toLocaleString("fr-CA") + " $" : ""}</td><td>${esc(e.cause || "")}</td></tr>`).join("")}</tbody></table>` : `<div class="empty" style="margin:14px">Aucun écart ne correspond aux filtres.</div>`}</div>`;
 }
 
 /* ---------- Actions ---------- */
@@ -1288,6 +1614,7 @@ async function vActions() {
 
 /* ---------- Tableaux de bord ---------- */
 async function vTableaux() {
+  if (ui.tbVue === "pbi" && typeof vPowerBI === "function") return vPowerBI();
   const dep = ui.tbDept; const depuis = isoPlus(-ui.tbJours);
   const [ecarts, kpi] = await Promise.all([Api.ecarts({ dept: dep }), Api.kpi(dep)]);
   const per = ecarts.filter(e => e.dateEcart >= depuis), open = ecarts.filter(e => e.statut !== "Ferme");
@@ -1296,7 +1623,7 @@ async function vTableaux() {
   const regles = ecarts.filter(e => e.dateReglement); const delai = [1, 2, 3, 4].map(n => { const r = regles.filter(e => e.strateReglement === n); return [n, r.length, r.length ? r.reduce((s, e) => s + days(e.dateEcart, e.dateReglement), 0) / r.length : null]; });
   const byDept = REF.departements.filter(d => !dep || d.code === dep).map(d => [d.nom, per.filter(e => e.dept === d.code).reduce((s, e) => s + e.minutes, 0) / 60, per.filter(e => e.dept === d.code).length]);
   const mxD = Math.max(1, ...byDept.map(x => x[1])); const procs = ecarts.filter(e => e.procedureModifiee);
-  return `<div class="row between"><h2>Tableaux de bord</h2><button class="btn" data-act="csv" type="button">Exporter les écarts (CSV)</button></div>
+  return `<div class="row between"><div class="row"><h2>Tableaux de bord</h2>${typeof ongletsTB === "function" ? ongletsTB() : ""}</div><button class="btn" data-act="csv" type="button">Exporter les écarts (CSV)</button></div>
   <div class="filters"><select id="tb-dept" aria-label="Département">${opt([["", "Tous les départements"], ...REF.departements.map(d => [d.code, d.nom])], dep)}</select>
   <select id="tb-jours" aria-label="Période">${opt([[7, "7 derniers jours"], [28, "4 dernières semaines"], [90, "90 derniers jours"]], ui.tbJours)}</select>
   <select id="tb-mesure" aria-label="Mesure du Pareto">${opt([["heures", "Pareto en heures perdues"], ["cout", "Pareto en coût ($)"], ["nombre", "Pareto en nombre d'écarts"]], ui.tbMesure)}</select></div>
@@ -1313,7 +1640,9 @@ async function vTableaux() {
 async function vAdmin() {
   if (!ME.admin) return `<div class="error">Réservé à l'administrateur du DMS.</div>`;
   const [ref, kpi] = await Promise.all([Api.referentiels(), Api.kpi("")]); REF = ref; const b = ref.bareme;
+  const fic = typeof carteFichiers === "function" ? await carteFichiers() : "";
   return `<h2>Administration</h2>
+  ${fic ? `<div style="margin-top:12px">${fic}</div>` : ""}
   <div class="two" style="margin-top:12px"><div class="card"><h3>Barème</h3><p class="small muted">Sous le barème, l'écart se règle sur place sans fiche. L'enregistrement est refusé par le serveur.</p>
    <form id="f-bareme" class="form"><label for="b-min">Minutes perdues (minimum)<input id="b-min" type="number" min="0" value="${b.minutesMin}"></label><label for="b-cout">Coût direct (minimum, $)<input id="b-cout" type="number" min="0" value="${b.coutMin}"></label>
    <label class="check full" for="b-s"><input type="checkbox" id="b-s" ${b.securiteToujours ? "checked" : ""}>Un écart de sécurité se documente toujours</label><div class="full row" style="justify-content:flex-end"><button class="btn primary" type="submit">Enregistrer le barème</button></div></form></div>
@@ -1389,6 +1718,7 @@ function openNew(team) {
   <div class="full"><div class="small muted" style="margin-bottom:3px">Titre généré</div><div class="preview-title" id="n-prev">–</div></div>
   <div class="full" id="n-bareme"></div>
   ${detailsHtml(null)}
+  ${typeof champsCreation === "function" ? champsCreation() : ""}
   <div class="full" id="n-suite"></div>
   <div class="full" id="n-msg"></div>
   <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit" id="n-save">Enregistrer</button></div></form>`);
@@ -1403,8 +1733,9 @@ function openNew(team) {
   $("#n-team").addEventListener("change", suite); $("#n-suite").addEventListener("change", () => majSuite($("#n-save"), true));
   upd(); suite();
   $("#f-new").addEventListener("submit", async ev => { ev.preventDefault();
-    try { await Api.creerEcartComplet(Object.assign({ equipeOrigine: $("#n-team").value, dateEcart: $("#n-date").value, typeId: Number($("#n-type").value), poste: $("#n-poste").value, noFab: $("#n-fab").value.trim() || null, minutes: Number($("#n-min").value) || 0, cout: Number($("#n-cout").value) || 0, description: $("#n-desc").value }, lireDetails()));
-      closeModal(); render(); } catch (err) { formErr("n-msg", err.message); } });
+    try { $("#n-save").disabled = true; const r = await Api.creerEcartComplet(Object.assign({ equipeOrigine: $("#n-team").value, dateEcart: $("#n-date").value, typeId: Number($("#n-type").value), poste: $("#n-poste").value, noFab: $("#n-fab").value.trim() || null, minutes: Number($("#n-min").value) || 0, cout: Number($("#n-cout").value) || 0, description: $("#n-desc").value }, lireDetails()));
+      const nid = r && typeof r === "object" ? r.id : r; const errs = nid && typeof apresCreation === "function" ? await apresCreation(nid, "n-msg") : [];
+      closeModal(); render(); if (errs.length) alertBox("L'écart est enregistré, mais : " + errs.join(" · ")); } catch (err) { $("#n-save").disabled = false; formErr("n-msg", err.message); } });
 }
 async function openTraiter(id, suite) {
   const e = await Api.ecart(id); const t = eq(e.equipeCourante);
@@ -1417,19 +1748,20 @@ async function openTraiter(id, suite) {
 }
 async function openDetail(id) {
   const e = await Api.ecart(id); const t = eq(e.equipeCourante);
-  modal(`<div class="row between"><h2>${esc(e.titre)}</h2>${statutPill(e)}</div>
+  modal(`<div class="row between"><h2>${esc(e.titre)}</h2><span>${e.archive ? `<span class="pill neutral">Archivé</span> ` : ""}${statutPill(e)}</span></div>
   <div class="meta" style="margin-bottom:10px"><span>${e.no}</span><span><span class="sq">${e.cat}</span> ${esc((REF.categories.find(c => c.code === e.cat) || {}).nom)}</span><span>${esc(deptNom(e.dept))}</span><span>Vu par ${esc(eq(e.equipeOrigine).nom)}</span><span>Maintenant au T${t.strate}</span><span class="num">${e.minutes} min perdues</span>${e.cout ? `<span class="num">${e.cout.toLocaleString("fr-CA")} $</span>` : ""}${e.noFab ? `<span>FAB ${esc(e.noFab)}</span>` : ""}</div>
   <p style="margin:0 0 10px">${esc(e.description)}</p>
   ${e.solution ? `<div class="card" style="margin-bottom:10px"><div class="small"><strong>Cause :</strong> ${esc(e.cause)} · ${esc(e.causeDetail)}</div><div class="small"><strong>Solution :</strong> ${esc(e.solution)}</div>${e.procedureModifiee ? `<div class="small"><strong>Procédure modifiée :</strong> ${esc(e.procedureNom)}</div>` : ""}${e.collaborateurs.length ? `<div class="small"><strong>Collaborateurs :</strong> ${e.collaborateurs.map(esc).join(", ")}</div>` : ""}</div>` : ""}
   ${e.actions.length ? `<h3>Actions</h3>${actionsTable(e.actions)}` : ""}
+  ${typeof sectionsEcart === "function" ? await sectionsEcart(e) : ""}
   <h3 style="margin-top:10px">Historique</h3><div class="timeline">${e.mouvements.map(m => `<div><span class="muted num">${fmtD(m.date)}</span> · ${esc(m.texte)} <span class="muted small">(${esc(m.par)})</span></div>`).join("")}</div>
   <div class="row" style="justify-content:flex-end;margin-top:14px">${e.statut === "Ouvert" ? `${t.parent ? `<button class="btn" data-act="escalader" data-id="${e.id}" type="button">Escalader</button>` : ""}<button class="btn primary" data-act="regler" data-id="${e.id}" type="button">Régler</button>` : ""}<button class="btn" data-act="close" type="button">Fermer</button></div>`);
 }
 async function openCsv() {
   const url = Api.exportCsvUrl(); if (url) { location.href = url; return; }
-  const l = await Api.ecarts({}); const cols = ["no", "date", "departement", "equipe_origine", "strate_courante", "statut", "categorie", "type", "poste_projet", "no_fab", "titre", "minutes_perdues", "cout", "cause_6M", "strate_reglement", "date_reglement", "procedure_modifiee", "procedure", "actions_total", "actions_ouvertes", "description"];
+  const l = await Api.ecarts({}); const cols = ["no", "date", "departement", "equipe_origine", "strate_courante", "statut", "categorie", "type", "poste_projet", "no_fab", "titre", "minutes_perdues", "cout", "cause_6M", "strate_reglement", "date_reglement", "procedure_modifiee", "procedure", "actions_total", "actions_ouvertes", "description", "etiquettes", "pieces_jointes", "archive"];
   const q = v => { const s = String(v ?? ""); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-  const csv = [cols.join(","), ...l.map(e => [e.no, e.dateEcart, deptNom(e.dept), eq(e.equipeOrigine).nom, "T" + e.strateCourante, STATUT[e.statut], e.cat, e.type, e.poste, e.noFab, e.titre, e.minutes, e.cout, e.cause, e.strateReglement ? "T" + e.strateReglement : "", e.dateReglement, e.procedureModifiee ? "oui" : "non", e.procedureNom, e.nbActions, e.nbActionsOuvertes, e.description].map(q).join(","))].join("\n");
+  const csv = [cols.join(","), ...l.map(e => [e.no, e.dateEcart, deptNom(e.dept), eq(e.equipeOrigine).nom, "T" + e.strateCourante, STATUT[e.statut], e.cat, e.type, e.poste, e.noFab, e.titre, e.minutes, e.cout, e.cause, e.strateReglement ? "T" + e.strateReglement : "", e.dateReglement, e.procedureModifiee ? "oui" : "non", e.procedureNom, e.nbActions, e.nbActionsOuvertes, e.description, (e.etiquettes || []).join(" | "), e.nbPieces || 0, e.archive ? "oui" : "non"].map(q).join(","))].join("\n");
   modal(`<h2>Export des écarts (CSV)</h2><p class="small muted" style="margin-top:0">Une ligne par écart, colonnes structurées. Sur le serveur, ce bouton télécharge directement le fichier.</p><textarea id="csv" readonly style="width:100%;min-height:260px;font-family:ui-monospace,Consolas,monospace;font-size:.78rem;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);padding:8px">${esc(csv)}</textarea><div class="row" style="justify-content:flex-end;margin-top:10px"><span class="small muted" id="csv-msg"></span><button class="btn primary" type="button" data-act="copy-csv">Copier</button><button class="btn" type="button" data-act="close">Fermer</button></div>`);
 }
 async function openSujet(code, id) {
