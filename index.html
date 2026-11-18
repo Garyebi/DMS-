@@ -285,6 +285,21 @@ footer{max-width:1360px;margin:0 auto;padding:0 20px 30px;color:var(--muted);fon
 .pbi-renc summary{cursor:pointer;padding:2px 0}.pbi-renc summary:focus-visible{outline:3px solid #7fb2f0}
 .pbi-renc .seg{margin-left:0;flex-wrap:wrap}
 .pbi-vide{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;margin:10px 0}
+.pbi-minis{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:8px}
+.pbi-mini{width:300px}
+.pbi-mini-cadre{position:relative;width:300px;height:175px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.pbi-mini-cadre iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
+.pbi-mini-btn{all:unset;position:absolute;inset:0;cursor:zoom-in;display:flex;align-items:flex-end;justify-content:flex-end;padding:6px}
+.pbi-mini-btn span{background:rgba(11,37,69,.85);color:#fff;font-size:.78rem;font-weight:600;padding:3px 8px;border-radius:5px;opacity:.85}
+.pbi-mini-btn:hover span,.pbi-mini-btn:focus-visible span{opacity:1}
+.pbi-mini-btn:focus-visible{outline:3px solid #7fb2f0;outline-offset:-3px}
+.pbi-mini-t{font-size:.85rem;font-weight:600;margin-top:4px}
+.pbi-mini-aj{align-self:center}
+.pbi-full{position:fixed;inset:0;z-index:1000;background:#fff;display:flex;flex-direction:column}
+.pbi-full-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;background:var(--navy);flex-wrap:wrap}
+.pbi-full-h .seg{margin-left:0}
+.pbi-full iframe{flex:1;width:100%;border:0}
+body.pbi-ouvert{overflow:hidden}
 
 </style>
 </head>
@@ -311,7 +326,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.8.1", dateVersion: "18 novembre 2026"
+  version: "0.8.2", dateVersion: "18 novembre 2026"
 };
 
 </script>
@@ -1473,12 +1488,10 @@ async function remplirPbi(slot, force) {
   try {
     const d = await Api.rapportsRencontre(code); slot._d = d;
     if (!d.rapports.length) { slot.innerHTML = d.peutLier ? `<div class="pbi-vide"><span class="small muted">Aucun rapport Power BI dans cette rencontre.</span><button class="btn small" type="button" data-act="pb-lier" data-code="${esc(code)}">+ Ajouter un rapport Power BI</button></div>` : ""; return; }
-    ui.pbiR = ui.pbiR || {}; if (!d.rapports.some(r => r.id === ui.pbiR[code])) ui.pbiR[code] = d.rapports[0].id;
-    const r = d.rapports.find(x => x.id === ui.pbiR[code]);
-    slot.innerHTML = `<details class="pbi-renc" ${ui.pbiFerme && ui.pbiFerme[code] ? "" : "open"} data-code="${esc(code)}"><summary><strong>Rapports Power BI (${d.rapports.length})</strong></summary>
-      <div class="row between" style="margin:8px 0"><div class="seg" role="tablist" aria-label="Rapports">${d.rapports.map(x => `<button type="button" role="tab" data-act="pb-rtab" data-code="${esc(code)}" data-id="${x.id}" aria-selected="${x.id === r.id}">${esc(x.nom)}</button>`).join("")}</div>
-      <div class="row"><a class="btn small" href="${esc(r.url)}" target="_blank" rel="noopener">Plein écran ↗</a>${d.peutLier ? `<button class="btn small" type="button" data-act="pb-lier" data-code="${esc(code)}">Choisir les rapports</button>` : ""}</div></div>
-      <div class="pbi-cadre" style="margin-top:0"><iframe title="${esc(r.nom)}" src="${esc(r.url)}" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div></details>`;
+    slot.innerHTML = `<details class="pbi-renc" ${ui.pbiFerme && ui.pbiFerme[code] ? "" : "open"} data-code="${esc(code)}"><summary><strong>Rapports Power BI (${d.rapports.length})</strong> <span class="small muted">· cliquez sur un rapport pour l'agrandir</span></summary>
+      <div class="pbi-minis">${d.rapports.map(r => `<div class="pbi-mini"><div class="pbi-mini-cadre"><iframe title="${esc(r.nom)}" src="${esc(r.url)}" tabindex="-1" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <button type="button" class="pbi-mini-btn" data-act="pb-grand" data-code="${esc(code)}" data-id="${r.id}" aria-label="Agrandir ${esc(r.nom)} en plein écran"><span>⤢ Agrandir</span></button></div><div class="pbi-mini-t">${esc(r.nom)}</div></div>`).join("")}
+       ${d.peutLier ? `<button class="btn small pbi-mini-aj" type="button" data-act="pb-lier" data-code="${esc(code)}">Choisir les rapports</button>` : ""}</div></details>`;
   } catch (err) { slot.innerHTML = `<div class="small err-txt">Rapports Power BI : ${esc(err.message)}</div>`; }
 }
 new MutationObserver(() => document.querySelectorAll(".pbi-slot:not([data-ok])").forEach(s => remplirPbi(s))).observe(document.documentElement, { childList: true, subtree: true });
@@ -1494,8 +1507,20 @@ async function choisirRapports(code) {
    <div class="full small muted">L'ordre de la liste devient l'ordre des onglets. Chaque participant voit le rapport selon ses propres permissions Power BI.</div>
    <div id="pl-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><a class="btn" href="#tableaux" data-act="pb-aller">Gérer les rapports</a><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`);
 }
+function pleinEcran(code, id) {
+  const slot = document.querySelector(`.pbi-slot[data-code="${CSS.escape(code)}"]`), l = (slot && slot._d && slot._d.rapports) || []; const r = l.find(x => x.id === id); if (!r) return;
+  fermerPlein(); const ov = document.createElement("div"); ov.className = "pbi-full"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); ov.setAttribute("aria-label", r.nom);
+  ov.innerHTML = `<div class="pbi-full-h"><div class="seg" role="tablist" aria-label="Rapports">${l.map(x => `<button type="button" role="tab" data-act="pb-grand" data-code="${esc(code)}" data-id="${x.id}" aria-selected="${x.id === r.id}">${esc(x.nom)}</button>`).join("")}</div>
+    <div class="row"><a class="btn small" href="${esc(r.url)}" target="_blank" rel="noopener">Ouvrir dans Power BI ↗</a><button class="btn small primary" type="button" data-act="pb-fermer">Fermer ✕</button></div></div>
+    <iframe title="${esc(r.nom)}" src="${esc(r.url)}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  document.body.appendChild(ov); document.body.classList.add("pbi-ouvert"); ov.querySelector("[data-act='pb-fermer']").focus();
+}
+function fermerPlein() { const o = document.querySelector(".pbi-full"); if (o) o.remove(); document.body.classList.remove("pbi-ouvert"); }
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && document.querySelector(".pbi-full")) { ev.stopPropagation(); fermerPlein(); } }, true);
 document.addEventListener("click", async ev => {
-  const a = ev.target.closest("[data-act='pb-rtab'], [data-act='pb-lier'], [data-act='pb-aller']"); if (!a) return;
+  const a = ev.target.closest("[data-act='pb-rtab'], [data-act='pb-lier'], [data-act='pb-aller'], [data-act='pb-grand'], [data-act='pb-fermer']"); if (!a) return;
+  if (a.dataset.act === "pb-grand") { pleinEcran(a.dataset.code, Number(a.dataset.id)); return; }
+  if (a.dataset.act === "pb-fermer") { fermerPlein(); return; }
   try {
     if (a.dataset.act === "pb-rtab") { ui.pbiR = ui.pbiR || {}; ui.pbiR[a.dataset.code] = Number(a.dataset.id); const s = a.closest(".pbi-slot"); if (s) remplirPbi(s, true); }
     else if (a.dataset.act === "pb-lier") await choisirRapports(a.dataset.code);
