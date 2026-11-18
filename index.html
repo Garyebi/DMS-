@@ -301,6 +301,11 @@ footer{max-width:1360px;margin:0 auto;padding:0 20px 30px;color:var(--muted);fon
 .pbi-full iframe{flex:1;width:100%;border:0}
 body.pbi-ouvert{overflow:hidden}
 
+/* Actions de suivi par lettre SQCDP, dans les rencontres */
+.ract-pt{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.ract-pt > .row{margin-bottom:6px}
+.ract-pt tr[data-st="fait"] .lien-act{text-decoration:line-through;color:var(--muted)}
+
 </style>
 </head>
 <body>
@@ -326,7 +331,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.8.4", dateVersion: "18 novembre 2026"
+  version: "0.8.5", dateVersion: "18 novembre 2026"
 };
 
 </script>
@@ -414,6 +419,7 @@ function httpApi(base) {
     majRaction: (id, t, d) => call("PATCH", "/actions-rencontre/" + id, Object.assign({ tenue: t }, d)),
     supprimerRaction: id => call("DELETE", "/actions-rencontre/" + id),
     ractions: f => call("GET", "/actions-rencontre" + qs(f)),
+    ajouterRactionRenc: (code, d) => call("POST", `/rencontres/${code}/actions`, d),
     exportCsvUrl: () => base + "/export/ecarts.csv"
   };
 }
@@ -744,6 +750,7 @@ function demoApi() {
     const B = () => { if (!S.b) { S.b = seedB(); save(); } return S.b; };
     const nomP = id => (pers(id) || {}).nom || "";
     const peut = s => s && (!s.prive || s.proprietaireId === userId || s.acces.includes(userId));
+    const estRenc = code => RENCONTRES.some(r => r.code === code);
     const suite = code => { const s = B().suites.find(x => x.code === code); need(s, "Rencontre introuvable."); need(peut(s), "Cette rencontre est privée. Demandez à son propriétaire de vous y donner accès."); return s; };
     const tenue = id => { const t = B().tenues.find(x => x.id === Number(id)); need(t, "Rencontre introuvable."); suite(t.rencontre); return t; };
     const cmp = (a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id;
@@ -810,22 +817,27 @@ function demoApi() {
       ajouterRaction: (tid, d) => run(() => { const t = tenue(tid), b = B(); need((d.texte || "").trim(), "Décrivez l'action.");
         const a = Object.assign({ id: ++b.seq.a, rencontre: t.rencontre, tenueOrigine: t.id, pointId: d.pointId ? Number(d.pointId) : null, texte: d.texte.trim(), echeance: d.echeance || null, statut: "cours", depuis: t.date, fermeLe: null }, resp(d));
         b.actions.push(a); return a.id; }),
-      majRaction: (id, tid, d) => run(() => { const b = B(), a = b.actions.find(x => x.id === Number(id)); need(a, "Action introuvable."); suite(a.rencontre);
+      ajouterRactionRenc: (code, d) => run(() => { need(estRenc(code), "Rencontre introuvable."); const b = B(); need((d.texte || "").trim(), "Décrivez l'action.");
+        need(!d.cat || "SQCDP".includes(d.cat), "Catégorie SQCDP inconnue.");
+        const a = Object.assign({ id: ++b.seq.a, rencontre: code, tenueOrigine: null, pointId: null, texte: d.texte.trim(), echeance: d.echeance || null, statut: "cours", depuis: today(), fermeLe: null, cat: d.cat || null, ecartId: d.ecartId ? Number(d.ecartId) : null, avancement: null }, resp(d));
+        b.actions.push(a); return a.id; }),
+      majRaction: (id, tid, d) => run(() => { const b = B(), a = b.actions.find(x => x.id === Number(id)); need(a, "Action introuvable."); if (!estRenc(a.rencontre)) suite(a.rencontre);
         const t = tid ? tenue(tid) : null; need(!t || t.rencontre === a.rencontre, "Cette action n'appartient pas à cette rencontre.");
         if ("statut" in d) need(["cours", "bloque", "fait"].includes(d.statut), "Statut inconnu.");
         if ((d.texte || "").trim()) a.texte = d.texte.trim();
         if ("responsable" in d || "responsableId" in d) Object.assign(a, resp(d));
         if ("echeance" in d) a.echeance = d.echeance || null;
         if ("statut" in d) { if (d.statut === "fait" && a.statut !== "fait") a.fermeLe = t ? t.date : today(); if (d.statut !== "fait") a.fermeLe = null; a.statut = d.statut; }
+        if (!t && "avancement" in d) a.avancement = (d.avancement || "").trim() || null;
         if (t) suiviUpsert(a, t.id, d); return null; }),
-      supprimerRaction: id => run(() => { const b = B(), a = b.actions.find(x => x.id === Number(id)); need(a, "Action introuvable."); suite(a.rencontre);
+      supprimerRaction: id => run(() => { const b = B(), a = b.actions.find(x => x.id === Number(id)); need(a, "Action introuvable."); if (!estRenc(a.rencontre)) suite(a.rencontre);
         b.suivis = b.suivis.filter(x => x.actionId !== a.id); b.actions = b.actions.filter(x => x.id !== a.id); return null; }),
       ractions: f => { f = f || {}; const b = B();
-        let l = b.actions.filter(a => peut(b.suites.find(s => s.code === a.rencontre)));
+        let l = b.actions.filter(a => estRenc(a.rencontre) || peut(b.suites.find(s => s.code === a.rencontre)));
         if (f.rencontre) l = l.filter(a => a.rencontre === f.rencontre); if (f.statut === "ouvertes") l = l.filter(a => a.statut !== "fait");
         return wait(l.map(a => { const sv = b.suivis.filter(x => x.actionId === a.id && x.avancement).sort((x, y) => (y.le || "").localeCompare(x.le || ""))[0];
-          return { id: a.id, rencontre: a.rencontre, serie: b.suites.find(s => s.code === a.rencontre).nom, texte: a.texte, responsable: respNom(a), echeance: a.echeance, statut: a.statut, depuis: a.depuis, fermeLe: a.fermeLe,
-            enRetard: a.statut !== "fait" && !!a.echeance && a.echeance < today(), dernierAvancement: sv ? sv.avancement : null, tenueOrigine: a.tenueOrigine }; })
+          return { id: a.id, rencontre: a.rencontre, serie: estRenc(a.rencontre) ? RENCONTRES.find(r => r.code === a.rencontre).nom : b.suites.find(s => s.code === a.rencontre).nom, texte: a.texte, responsable: respNom(a), echeance: a.echeance, statut: a.statut, depuis: a.depuis, fermeLe: a.fermeLe,
+            enRetard: a.statut !== "fait" && !!a.echeance && a.echeance < today(), dernierAvancement: sv ? sv.avancement : (a.avancement || null), tenueOrigine: a.tenueOrigine, cat: a.cat || null, ecartId: a.ecartId || null, libre: !estRenc(a.rencontre) }; })
           .sort((x, y) => (x.echeance || "9999").localeCompare(y.echeance || "9999") || x.id - y.id)); }
     };
   }
@@ -858,7 +870,7 @@ function supabaseApi(cfg) {
   const mapA = r => ({ id: r.id, ecartId: r.ecart_id, sujetId: r.sujet_id, horizon: r.horizon, texte: r.texte, responsable: r.responsable, responsableId: r.responsable_id, resultat: r.resultat, echeance: r.echeance, statut: r.statut, noEcart: r.no_ecart, dept: r.dept, enRetard: r.en_retard });
   const mapS = r => ({ id: r.id, rencontre: r.rencontre, titre: r.titre, responsable: r.responsable, statut: r.statut, prochaineRevue: r.prochaine_revue, notes: r.notes || [] });
   const mapT = r => ({ id: r.id, rencontre: r.rencontre, debut: r.debut, dureeMin: r.duree_min, decisions: r.decisions, animeePar: r.animee_par });
-  const mapR = r => ({ id: r.id, rencontre: r.rencontre, serie: r.serie, texte: r.texte, responsable: r.responsable, echeance: r.echeance, statut: r.statut, depuis: r.depuis, fermeLe: r.ferme_le, enRetard: r.en_retard, dernierAvancement: r.dernier_avancement, tenueOrigine: r.tenue_origine });
+  const mapR = r => ({ id: r.id, rencontre: r.rencontre, serie: r.serie, texte: r.texte, responsable: r.responsable, echeance: r.echeance, statut: r.statut, depuis: r.depuis, fermeLe: r.ferme_le, enRetard: r.en_retard, dernierAvancement: r.dernier_avancement, tenueOrigine: r.tenue_origine, cat: r.cat || null, ecartId: r.ecart_id || null, libre: r.libre !== false });
   const BUCKET = "ecart-fichiers";
   const propre = q => String(q || "").replace(/[,()*%\\]/g, " ").trim();
   return {
@@ -960,6 +972,7 @@ function supabaseApi(cfg) {
     ajouterRaction: (t, d) => rpc("ajouter_raction", { p_tenue: Number(t), p: d }),
     majRaction: (id, t, d) => rpc("maj_raction", { p_id: Number(id), p_tenue: t ? Number(t) : null, p: d }),
     supprimerRaction: id => rpc("supprimer_raction", { p_id: Number(id) }),
+    ajouterRactionRenc: (code, d) => rpc("ajouter_raction_renc", { p_code: code, p: d }),
     ractions: async f => { f = f || {}; let q = sb.from("v_raction").select("*");
       if (f.rencontre) q = q.eq("rencontre", f.rencontre);
       if (f.statut === "ouvertes") q = q.neq("statut", "fait");
@@ -1079,8 +1092,8 @@ function ractTable(list, withSuite) {
 async function ractionsCard() {
   if (!Api.ractions) return "";
   const f = ufR(); const list = await Api.ractions({ statut: f.statut, rencontre: f.suite });
-  return `<div class="card" style="margin-top:14px"><h3>Actions de rencontres</h3><p class="small muted" style="margin:2px 0 0">Actions décidées dans les suites de rencontres (bilans), suivies à part des actions d'écarts.</p>
-   <div class="filters"><select id="fr-suite" aria-label="Suite">${opt([["", "Toutes les suites"], ...SUITES.map(s => [s.code, s.nom])], f.suite)}</select><select id="fr-statut" aria-label="Statut">${opt([["ouvertes", "Ouvertes"], ["", "Toutes"]], f.statut)}</select><span class="muted small">${list.length} action(s)</span></div>
+  return `<div class="card" style="margin-top:14px"><h3>Actions de rencontres</h3><p class="small muted" style="margin:2px 0 0">Actions décidées en rencontre (suites et rencontres DMS, par lettre SQCDP), suivies à part des actions d'écarts.</p>
+   <div class="filters"><select id="fr-suite" aria-label="Suite">${opt([["", "Toutes les rencontres"], ...SUITES.map(s => [s.code, s.nom]), ...RENC.map(r => [r.code, r.nom])], f.suite)}</select><select id="fr-statut" aria-label="Statut">${opt([["ouvertes", "Ouvertes"], ["", "Toutes"]], f.statut)}</select><span class="muted small">${list.length} action(s)</span></div>
    ${list.length ? ractTable(list, true) : `<div class="empty">Aucune action.</div>`}</div>`;
 }
 
@@ -1182,6 +1195,7 @@ function bParams(s) {
 }
 
 async function bEditRact(id, code) {
+  if (typeof raEdit === "function" && RENC.some(r => r.code === code)) return raEdit(id, code);
   const ts = await Api.tenuesSuite(code), last = ts[0];
   let a = null, tid = null;
   if (last) { const b = await Api.bilan(last.id); a = b.actions.find(x => x.id === id) || null; if (a) tid = last.id; }
@@ -1202,6 +1216,7 @@ document.addEventListener("click", async ev => {
   const a = ev.target.closest("[data-act^='b-']"); if (!a || a.disabled) return; const act = a.dataset.act;
   try {
     if (act === "b-suite") { await bFlush(); ui.suite = a.dataset.code; ui.tenue = null; ui.run = null; render(); }
+    else if (act === "b-goto" && RENC.some(r => r.code === a.dataset.code)) { ui.suite = null; ui.tenue = null; ui.meeting = a.dataset.code; if (route() === "rencontres") render(); else location.hash = "rencontres"; }
     else if (act === "b-goto") { ui.suite = a.dataset.code; ui.tenue = null; if (route() === "rencontres") render(); else location.hash = "rencontres"; }
     else if (act === "b-new-suite") bNouvelleSuite();
     else if (act === "b-edit-ract") await bEditRact(Number(a.dataset.id), a.dataset.code);
@@ -1687,7 +1702,7 @@ document.addEventListener("click", async ev => {
     else if (act === "nt-go") {
       if (a.dataset.id) { await Api.marquerLues([Number(a.dataset.id)]); majCloche(); }
       if (a.dataset.ecart) await openDetail(Number(a.dataset.ecart), Number(a.dataset.action) || null);
-      else if (a.dataset.raction && typeof bEditRact === "function") { closeModal(); ui.suite = a.dataset.renc; ui.tenue = null; if (route() === "rencontres") await render(); else { location.hash = "rencontres"; await new Promise(r => setTimeout(r, 400)); } await bEditRact(Number(a.dataset.raction), a.dataset.renc); }
+      else if (a.dataset.raction && typeof bEditRact === "function") { closeModal(); if (RENC.some(r => r.code === a.dataset.renc)) { ui.suite = null; ui.meeting = a.dataset.renc; } else ui.suite = a.dataset.renc; ui.tenue = null; if (route() === "rencontres") await render(); else { location.hash = "rencontres"; await new Promise(r => setTimeout(r, 400)); } await bEditRact(Number(a.dataset.raction), a.dataset.renc); }
     }
   } catch (err) { alertBox(err.message); }
 });
@@ -1808,34 +1823,73 @@ async function vRencontres() {
   const m = RENC.find(r => r.code === ui.meeting);
   if (!m) return `<div class="layout-meet"><aside class="meet-list" aria-label="Rencontres">${aside}</aside><section><div class="empty">Choisissez une rencontre ou créez une suite.</div></section></div>`;
   const t = eq(m.equipe);
-  const [ecarts, actions, sujets, tenues, kpi] = await Promise.all([Api.ecarts({}), Api.actions({ statut: "ouvertes" }), Api.sujets(m.code), Api.tenues(m.code), Api.kpi("")]);
+  const [ecarts, actions, sujets, tenues, kpi, ractions0] = await Promise.all([Api.ecarts({}), Api.actions({ statut: "ouvertes" }), Api.sujets(m.code), Api.tenues(m.code), Api.kpi(""), Api.ractions ? Api.ractions({ rencontre: m.code }) : []]);
+  const ractions = ractions0.filter(a => a.statut !== "fait" || a.fermeLe === isoToday());
   const list = aside;
   const run = ui.run && ui.run.code === m.code ? ui.run : null;
   const el = run ? Math.floor((Date.now() - run.start) / 1000) : 0;
-  const ctx = { m, t, ecarts, actions, sujets, kpi };
+  const ctx = { m, t, ecarts, actions, sujets, kpi, ractions };
   const head = `<div class="meet-head"><div><h2>${esc(m.nom)}</h2><div class="meta"><span>${esc(m.frequence)}</span><span>${m.dureeMin} min</span><span>Strate T${t.strate} : ${esc(t.nom)}</span></div><div class="meta"><span>Participants : ${esc(m.participants)}</span></div></div>
    <div class="row">${run ? `<div class="timer num ${el > m.dureeMin * 60 ? "over" : ""}" id="timer">${mmss(el)}</div><span class="muted small">/ ${m.dureeMin}:00</span><button class="btn" data-act="next" type="button">Point suivant</button><button class="btn primary" data-act="close-meet" type="button">Clore la rencontre</button>` : `<button class="btn primary" data-act="start-meet" type="button">Démarrer la rencontre</button>`}</div></div>`;
   const items = m.points.map((p, i) => { const cls = run ? (i < run.idx ? "done" : i === run.idx ? "current" : "") : "";
-    return `<div class="ag ${cls}"><div class="ag-h"><span class="ag-n">${p.ordre}</span><span class="ag-t">${esc(p.titre)}</span><span class="muted small num">${p.dureeMin} min</span></div><div class="ag-b">${bloc(p.bloc, ctx)}</div></div>`; }).join("");
+    return `<div class="ag ${cls}"><div class="ag-h"><span class="ag-n">${i + 1}</span><span class="ag-t">${esc(p.titre)}</span><span class="muted small num">${p.dureeMin} min</span></div><div class="ag-b">${bloc(p.bloc, ctx)}</div></div>`; }).join("");
   const cr = tenues.length ? tenues.map(c => `<div class="small"><strong>${fmtD(c.debut)}</strong> · ${c.dureeMin} min · ${esc(c.animeePar || "")} · ${esc(c.decisions)}</div>`).join("") : `<div class="muted small">Aucun compte rendu pour l'instant.</div>`;
   return `<div class="layout-meet"><aside class="meet-list" aria-label="Structure des rencontres">${list}</aside><section>${head}${typeof slotPbi === "function" ? slotPbi(m.code) : ""}<div class="agenda">${items}</div><div class="card" style="margin-top:14px"><h3>Derniers comptes rendus</h3><div class="grid" style="gap:6px;margin-top:6px">${cr}</div></div></section></div>`;
 }
+/* Actions de suivi décidées en rencontre, classées par lettre SQCDP (table raction, comme les actions des suites) */
+function ractPoint(L, m, ractions, ecarts) {
+  if (!Api.ajouterRactionRenc) return "";
+  const l = (ractions || []).filter(a => a.cat === L);
+  const noE = id => { const e = (ecarts || []).find(x => x.id === id); return e ? e.no : "Écart"; };
+  const rows = l.map(a => `<tr data-st="${a.statut}"><td style="min-width:240px"><button type="button" class="lien-act" data-act="ra-edit" data-id="${a.id}" data-code="${esc(m.code)}" title="Modifier l'action">${esc(a.texte)}</button></td><td>${esc(a.responsable || "")}</td>
+    <td class="num">${a.enRetard ? `<span class="pill bad">${fmtD(a.echeance)}</span>` : (a.echeance ? fmtD(a.echeance) : "—")}</td>
+    <td>${a.ecartId ? `<button class="btn small" type="button" data-act="detail" data-id="${a.ecartId}">${esc(noE(a.ecartId))}</button>` : ""}</td>
+    <td><select ${bAttr("ract", a.id, "statut", "")} data-rr="1" aria-label="Statut">${bOpt(a.statut)}</select></td><td class="small">${esc(a.dernierAvancement || "")}</td></tr>`).join("");
+  return `<div class="ract-pt"><div class="row between"><strong class="small">Actions de suivi ${L}${l.length ? ` (${l.length})` : ""}</strong><button class="btn small" type="button" data-act="ra-new" data-code="${esc(m.code)}" data-cat="${L}">+ Action</button></div>
+   ${l.length ? `<div class="scroll"><table class="t"><thead><tr><th>Action</th><th>Responsable</th><th>Échéance</th><th>Écart</th><th>Statut</th><th>Dernier avancement</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="muted small">Aucune action de suivi ouverte. Sous le barème? Ajoutez une action plutôt qu'un écart.</div>`}</div>`;
+}
+async function raNew(code, cat) {
+  const m = RENC.find(r => r.code === code), t = eq(m.equipe), c = REF.categories.find(x => x.code === cat);
+  const l = (await Api.ecarts({})).filter(e => e.cat === cat && e.statut !== "Ferme" && inTeamScope(e, t));
+  modal(`<h2>Nouvelle action · ${esc(cat)}${c ? " · " + esc(c.nom) : ""}</h2>${dlPers()}<form id="f-ra-new" class="form" data-code="${esc(code)}" data-cat="${esc(cat)}">
+   <label class="full" for="rn-t">Action<textarea id="rn-t" rows="2" maxlength="300" required placeholder="Un verbe, un résultat attendu"></textarea></label>
+   <label for="rn-r">Responsable<input id="rn-r" list="dl-pers" placeholder="Personne inscrite ou nom libre"></label><label for="rn-e">Échéance<input id="rn-e" type="date" min="${isoToday()}"></label>
+   <label class="full" for="rn-x">Écart lié (facultatif)<select id="rn-x">${opt([["", "Aucun : action de suivi seulement"], ...l.map(e => [String(e.id), e.no + " · " + e.titre])], "")}</select></label>
+   <div class="full small muted">L'action revient à chaque rencontre, sous la lettre ${esc(cat)}, tant qu'elle n'est pas faite. Le responsable est avisé.</div>
+   <div id="rn-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Ajouter</button></div></form>`);
+  $("#f-ra-new").addEventListener("submit", async ev => { ev.preventDefault();
+    try { await Api.ajouterRactionRenc(code, { texte: $("#rn-t").value, responsable: $("#rn-r").value, echeance: $("#rn-e").value, cat, ecartId: $("#rn-x").value }); closeModal(); render(); if (typeof majCloche === "function") majCloche(true); }
+    catch (err) { formErr("rn-msg", err.message); } });
+}
+async function raEdit(id, code) {
+  const a = (await Api.ractions({ rencontre: code })).find(x => x.id === id); if (!a) throw new Error("Action introuvable.");
+  const m = RENC.find(r => r.code === code);
+  modal(`<h2>Action de suivi${a.cat ? " · " + esc(a.cat) : ""}</h2><p class="small muted" style="margin-top:0">${esc(m ? m.nom : a.serie)} · depuis le ${fmtD(a.depuis)}</p>${dlPers()}<form id="f-ra-edit" class="form">
+   <label class="full" for="re-t">Action<textarea id="re-t" rows="2" maxlength="300" required>${esc(a.texte)}</textarea></label>
+   <label for="re-r">Responsable<input id="re-r" list="dl-pers" value="${esc(a.responsable || "")}"></label><label for="re-e">Échéance<input id="re-e" type="date" value="${esc(a.echeance || "")}"></label>
+   <label for="re-s">Statut<select id="re-s">${bOpt(a.statut)}</select></label><div>${a.ecartId ? `<div class="small muted">Écart lié</div><button class="btn small" type="button" data-act="detail" data-id="${a.ecartId}">Ouvrir l'écart</button>` : ""}</div>
+   <label class="full" for="re-av">Avancement<textarea id="re-av" rows="2" maxlength="400" placeholder="Où en est-on?">${esc(a.dernierAvancement || "")}</textarea></label>
+   <div id="re-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`);
+  $("#f-ra-edit").addEventListener("submit", async ev => { ev.preventDefault();
+    try { await Api.majRaction(id, null, { texte: $("#re-t").value, responsable: $("#re-r").value, echeance: $("#re-e").value, statut: $("#re-s").value, avancement: $("#re-av").value }); closeModal(); render(); }
+    catch (err) { formErr("re-msg", err.message); } });
+}
 const mmss = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-function bloc(b, { m, t, ecarts, actions, sujets, kpi }) {
+function bloc(b, { m, t, ecarts, actions, sujets, kpi, ractions }) {
   const depts = t.strate === 1 ? [t.dept] : t.strate === 2 ? t.depts : REF.departements.map(d => d.code);
   const scope = ecarts.filter(e => inTeamScope(e, t));
   if (b === "kpi") return kpiTiles(kpi.filter(k => depts.includes(k.dept)), depts.length > 1);
   if (b && b.startsWith("sqcdp-")) { const L = b.slice(6);
     const ks = kpi.filter(k => depts.includes(k.dept) && k.cat === L);
     const l = ecarts.filter(e => e.cat === L && e.equipeCourante === t.code && e.statut === "Ouvert").sort((a, c) => sev(c) - sev(a));
-    const plan = L === "D" && t.strate === 1 ? `<div style="margin-bottom:10px">${bloc("plan", { m, t, ecarts, actions, sujets, kpi })}</div>` : "";
+    const plan = L === "D" && t.strate === 1 ? `<div style="margin-bottom:10px">${bloc("plan", { m, t, ecarts, actions, sujets, kpi, ractions })}</div>` : "";
     return plan + (ks.length ? kpiTiles(ks, depts.length > 1) : `<div class="muted small">Aucun KPI ${L} défini pour cette équipe.</div>`)
       + `<div class="row between" style="margin:10px 0 8px"><span class="muted small">${l.length ? l.length + " écart(s) " + L + " à traiter à ce niveau, les plus graves d'abord." : "Aucun écart " + L + " à traiter à ce niveau."}</span><button class="btn small" data-act="new" data-team="${t.strate === 1 ? t.code : ""}" data-cat="${L}" type="button">+ Documenter un écart ${L}</button></div>`
-      + l.map(e => ecartCard(e, true)).join(""); }
+      + l.map(e => ecartCard(e, true)).join("") + ractPoint(L, m, ractions, ecarts); }
   if (b === "securite") { const l = scope.filter(e => e.cat === "S" && e.statut !== "Ferme"); const jsa = kpi.filter(k => depts.includes(k.dept) && k.nom === "Jours sans accident");
     return (typeof slotCroix === "function" ? `<div style="margin-bottom:10px">${slotCroix(depts.filter(d => d !== "DES" || depts.length === 1), null, true)}</div>` : "") + `<div class="row" style="margin-bottom:8px">${jsa.map(k => `<span class="pill ${kpiState(k) === "ok" ? "ok" : "warn"}">${esc(deptNom(k.dept))} : ${nf(last(k), 0)} jours sans accident</span>`).join(" ")}</div>` + ((sk => sk.length ? `<div style="margin-bottom:10px">${kpiTiles(sk, depts.length > 1)}</div>` : "")(kpi.filter(k => depts.includes(k.dept) && k.cat === "S" && k.nom !== "Jours sans accident")))
       + (t.strate <= 2 ? `<div class="row" style="justify-content:flex-end;margin-bottom:8px"><button class="btn small" data-act="new" data-team="${t.strate === 1 ? t.code : ""}" data-cat="S" type="button">+ Documenter un écart S</button></div>` : "")
-      + (l.length ? l.map(e => ecartCard(e, e.equipeCourante === t.code)).join("") : `<div class="empty">Aucun écart de sécurité ouvert.</div>`); }
+      + (l.length ? l.map(e => ecartCard(e, e.equipeCourante === t.code)).join("") : `<div class="empty">Aucun écart de sécurité ouvert.</div>`) + ractPoint("S", m, ractions, ecarts); }
   if (b === "ecarts") { const l = ecarts.filter(e => e.equipeCourante === t.code && e.statut === "Ouvert").sort((a, c) => sev(c) - sev(a));
     return `<div class="row between" style="margin-bottom:8px"><span class="muted small">${l.length} écart(s) à traiter à ce niveau, les plus graves d'abord.</span><button class="btn small" data-act="new" data-team="${t.strate === 1 ? t.code : ""}" type="button">+ Documenter un écart</button></div>` + (l.length ? l.map(e => ecartCard(e, true)).join("") : `<div class="empty">Rien à traiter à ce niveau.</div>`); }
   if (b === "retours") { const l = ecarts.filter(e => e.equipeOrigine === t.code && e.statut === "RetourT1");
@@ -2157,6 +2211,8 @@ document.addEventListener("click", async ev => {
   try {
     if (act === "close") closeModal();
     else if (act === "new") openNew(a.dataset.team || "", a.dataset.cat || "");
+    else if (act === "ra-new") await raNew(a.dataset.code, a.dataset.cat);
+    else if (act === "ra-edit") await raEdit(Number(a.dataset.id), a.dataset.code);
     else if (act === "detail") await openDetail(a.dataset.id);
     else if (act === "regler") await openTraiter(a.dataset.id, "regler");
     else if (act === "escalader") await openTraiter(a.dataset.id, "escalader");
