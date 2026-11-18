@@ -263,6 +263,8 @@ footer{max-width:1360px;margin:0 auto;padding:0 20px 30px;color:var(--muted);fon
 .cx-cpt .cx-p:first-child{margin-left:0}
 .cx-leg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:10px;color:var(--muted)}.cx-leg .cx-p{margin-left:0}
 .cx-choix{border:0;padding:0;margin:0;display:grid;gap:4px}.cx-choix .cx-p{margin-left:0}
+.cx-somme .cx-grille{padding:6px;border:2px solid var(--navy);border-radius:8px}
+.cx-somme .cx-t{font-size:1.15rem}
 
 </style>
 </head>
@@ -289,7 +291,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.7.3", dateVersion: "18 novembre 2026"
+  version: "0.7.4", dateVersion: "18 novembre 2026"
 };
 
 </script>
@@ -422,13 +424,14 @@ function demoApi() {
   const RENCONTRES = [
     { code: "KO-PAN", dept: "PAN", equipe: "T1-PAN", nom: "Kick-off du matin · Panneaux", frequence: "Chaque jour · 7 h 00 · debout au tableau", dureeMin: 10, participants: "Employés du plancher, chefs d'équipe, contremaître", points: [["Sécurité", 2, "securite"], ["Plan de la journée et priorités", 3, "plan"], ["KPI d'hier", 2, "kpi"], ["Écarts au barème", 3, "ecarts"], ["Solutions reçues des autres niveaux", 1, "retours"]] },
     { code: "CA-PAN", dept: "PAN", equipe: "T2-PAN", nom: "Caucus de département · Panneaux", frequence: "Lun., mer., ven. · 9 h 30", dureeMin: 20, participants: "Contremaître, coordonnateur, directeur de production, coordonnateur dessin", points: [["Sécurité", 2, "securite"], ["KPI SQCDP du département", 4, "kpi"], ["Écarts escaladés du T1", 7, "ecarts"], ["Actions dues ou en retard", 4, "actions"], ["Sujets suivis", 3, "sujets"]] },
-    { code: "RP-PAN", dept: "PAN", equipe: "T2-PAN", nom: "Revue de production · Panneaux", frequence: "Jeudi · 13 h 00", dureeMin: 45, participants: "Directeur de production, coordonnateur, contremaître, dessin, achats", points: [["KPI de la semaine et tendances", 10, "kpi"], ["Charge et carnet de commandes", 10, "charge"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions et procédures à modifier", 10, "actions"], ["Sujets suivis", 5, "sujets"]] },
+    { code: "RP-PAN", dept: "PAN", equipe: "T2-PAN", nom: "Revue de production · Panneaux", frequence: "Jeudi · 13 h 00", dureeMin: 45, participants: "Directeur de production, coordonnateur, contremaître, dessin, achats", points: [["Sécurité : croix du département", 5, "securite"], ["KPI de la semaine et tendances", 10, "kpi"], ["Charge et carnet de commandes", 10, "charge"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions et procédures à modifier", 10, "actions"], ["Sujets suivis", 5, "sujets"]] },
     { code: "KO-MOT", dept: "MOT", equipe: "T1-MOT", nom: "Kick-off du matin · Moteurs", frequence: "Chaque jour · 7 h 00", dureeMin: 10, participants: "Bobineurs, assembleurs, chef d'équipe", points: [["Sécurité", 2, "securite"], ["Plan de la journée (cédule moteurs)", 3, "plan"], ["KPI d'hier", 2, "kpi"], ["Écarts au barème", 3, "ecarts"], ["Solutions reçues des autres niveaux", 1, "retours"]] },
     { code: "CA-MOT", dept: "MOT", equipe: "T2-MOT", nom: "Caucus de département · Moteurs", frequence: "Mardi et jeudi · 9 h 30", dureeMin: 20, participants: "Coordonnateur, planificatrice, directeur de production", points: [["Sécurité", 2, "securite"], ["KPI SQCDP et efficacité vs standard", 5, "kpi"], ["Écarts escaladés du T1", 6, "ecarts"], ["Actions dues ou en retard", 4, "actions"], ["Sujets suivis", 3, "sujets"]] },
-    { code: "RP-MOT", dept: "MOT", equipe: "T2-MOT", nom: "Revue de production · Moteurs", frequence: "Mardi · 14 h 00", dureeMin: 45, participants: "Directeur de production, coordonnateur, planificatrice, achats", points: [["KPI de la semaine et tendances", 10, "kpi"], ["Charge et carnet de commandes", 10, "charge"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions et procédures à modifier", 10, "actions"], ["Sujets suivis", 5, "sujets"]] },
+    { code: "RP-MOT", dept: "MOT", equipe: "T2-MOT", nom: "Revue de production · Moteurs", frequence: "Mardi · 14 h 00", dureeMin: 45, participants: "Directeur de production, coordonnateur, planificatrice, achats", points: [["Sécurité : croix du département", 5, "securite"], ["KPI de la semaine et tendances", 10, "kpi"], ["Charge et carnet de commandes", 10, "charge"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions et procédures à modifier", 10, "actions"], ["Sujets suivis", 5, "sujets"]] },
     { code: "KO-VIS", dept: "VIS", equipe: "T1-VIS", nom: "Kick-off du matin · Vision", frequence: "Chaque jour · 7 h 15", dureeMin: 10, participants: "Équipe Vision", points: [["Sécurité", 2, "securite"], ["Plan de la journée", 3, "plan"], ["KPI d'hier", 2, "kpi"], ["Écarts au barème", 3, "ecarts"]] },
-    { code: "CA-VIS", dept: "VIS", equipe: "T2-VIS", nom: "Caucus et revue · Vision", frequence: "Mercredi · 10 h 00", dureeMin: 30, participants: "Responsable Vision, directeur de production", points: [["KPI SQCDP", 6, "kpi"], ["Écarts escaladés du T1", 8, "ecarts"], ["Charge et projets", 8, "charge"], ["Actions et sujets suivis", 8, "sujets"]] },
+    { code: "CA-VIS", dept: "VIS", equipe: "T2-VIS", nom: "Caucus et revue · Vision", frequence: "Mercredi · 10 h 00", dureeMin: 30, participants: "Responsable Vision, directeur de production", points: [["Sécurité : croix du département", 5, "securite"], ["KPI SQCDP", 6, "kpi"], ["Écarts escaladés du T1", 8, "ecarts"], ["Charge et projets", 8, "charge"], ["Actions et sujets suivis", 8, "sujets"]] },
     { code: "KO-DES", dept: "DES", equipe: "T1-DES", nom: "Kick-off · Dessin", frequence: "Chaque jour · 8 h 00", dureeMin: 10, participants: "Dessinateurs, coordonnateur dessin", points: [["Priorités de dessin du jour", 3, "plan"], ["KPI d'hier", 2, "kpi"], ["Écarts au barème", 4, "ecarts"], ["Solutions reçues des autres niveaux", 1, "retours"]] },
+    { code: "RP-USI", dept: null, equipe: "T3", nom: "Revue de production hebdomadaire · Usine", frequence: "Hebdomadaire · jour et heure à confirmer", dureeMin: 60, participants: "Directeur de production, coordonnateurs et contremaîtres de Panneaux, Moteurs et Vision", points: [["Sécurité : croix combinée et par département", 10, "securite"], ["KPI SQCDP des trois départements", 15, "kpi"], ["Charge et carnet de commandes", 10, "charge"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions dues ou en retard", 10, "actions"], ["Sujets suivis", 5, "sujets"]] },
     { code: "CD", dept: null, equipe: "T3", nom: "Comité de direction", frequence: "Lundi · 10 h 00", dureeMin: 60, participants: "Comité de direction", points: [["KPI SQCDP de l'entreprise", 15, "kpi"], ["Écarts escaladés des départements", 15, "ecarts"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions dues ou en retard", 10, "actions"], ["Sujets suivis", 10, "sujets"]] },
     { code: "VP", dept: null, equipe: "T4", nom: "Revue VP (sur demande)", frequence: "Sur demande", dureeMin: 30, participants: "Les deux VP, directeur de production", points: [["Vue d'ensemble des strates", 10, "apercu"], ["Écarts escaladés au T4", 10, "ecarts"], ["Sujets suivis", 10, "sujets"]] }
   ].map(r => Object.assign(r, { points: r.points.map(([titre, dureeMin, bloc], i) => ({ ordre: i + 1, titre, dureeMin, bloc })) }));
@@ -1426,22 +1429,31 @@ const moisPlus = (m, n) => { const d = new Date(m + "-15T12:00:00"); d.setMonth(
 const jourTxt = j => new Date(j + "T12:00:00").toLocaleDateString("fr-CA", { weekday: "long", day: "numeric", month: "long" });
 
 /* Emplacement à remplir après l'affichage (la croix se charge elle-même). */
-const slotCroix = (depts, titre) => (Api.croixSecurite ? `<div class="cx-slot" data-depts="${esc(depts.join(","))}"${titre ? ` data-titre="${esc(titre)}"` : ""}><div class="small muted">Chargement de la croix de sécurité…</div></div>` : "");
+const slotCroix = (depts, titre, somme) => (Api.croixSecurite ? `<div class="cx-slot" data-depts="${esc(depts.join(","))}"${somme && depts.length > 1 ? ` data-somme="1"` : ""}${titre ? ` data-titre="${esc(titre)}"` : ""}><div class="small muted">Chargement de la croix de sécurité…</div></div>` : "");
 
 /* Rangée et colonne de chaque case de la croix (grille 7 × 7, bras de 3 cases). */
 const CX_CASES = (() => { const l = []; for (let r = 0; r < 7; r++) for (let c = 0; c < 7; c++) if ((c >= 2 && c <= 4) || (r >= 2 && r <= 4)) l.push([r, c]); return l; })();
 
+/* Croix combinée : chaque jour prend la couleur la plus grave des départements. */
+const CX_RANG = { futur: 0, neutre: 1, vert: 2, jaune: 3, orange: 4, rouge: 5 };
+function croixSomme(l) {
+  const jours = l[0].jours.map((j0, i) => { const tous = l.map(c => Object.assign({ dept: c.dept }, c.jours[i]));
+    const niveau = tous.reduce((m, j) => CX_RANG[j.niveau] > CX_RANG[m] ? j.niveau : m, "futur");
+    return { jour: j0.jour, niveau, auto: niveau, manuel: null, ecarts: tous.flatMap(j => j.ecarts.map(e => Object.assign({ dept: j.dept }, e))), parDept: tous.map(j => ({ dept: j.dept, niveau: j.niveau, manuel: j.manuel })) }; });
+  const dr = l.map(c => c.depuisRouge).filter(x => x != null);
+  return { dept: "USINE", nom: l.map(c => deptNom(c.dept)).join(", "), mois: l[0].mois, jours, depuisRouge: dr.length ? Math.min(...dr) : null, somme: true };
+}
 function croixHtml(c) {
   const today = isoToday(), cases = [];
   CX_CASES.forEach(([r, col], i) => { const j = c.jours[i];
     const pos = `style="grid-row:${r + 1};grid-column:${col + 1}"`;
     if (!j) { cases.push(`<span class="cx cx-vide" ${pos} aria-hidden="true"></span>`); return; }
     const n = Number(j.jour.slice(8)), lbl = `${jourTxt(j.jour)} : ${CX[j.niveau]}${j.manuel ? " (noté à la main)" : ""}${j.ecarts.length ? ` · ${j.ecarts.length} écart(s)` : ""}`;
-    cases.push(`<button type="button" class="cx cx-${j.niveau}${j.manuel ? " cx-man" : ""}${j.jour === today ? " cx-auj" : ""}" ${pos} data-act="cx-jour" data-dept="${esc(c.dept)}" data-jour="${j.jour}" ${j.niveau === "futur" ? "disabled" : ""} title="${esc(lbl)}" aria-label="${esc(lbl)}">${n}</button>`);
+    cases.push(`<button type="button" class="cx cx-${j.niveau}${j.manuel ? " cx-man" : ""}${j.jour === today ? " cx-auj" : ""}" ${pos} data-act="${c.somme ? "cx-somme" : "cx-jour"}" data-dept="${esc(c.dept)}"${c.somme ? ` data-depts="${esc(c.depts)}"` : ""} data-jour="${j.jour}" ${j.niveau === "futur" ? "disabled" : ""} title="${esc(lbl)}" aria-label="${esc(lbl)}">${n}</button>`);
   });
   const n = k => c.jours.filter(j => j.niveau === k).length;
   const dr = c.depuisRouge == null ? "Aucun accident avec arrêt enregistré" : `<strong>${c.depuisRouge}</strong> jour(s) depuis le dernier accident avec arrêt`;
-  return `<div class="cx-bloc"><div class="cx-t">${esc(deptNom(c.dept))}</div><div class="cx-grille" role="group" aria-label="Croix de sécurité ${esc(deptNom(c.dept))}, ${esc(moisTxt(c.mois))}">${cases.join("")}</div>
+  return `<div class="cx-bloc${c.somme ? " cx-somme" : ""}"><div class="cx-t">${c.somme ? "Usine (combinée)" : esc(deptNom(c.dept))}</div>${c.somme ? `<div class="small muted" style="margin-top:-4px">${esc(c.nom)} : la couleur la plus grave du jour</div>` : ""}<div class="cx-grille" role="group" aria-label="Croix de sécurité ${c.somme ? "Usine" : esc(deptNom(c.dept))}, ${esc(moisTxt(c.mois))}">${cases.join("")}</div>
    <div class="cx-cpt small"><span class="cx-p cx-vert"></span>${n("vert")} <span class="cx-p cx-jaune"></span>${n("jaune")} <span class="cx-p cx-orange"></span>${n("orange")} <span class="cx-p cx-rouge"></span>${n("rouge")}</div>
    <div class="small muted">${dr}</div></div>`;
 }
@@ -1452,6 +1464,7 @@ async function remplirCroix(slot) {
   const depts = slot.dataset.depts.split(",").filter(Boolean), m = moisCourant();
   try {
     const l = await Promise.all(depts.map(d => Api.croixSecurite(d, m)));
+    if (slot.dataset.somme) { const s = croixSomme(l); s.depts = depts.join(","); l.unshift(s); }
     slot.innerHTML = `<div class="row between cx-nav"><strong>${esc(slot.dataset.titre || "Croix de sécurité")}</strong><span class="row"><button class="btn small" type="button" data-act="cx-mois" data-n="-1" aria-label="Mois précédent">‹</button><span class="cx-mois">${esc(moisTxt(m))}</span><button class="btn small" type="button" data-act="cx-mois" data-n="1" aria-label="Mois suivant" ${m >= isoToday().slice(0, 7) ? "disabled" : ""}>›</button></span></div>
       <div class="cx-liste">${l.map(croixHtml).join("")}</div>${legendeCroix()}`;
   } catch (err) { slot.innerHTML = `<div class="err-txt small">Croix de sécurité : ${esc(err.message)}</div>`; }
@@ -1459,6 +1472,15 @@ async function remplirCroix(slot) {
 function remplirToutes(force) { document.querySelectorAll(".cx-slot").forEach(s => { if (force || !s.dataset.ok) remplirCroix(s); }); }
 new MutationObserver(() => remplirToutes(false)).observe(document.documentElement, { childList: true, subtree: true });
 
+async function ouvrirSomme(depts, jour) {
+  const l = await Promise.all(depts.map(d => Api.croixSecurite(d, jour.slice(0, 7))));
+  const lignes = l.map(c => { const j = c.jours.find(x => x.jour === jour) || { niveau: "futur", ecarts: [] };
+    return `<tr><td><strong>${esc(deptNom(c.dept))}</strong></td><td><span class="cx-p cx-${j.niveau}"></span>${esc(CX[j.niveau])}${j.manuel ? " <span class='small muted'>(noté à la main)</span>" : ""}${j.note ? `<div class="small muted">${esc(j.note)}</div>` : ""}</td>
+      <td class="small">${j.ecarts.map(e => `${esc(e.no)} · ${esc(e.type)}`).join("<br>") || "—"}</td><td>${j.niveau === "futur" ? "" : `<button class="btn small" type="button" data-act="cx-jour" data-dept="${esc(c.dept)}" data-jour="${jour}">Corriger</button>`}</td></tr>`; }).join("");
+  modal(`<h2>Usine · ${esc(jourTxt(jour))}</h2><p class="small muted">La croix combinée prend, chaque jour, la couleur la plus grave des départements. Pour la changer, corrigez la journée du département concerné.</p>
+   <div class="scroll"><table class="t"><thead><tr><th>Département</th><th>Couleur</th><th>Écarts de sécurité</th><th></th></tr></thead><tbody>${lignes}</tbody></table></div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" type="button" data-act="close">Fermer</button></div>`);
+}
 async function ouvrirJour(dept, jour) {
   const c = await Api.croixSecurite(dept, jour.slice(0, 7)); const j = c.jours.find(x => x.jour === jour); if (!j) return;
   const ev = j.ecarts.length ? `<ul class="small" style="margin:4px 0 0;padding-left:18px">${j.ecarts.map(e => `<li><span class="cx-p cx-${e.niveau}"></span>${esc(e.no)} · ${esc(e.type)}${e.poste ? " · " + esc(e.poste) : ""}</li>`).join("")}</ul>` : `<div class="small muted">Aucun écart de sécurité documenté ce jour-là.</div>`;
@@ -1479,6 +1501,7 @@ document.addEventListener("click", async ev => {
   try {
     if (a.dataset.act === "cx-mois") { ui.cxMois = moisPlus(moisCourant(), Number(a.dataset.n)); remplirToutes(true); }
     else if (a.dataset.act === "cx-jour") await ouvrirJour(a.dataset.dept, a.dataset.jour);
+    else if (a.dataset.act === "cx-somme") await ouvrirSomme(a.dataset.depts.split(","), a.dataset.jour);
   } catch (err) { alertBox(err.message); }
 });
 document.addEventListener("submit", async ev => {
@@ -1612,7 +1635,7 @@ function bloc(b, { m, t, ecarts, actions, sujets, kpi }) {
   const scope = ecarts.filter(e => inTeamScope(e, t));
   if (b === "kpi") return kpiTiles(kpi.filter(k => depts.includes(k.dept)), depts.length > 1);
   if (b === "securite") { const l = scope.filter(e => e.cat === "S" && e.statut !== "Ferme"); const jsa = kpi.filter(k => depts.includes(k.dept) && k.nom === "Jours sans accident");
-    return (typeof slotCroix === "function" ? `<div style="margin-bottom:10px">${slotCroix(depts.filter(d => d !== "DES" || depts.length === 1))}</div>` : "") + `<div class="row" style="margin-bottom:8px">${jsa.map(k => `<span class="pill ${kpiState(k) === "ok" ? "ok" : "warn"}">${esc(deptNom(k.dept))} : ${nf(last(k), 0)} jours sans accident</span>`).join(" ")}</div>` + (l.length ? l.map(e => ecartCard(e, e.equipeCourante === t.code)).join("") : `<div class="empty">Aucun écart de sécurité ouvert.</div>`); }
+    return (typeof slotCroix === "function" ? `<div style="margin-bottom:10px">${slotCroix(depts.filter(d => d !== "DES" || depts.length === 1), null, true)}</div>` : "") + `<div class="row" style="margin-bottom:8px">${jsa.map(k => `<span class="pill ${kpiState(k) === "ok" ? "ok" : "warn"}">${esc(deptNom(k.dept))} : ${nf(last(k), 0)} jours sans accident</span>`).join(" ")}</div>` + (l.length ? l.map(e => ecartCard(e, e.equipeCourante === t.code)).join("") : `<div class="empty">Aucun écart de sécurité ouvert.</div>`); }
   if (b === "ecarts") { const l = ecarts.filter(e => e.equipeCourante === t.code && e.statut === "Ouvert").sort((a, c) => sev(c) - sev(a));
     return `<div class="row between" style="margin-bottom:8px"><span class="muted small">${l.length} écart(s) à traiter à ce niveau, les plus graves d'abord.</span><button class="btn small" data-act="new" data-team="${t.strate === 1 ? t.code : ""}" type="button">+ Documenter un écart</button></div>` + (l.length ? l.map(e => ecartCard(e, true)).join("") : `<div class="empty">Rien à traiter à ce niveau.</div>`); }
   if (b === "retours") { const l = ecarts.filter(e => e.equipeOrigine === t.code && e.statut === "RetourT1");
@@ -1620,6 +1643,7 @@ function bloc(b, { m, t, ecarts, actions, sujets, kpi }) {
   if (b === "actions") { const l = actions.filter(a => depts.includes(a.dept) && a.echeance <= isoPlus(7)); return l.length ? actionsTable(l) : `<div class="empty">Aucune action due cette semaine.</div>`; }
   if (b === "sujets") return `<div class="row" style="justify-content:flex-end;margin-bottom:8px"><button class="btn small" data-act="new-sujet" data-code="${m.code}" type="button">+ Ajouter un sujet suivi</button></div>` + (sujets.length ? `<div class="scroll"><table class="t"><thead><tr><th>Sujet</th><th>Responsable</th><th>Statut</th><th>Prochaine revue</th><th>Dernière note</th><th></th></tr></thead><tbody>${sujets.map(s => `<tr><td>${esc(s.titre)}</td><td>${esc(s.responsable)}</td><td><span class="pill ${s.statut === "Termine" ? "ok" : s.statut === "ADecider" ? "warn" : "lvl"}">${SSTATUT[s.statut]}</span></td><td class="num">${fmtD(s.prochaineRevue)}</td><td class="small">${esc((s.notes.at(-1) || {}).texte || "")}</td><td><button class="btn small" data-act="edit-sujet" data-id="${s.id}" data-code="${m.code}" type="button">Mettre à jour</button></td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Aucun sujet suivi.</div>`);
   if (b === "plan") { const p = (REF.plan || {})[t.code] || []; return `<ol style="margin:0;padding-left:20px">${p.map(x => `<li>${esc(x)}</li>`).join("")}</ol><div class="muted small" style="margin-top:6px">Tiré de la cédule du département.</div>`; }
+  if (b === "charge" && !m.dept && depts.length > 1) return `<ul class="list-plain">${depts.filter(d => (REF.charge || {})[d]).map(d => `<li><span><strong>${esc(deptNom(d))}</strong><br><span class="small">${esc(REF.charge[d])}</span></span></li>`).join("") || "<li>—</li>"}</ul><div class="muted small" style="margin-top:6px">Tiré du rapport de charge.</div>`;
   if (b === "charge") return `<p style="margin:0">${esc((REF.charge || {})[m.dept] || (REF.charge || {})["null"] || "")}</p><div class="muted small" style="margin-top:6px">Tiré du rapport de charge.</div>`;
   if (b === "pareto") return paretoBars(scope.filter(e => e.dateEcart >= isoPlus(-28)), "heures", 8);
   if (b === "apercu") return `<div class="scroll"><table class="t"><thead><tr><th>Strate et équipe</th><th>Écarts ouverts</th><th>Graves</th><th>Plus vieux (jours)</th></tr></thead><tbody>${REF.equipes.map(q => { const o = ecarts.filter(e => e.equipeCourante === q.code && e.statut === "Ouvert"); return `<tr><td><span class="pill lvl">T${q.strate}</span> ${esc(q.nom)}</td><td class="num">${o.length}</td><td class="num">${o.filter(e => sev(e) === 3).length}</td><td class="num">${o.length ? Math.max(...o.map(e => e.ageJours)) : "–"}</td></tr>`; }).join("")}</tbody></table></div>`;
@@ -1763,7 +1787,7 @@ async function vTableaux() {
   <select id="tb-mesure" aria-label="Mesure du Pareto">${opt([["heures", "Pareto en heures perdues"], ["cout", "Pareto en coût ($)"], ["nombre", "Pareto en nombre d'écarts"]], ui.tbMesure)}</select></div>
   <div class="kpis" style="margin-bottom:14px"><div class="kpi"><div class="k-l">Écarts documentés</div><div class="k-v num">${per.length}</div></div><div class="kpi"><div class="k-l">Heures perdues</div><div class="k-v num">${nf(h)} h</div></div><div class="kpi"><div class="k-l">Coût direct</div><div class="k-v num">${c.toLocaleString("fr-CA")} $</div></div><div class="kpi ${open.length > 10 ? "warn" : ""}"><div class="k-l">Écarts non fermés</div><div class="k-v num">${open.length}</div></div></div>
   <div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Indicateurs SQCDP</h3>${kpiTiles(kpi, !dep)}</div>
-  ${typeof slotCroix === "function" ? `<div class="card" style="margin-bottom:14px">${slotCroix(dep ? [dep] : REF.departements.map(d => d.code).filter(c => c !== "DES"))}</div>` : ""}
+  ${typeof slotCroix === "function" ? `<div class="card" style="margin-bottom:14px">${slotCroix(dep ? [dep] : REF.departements.map(d => d.code).filter(c => c !== "DES"), null, true)}</div>` : ""}
   <div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Pareto par type d'écart</h3>${paretoBars(per, ui.tbMesure)}</div>
   <div class="two"><div class="card"><h3 style="margin-bottom:8px">Heures perdues par département</h3><div class="bars">${byDept.map(([d, hh, n]) => `<div class="bar" style="grid-template-columns:100px 1fr 70px 80px"><span>${esc(d)}</span><span class="track"><span class="fill" style="width:${(hh / mxD * 100).toFixed(1)}%"></span></span><span class="num" style="text-align:right">${nf(hh)} h</span><span class="num muted" style="text-align:right">${n} écart(s)</span></div>`).join("")}</div></div>
   <div class="card"><h3 style="margin-bottom:8px">Âge des écarts non fermés</h3><table class="t"><tbody>${buckets.map(([l, n]) => `<tr><td>${l}</td><td class="num" style="text-align:right">${n}</td></tr>`).join("")}</tbody></table>
