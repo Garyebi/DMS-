@@ -265,6 +265,26 @@ footer{max-width:1360px;margin:0 auto;padding:0 20px 30px;color:var(--muted);fon
 .cx-choix{border:0;padding:0;margin:0;display:grid;gap:4px}.cx-choix .cx-p{margin-left:0}
 .cx-somme .cx-grille{padding:6px;border:2px solid var(--navy);border-radius:8px}
 .cx-somme .cx-t{font-size:1.15rem}
+/* Cloche et panneau « Ton action » */
+.bell{all:unset;position:relative;cursor:pointer;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;color:#fff;background:rgba(255,255,255,.08)}
+.bell:hover{background:rgba(255,255,255,.18)}.bell:focus-visible{outline:3px solid #7fb2f0}
+.bell.retard{box-shadow:inset 0 0 0 2px #f2c230}
+.bell-n{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#d0312d;color:#fff;font-size:.72rem;font-weight:700;display:grid;place-items:center;box-sizing:border-box}
+.bell-n[hidden]{display:none}
+.nt-list{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:4px}
+.nt-list li{display:flex;align-items:center;gap:8px}
+.nt-item{all:unset;cursor:pointer;flex:1;display:grid;gap:1px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.nt-item:hover{border-color:var(--accent)}.nt-item:focus-visible{outline:3px solid #7fb2f0}
+.nt-t{font-weight:600}
+.ton-action{border:2px solid var(--accent);border-radius:10px;padding:10px 12px;margin:0 0 12px;background:#f1f6fd}
+.ton-action h3{margin:0 0 6px}
+.ta-form{grid-template-columns:1fr 1fr;padding:8px 0;border-top:1px solid var(--line)}
+.ta-form:first-of-type{border-top:0}
+.pbi-slot:empty{display:none}
+.pbi-renc{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 12px;margin:10px 0}
+.pbi-renc summary{cursor:pointer;padding:2px 0}.pbi-renc summary:focus-visible{outline:3px solid #7fb2f0}
+.pbi-renc .seg{margin-left:0;flex-wrap:wrap}
+.pbi-vide{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;margin:10px 0}
 
 </style>
 </head>
@@ -291,7 +311,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.7.4", dateVersion: "18 novembre 2026"
+  version: "0.8.1", dateVersion: "18 novembre 2026"
 };
 
 </script>
@@ -331,6 +351,9 @@ function httpApi(base) {
     retourLu: id => call("POST", `/ecarts/${id}/retour-lu`, {}),
     actions: f => call("GET", "/actions" + qs(f)),
     majAction: (id, d) => call("PATCH", "/actions/" + id, d),
+    majActionDetail: (id, d) => call("PATCH", "/actions/" + id, d),
+    mesNotifications: () => call("GET", "/moi/notifications"),
+    marquerLues: ids => call("POST", "/moi/notifications/lues", { ids: ids || null }),
     rencontres: () => call("GET", "/rencontres"),
     tenues: code => call("GET", `/rencontres/${code}/tenues?limite=3`),
     creerTenue: (code, d) => call("POST", `/rencontres/${code}/tenues`, d),
@@ -354,6 +377,8 @@ function httpApi(base) {
     croixSecurite: (dept, mois) => call("GET", `/securite/${dept}?mois=${mois}`),
     saisirSecurite: (dept, jour, niveau, note) => call("PUT", `/securite/${dept}/${jour}`, { niveau, note }),
     rapportsPbi: () => call("GET", "/powerbi/rapports"),
+    rapportsRencontre: code => call("GET", `/rencontres/${code}/rapports`),
+    lierRapports: (code, ids) => call("PUT", `/rencontres/${code}/rapports`, { rapports: ids }),
     ajouterRapport: d => call("POST", "/powerbi/rapports", d),
     majRapport: (id, d) => call("PATCH", "/powerbi/rapports/" + id, d),
     retirerRapport: id => call("DELETE", "/powerbi/rapports/" + id),
@@ -529,7 +554,7 @@ function demoApi() {
     return Object.assign({}, e, { no: no(e.id), cat: t.cat, type: t.nom, titre: t.nom + " · " + e.poste, strateCourante: eq(e.equipeCourante).strate, ageJours: days(e.dateEcart, e.dateReglement || today()), nbActions: acts.length, nbActionsOuvertes: acts.filter(a => a.statut !== "Fait" && a.statut !== "Annule").length,
       etiquettes: e.etiquettes || [], nbPieces: (S.pieces || []).filter(x => x.ecartId === e.id).length, archive: e.statut === "Ferme" && !!e.dateReglement && days(e.dateReglement, today()) > aj });
   }
-  function vAction(a) { const e = S.ecarts.find(x => x.id === a.ecartId); return Object.assign({}, a, { noEcart: e ? no(e.id) : null, dept: e ? e.dept : null, enRetard: (a.statut === "AFaire" || a.statut === "EnCours") && a.echeance < today() }); }
+  function vAction(a) { const e = S.ecarts.find(x => x.id === a.ecartId); return Object.assign({}, a, { responsableId: (persNom(a.responsable) || {}).id || null, noEcart: e ? no(e.id) : null, dept: e ? e.dept : null, enRetard: (a.statut === "AFaire" || a.statut === "EnCours") && a.echeance < today() }); }
 
   /* Calcul des KPI DMS sur une fenêtre de 7 jours finissant à `fin` */
   function kpiCalc(k, fin) {
@@ -636,6 +661,13 @@ function demoApi() {
       return wait({ dept, mois, jours, depuisRouge: rouges.length ? days(rouges.pop(), t0) : null }); },
     saisirSecurite: (dept, jour, niveau, note) => { if (!jour || jour > today()) return fail("On ne peut pas noter une journée à venir.");
       S.securite = S.securite || {}; S.securite[dept + ":" + jour] = { niveau: niveau || null, note: (note || "").trim() || null, par: userId }; save(); return wait(null); },
+    rapportsRencontre: code => { const su = (S.b || {}).suites ? S.b.suites.find(x => x.code === code) : null, admin = !!(pers(userId) || {}).admin;
+      const ids = (S.liens || {})[code] || [], l = ids.map(id => (S.rapports || []).find(r => r.id === id)).filter(r => r && (r.portee === "tous" || r.proprietaireId === userId));
+      return wait({ peutLier: su ? su.proprietaireId === userId : admin, prive: su ? su.prive : false, rapports: l.map(r => ({ id: r.id, nom: r.nom, url: r.url, dept: r.dept, portee: r.portee })) }); },
+    lierRapports: (code, ids) => { const su = (S.b || {}).suites ? S.b.suites.find(x => x.code === code) : null;
+      if (su ? su.proprietaireId !== userId : !(pers(userId) || {}).admin) return fail(su ? "Seul le propriétaire de la rencontre peut faire ce changement." : "Réservé à l'administrateur.");
+      if ((ids || []).some(id => { const r = (S.rapports || []).find(x => x.id === id); return r && r.portee !== "tous" && (!su || !su.prive || r.proprietaireId !== userId); })) return fail("Un rapport visible par vous seulement ne peut pas être ajouté à une rencontre partagée. Rendez-le visible par tous d'abord.");
+      S.liens = S.liens || {}; S.liens[code] = (ids || []).map(Number); save(); return wait(null); },
     rapportsPbi: () => wait((S.rapports || []).filter(r => r.portee === "tous" || r.proprietaireId === userId).map(r => Object.assign({}, r, { proprietaire: (pers(r.proprietaireId) || {}).nom || "", estProprietaire: r.proprietaireId === userId })).sort((a, b) => a.nom.localeCompare(b.nom, "fr"))),
     ajouterRapport: d => { const e = valRapport(d); if (e) return fail(e); S.rapports = S.rapports || []; S.seq.r = (S.seq.r || 0) + 1;
       S.rapports.push({ id: S.seq.r, nom: d.nom.trim(), url: d.url.trim(), dept: d.dept || null, portee: d.portee || "moi", proprietaireId: userId }); save(); return wait(S.seq.r); },
@@ -655,6 +687,18 @@ function demoApi() {
       if (f.dept) l = l.filter(a => a.dept === f.dept);
       return wait(l.sort((a, b) => a.echeance < b.echeance ? -1 : 1)); },
     majAction: (id, d) => { const a = S.actions.find(x => x.id === Number(id)); if (!a) return fail("Action introuvable"); a.statut = d.statut; save(); return wait(vAction(a)); },
+    majActionDetail: (id, d) => { const a = S.actions.find(x => x.id === Number(id)); if (!a) return fail("Action introuvable.");
+      const e = S.ecarts.find(x => x.id === a.ecartId), lbl = { AFaire: "À faire", EnCours: "En cours", Fait: "Fait" }, mv = t => { if (e) e.mouvements.push({ date: today(), genre: "Note", texte: t, par: (pers(userId) || {}).nom || "" }); };
+      if (d.statut && d.statut !== a.statut) { mv(`Action « ${a.texte} » : ${lbl[a.statut]} → ${lbl[d.statut]}`); a.statut = d.statut; a.dateFait = d.statut === "Fait" ? today() : null; }
+      if (d.echeance && d.echeance !== a.echeance) { mv(`Action « ${a.texte} » : échéance reportée au ${d.echeance}`); a.echeance = d.echeance; }
+      if ("resultat" in d && (d.resultat || "").trim() !== (a.resultat || "")) { a.resultat = (d.resultat || "").trim() || null; if (a.resultat) mv(`Action « ${a.texte} » : ${a.resultat}`); }
+      save(); return wait(a.id); },
+    mesNotifications: () => { const me = pers(userId) || {}, mine = S.actions.map(vAction).filter(a => a.responsable === me.nom && ["AFaire", "EnCours"].includes(a.statut));
+      const teams = me.equipes || [];
+      return wait({ notifications: (S.notifs || []).filter(n => n.personneId === userId), nonLues: (S.notifs || []).filter(n => n.personneId === userId && !n.lue).length,
+        actions: mine.map(a => ({ id: a.id, ecartId: a.ecartId, texte: a.texte, echeance: a.echeance, statut: a.statut, enRetard: a.enRetard, noEcart: a.noEcart })).sort((a, b) => (a.echeance || "9").localeCompare(b.echeance || "9")),
+        ractions: [], ecarts: S.ecarts.filter(e => e.statut === "Ouvert" && teams.includes(e.equipeCourante)).map(e => { const v = vEcart(e); return { id: e.id, no: v.no, titre: v.titre, equipe: eq(e.equipeCourante).nom, date: e.dateEcart }; }) }); },
+    marquerLues: ids => { (S.notifs || []).forEach(n => { if (n.personneId === userId && (!ids || ids.includes(n.id))) n.lue = true; }); save(); return wait(null); },
     rencontres: () => wait(RENCONTRES),
     tenues: code => wait(S.tenues.filter(t => t.rencontre === code).slice(-3).reverse()),
     creerTenue: (code, d) => { S.tenues.push({ id: ++S.seq.t, rencontre: code, debut: d.debut, dureeMin: d.dureeMin, decisions: d.decisions || "Aucune décision notée.", animeePar: pers(userId).nom }); save(); return wait({ ok: true }); },
@@ -796,7 +840,7 @@ function supabaseApi(cfg) {
   const ok = ({ data, error }) => { if (error) throw new Error(error.message || "Erreur Supabase"); return data; };
   const rpc = async (fn, args) => ok(await sb.rpc(fn, args || {}));
   const mapE = r => ({ id: r.id, no: r.no, dateEcart: r.date_ecart, equipeOrigine: r.equipe_origine, equipeCourante: r.equipe_courante, strateCourante: r.strate_courante, dept: r.dept, cat: r.cat, typeId: r.type_id, type: r.type, titre: r.titre, poste: r.poste, noFab: r.no_fab, minutes: r.minutes, cout: Number(r.cout) || 0, description: r.description, statut: r.statut, cause: r.cause, causeDetail: r.cause_detail, solution: r.solution, strateReglement: r.strate_reglement, dateReglement: r.date_reglement, procedureModifiee: r.procedure_modifiee, procedureNom: r.procedure_nom, dateRetourLu: r.date_retour_lu, ageJours: r.age_jours, nbActions: r.nb_actions, nbActionsOuvertes: r.nb_actions_ouvertes, collaborateurs: r.collaborateurs || [], etiquettes: r.etiquettes || [], nbPieces: r.nb_pieces || 0, archive: !!r.archive });
-  const mapA = r => ({ id: r.id, ecartId: r.ecart_id, sujetId: r.sujet_id, horizon: r.horizon, texte: r.texte, responsable: r.responsable, echeance: r.echeance, statut: r.statut, noEcart: r.no_ecart, dept: r.dept, enRetard: r.en_retard });
+  const mapA = r => ({ id: r.id, ecartId: r.ecart_id, sujetId: r.sujet_id, horizon: r.horizon, texte: r.texte, responsable: r.responsable, responsableId: r.responsable_id, resultat: r.resultat, echeance: r.echeance, statut: r.statut, noEcart: r.no_ecart, dept: r.dept, enRetard: r.en_retard });
   const mapS = r => ({ id: r.id, rencontre: r.rencontre, titre: r.titre, responsable: r.responsable, statut: r.statut, prochaineRevue: r.prochaine_revue, notes: r.notes || [] });
   const mapT = r => ({ id: r.id, rencontre: r.rencontre, debut: r.debut, dureeMin: r.duree_min, decisions: r.decisions, animeePar: r.animee_par });
   const mapR = r => ({ id: r.id, rencontre: r.rencontre, serie: r.serie, texte: r.texte, responsable: r.responsable, echeance: r.echeance, statut: r.statut, depuis: r.depuis, fermeLe: r.ferme_le, enRetard: r.en_retard, dernierAvancement: r.dernier_avancement, tenueOrigine: r.tenue_origine });
@@ -848,6 +892,8 @@ function supabaseApi(cfg) {
     croixSecurite: (dept, mois) => rpc("croix_securite", { p_dept: dept, p_mois: mois + "-01" }),
     saisirSecurite: (dept, jour, niveau, note) => rpc("saisir_securite", { p_dept: dept, p_jour: jour, p_niveau: niveau || null, p_note: note || null }),
     rapportsPbi: () => rpc("rapports_pbi"),
+    rapportsRencontre: code => rpc("rapports_rencontre", { p_code: code }),
+    lierRapports: (code, ids) => rpc("lier_rapports", { p_code: code, p_ids: ids }),
     ajouterRapport: d => rpc("ajouter_rapport", { p: d }),
     majRapport: (id, d) => rpc("maj_rapport", { p_id: Number(id), p: d }),
     retirerRapport: id => rpc("retirer_rapport", { p_id: Number(id) }),
@@ -861,6 +907,9 @@ function supabaseApi(cfg) {
       if (f.dept) q = q.eq("dept", f.dept);
       return ok(await q.order("echeance", { ascending: true }).limit(2000)).map(mapA); },
     majAction: (id, d) => rpc("maj_action", { p_id: Number(id), p_statut: d.statut }),
+    majActionDetail: (id, d) => rpc("maj_action_detail", { p_id: Number(id), p: d }),
+    mesNotifications: () => rpc("mes_notifications"),
+    marquerLues: ids => rpc("marquer_notifications_lues", { p_ids: ids || null }),
     tenues: async code => ok(await sb.from("v_tenue").select("*").eq("rencontre", code).order("debut", { ascending: false }).limit(3)).map(mapT),
     creerTenue: (code, d) => rpc("creer_tenue", { p_code: code, p_debut: d.debut || new Date().toISOString(), p_duree: d.dureeMin, p_decisions: d.decisions }),
     sujets: async code => { let q = sb.from("v_sujet").select("*"); if (code) q = q.eq("rencontre", code); return ok(await q.order("id")).map(mapS); },
@@ -953,6 +1002,7 @@ async function vSuite(aside) {
     <div class="row">${s.estProprietaire ? `<button class="btn" type="button" data-act="b-params">Paramètres et partage</button>` : ""}<button class="btn primary" type="button" data-act="b-new-tenue">+ Nouvelle rencontre</button></div></div>`;
   const hist = tenues.length ? `<div class="scroll"><table class="t"><thead><tr><th>Date</th><th>Titre</th><th>Lieu</th><th>Points</th><th>Actions nouvelles</th><th>Actions réglées</th></tr></thead><tbody>${tenues.map(t => `<tr class="click" data-act="b-open" data-id="${t.id}"><td class="num">${fmtD(t.date)} ${t.date.slice(0, 4)}</td><td>${esc(t.titre || s.nom)}</td><td>${esc(t.lieu || "")}</td><td class="num">${t.nbPoints}</td><td class="num">${t.nbNouvelles}</td><td class="num">${t.nbFermees}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Aucune rencontre pour l'instant. Commencez par « Nouvelle rencontre ».</div>`;
   return `<div class="layout-meet"><aside class="meet-list" aria-label="Rencontres">${aside}</aside><section>${head}
+   ${typeof slotPbi === "function" ? `<div style="margin-top:14px">${slotPbi(s.code)}</div>` : ""}
    <div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">Historique</h3>${hist}</div>
    <div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">Actions ouvertes (${acts.length})</h3>${acts.length ? ractTable(acts, false) : `<div class="empty">Aucune action ouverte.</div>`}</div></section></div>`;
 }
@@ -979,7 +1029,7 @@ async function vBilan() {
     ${libres.length ? `<div class="bil-pt"><div class="bil-pt-h"><strong>Autres actions de cette rencontre</strong></div><div style="padding:10px">${libres.map(a => actNewHtml(a)).join("")}</div></div>` : ""}
     <button class="btn" type="button" data-act="b-add-pt">+ Ajouter un point</button></div>`;
   const div = `<div class="card"><label class="bil-lbl" for="bt-divers">Divers<textarea id="bt-divers" ${bAttr("tenue", id, "divers")}>${esc(t.divers || "")}</textarea></label></div>`;
-  return `<div class="bil">${dlPers()}${nav}${head}${suiviH}${ptsH}${div}<div class="row between"><span class="small muted">Animée par ${esc(t.animeePar || "")} · ${esc(confid(b.serie))}</span><button class="btn small" type="button" data-act="b-del-tenue">Retirer cette rencontre</button></div></div>`;
+  return `<div class="bil">${dlPers()}${nav}${head}${typeof slotPbi === "function" ? slotPbi(b.serie.code) : ""}${suiviH}${ptsH}${div}<div class="row between"><span class="small muted">Animée par ${esc(t.animeePar || "")} · ${esc(confid(b.serie))}</span><button class="btn small" type="button" data-act="b-del-tenue">Retirer cette rencontre</button></div></div>`;
 }
 function actSuiviHtml(a, t) {
   const s = a.suivi || {}, st = stOf(a, t);
@@ -1415,6 +1465,50 @@ document.addEventListener("submit", async ev => {
   catch (err) { formErr("pb-msg", err.message); }
 });
 
+/* ---------- Rapports Power BI attachés à une rencontre ---------- */
+const slotPbi = code => (Api.rapportsRencontre ? `<div class="pbi-slot" data-code="${esc(code)}"></div>` : "");
+async function remplirPbi(slot, force) {
+  if (slot.dataset.ok && !force) return; slot.dataset.ok = "1";
+  const code = slot.dataset.code;
+  try {
+    const d = await Api.rapportsRencontre(code); slot._d = d;
+    if (!d.rapports.length) { slot.innerHTML = d.peutLier ? `<div class="pbi-vide"><span class="small muted">Aucun rapport Power BI dans cette rencontre.</span><button class="btn small" type="button" data-act="pb-lier" data-code="${esc(code)}">+ Ajouter un rapport Power BI</button></div>` : ""; return; }
+    ui.pbiR = ui.pbiR || {}; if (!d.rapports.some(r => r.id === ui.pbiR[code])) ui.pbiR[code] = d.rapports[0].id;
+    const r = d.rapports.find(x => x.id === ui.pbiR[code]);
+    slot.innerHTML = `<details class="pbi-renc" ${ui.pbiFerme && ui.pbiFerme[code] ? "" : "open"} data-code="${esc(code)}"><summary><strong>Rapports Power BI (${d.rapports.length})</strong></summary>
+      <div class="row between" style="margin:8px 0"><div class="seg" role="tablist" aria-label="Rapports">${d.rapports.map(x => `<button type="button" role="tab" data-act="pb-rtab" data-code="${esc(code)}" data-id="${x.id}" aria-selected="${x.id === r.id}">${esc(x.nom)}</button>`).join("")}</div>
+      <div class="row"><a class="btn small" href="${esc(r.url)}" target="_blank" rel="noopener">Plein écran ↗</a>${d.peutLier ? `<button class="btn small" type="button" data-act="pb-lier" data-code="${esc(code)}">Choisir les rapports</button>` : ""}</div></div>
+      <div class="pbi-cadre" style="margin-top:0"><iframe title="${esc(r.nom)}" src="${esc(r.url)}" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div></details>`;
+  } catch (err) { slot.innerHTML = `<div class="small err-txt">Rapports Power BI : ${esc(err.message)}</div>`; }
+}
+new MutationObserver(() => document.querySelectorAll(".pbi-slot:not([data-ok])").forEach(s => remplirPbi(s))).observe(document.documentElement, { childList: true, subtree: true });
+document.addEventListener("toggle", ev => { const d = ev.target; if (!d.classList || !d.classList.contains("pbi-renc")) return; ui.pbiFerme = ui.pbiFerme || {}; ui.pbiFerme[d.dataset.code] = !d.open; }, true);
+
+async function choisirRapports(code) {
+  const slot = document.querySelector(`.pbi-slot[data-code="${CSS.escape(code)}"]`), d = (slot && slot._d) || await Api.rapportsRencontre(code);
+  const tous = await Api.rapportsPbi(), choisis = d.rapports.map(r => r.id);
+  const permis = r => r.portee === "tous" || (d.prive && r.estProprietaire);
+  modal(`<h2>Rapports Power BI de cette rencontre</h2><form id="f-pblier" class="form" data-code="${esc(code)}">
+   <div class="full">${tous.length ? `<div class="collabs">${tous.map(r => `<label class="check" for="pl-${r.id}"><input type="checkbox" id="pl-${r.id}" class="pl-r" value="${r.id}" ${choisis.includes(r.id) ? "checked" : ""} ${permis(r) ? "" : "disabled"}>${esc(r.nom)}${r.portee === "moi" ? ` <span class="pill neutral">Moi</span>` : ""}</label>`).join("")}</div>` : `<div class="small muted">Aucun rapport Power BI enregistré. Ajoutez-en d'abord dans Tableaux de bord > Rapports Power BI.</div>`}</div>
+   ${tous.some(r => !permis(r)) ? `<div class="full small muted">Un rapport visible par vous seulement ne peut pas être montré dans une rencontre partagée.</div>` : ""}
+   <div class="full small muted">L'ordre de la liste devient l'ordre des onglets. Chaque participant voit le rapport selon ses propres permissions Power BI.</div>
+   <div id="pl-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><a class="btn" href="#tableaux" data-act="pb-aller">Gérer les rapports</a><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`);
+}
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act='pb-rtab'], [data-act='pb-lier'], [data-act='pb-aller']"); if (!a) return;
+  try {
+    if (a.dataset.act === "pb-rtab") { ui.pbiR = ui.pbiR || {}; ui.pbiR[a.dataset.code] = Number(a.dataset.id); const s = a.closest(".pbi-slot"); if (s) remplirPbi(s, true); }
+    else if (a.dataset.act === "pb-lier") await choisirRapports(a.dataset.code);
+    else if (a.dataset.act === "pb-aller") { closeModal(); ui.tbVue = "pbi"; }
+  } catch (err) { alertBox(err.message); }
+});
+document.addEventListener("submit", async ev => {
+  if (ev.target.id !== "f-pblier") return; ev.preventDefault();
+  const code = ev.target.dataset.code, ids = [...document.querySelectorAll(".pl-r:checked")].map(x => Number(x.value));
+  try { await Api.lierRapports(code, ids); closeModal(); document.querySelectorAll(`.pbi-slot[data-code="${CSS.escape(code)}"]`).forEach(s => remplirPbi(s, true)); }
+  catch (err) { formErr("pl-msg", err.message); }
+});
+
 </script>
 <script>
 /* Croix de sécurité : une case par jour du mois, en forme de croix, par département.
@@ -1513,6 +1607,77 @@ document.addEventListener("submit", async ev => {
 
 </script>
 <script>
+/* Notifications (cloche) et panneau « Ton action » dans la fiche d'un écart.
+   La base crée une notification quand une action est confiée à quelqu'un, quand un écart arrive au niveau d'une équipe
+   et quand une solution revient au T1. L'envoi par courriel ou Teams pourra lire la même liste (colonne courriel_le). */
+"use strict";
+
+let NOTIF = null;
+const ASTAT_OPT = [["AFaire", "À faire"], ["EnCours", "En cours"], ["Fait", "Fait"]];
+const ilYa = le => { const m = Math.round((Date.now() - new Date(le).getTime()) / 60000); return m < 60 ? `il y a ${Math.max(1, m)} min` : m < 1440 ? `il y a ${Math.round(m / 60)} h` : fmtD(String(le).slice(0, 10)); };
+
+async function majCloche() {
+  const b = $("#cloche"); if (!b || !Api.mesNotifications) return;
+  try { NOTIF = await Api.mesNotifications(); const n = NOTIF.nonLues, r = NOTIF.actions.filter(a => a.enRetard).length + NOTIF.ractions.filter(a => a.enRetard).length;
+    b.querySelector(".bell-n").textContent = n || ""; b.querySelector(".bell-n").hidden = !n; b.classList.toggle("retard", !!r);
+    b.setAttribute("aria-label", `Notifications : ${n} nouvelle(s)${r ? `, ${r} action(s) en retard` : ""}`); } catch (e) { /* silencieux */ }
+}
+const clocheHtml = () => Api.mesNotifications ? `<button id="cloche" class="bell" type="button" data-act="nt-open" aria-label="Notifications" title="Mes notifications et mes actions"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1Z"/></svg><span class="bell-n" hidden></span></button>` : "";
+
+async function ouvrirNotifs() {
+  NOTIF = await Api.mesNotifications(); const N = NOTIF;
+  const ligne = (txt, sous, act, attrs, retard) => `<li><button type="button" class="nt-item" data-act="${act}" ${attrs}><span class="nt-t">${txt}</span><span class="small muted">${sous}</span></button>${retard ? `<span class="pill bad">en retard</span>` : ""}</li>`;
+  const nouv = N.notifications.filter(n => !n.lue), vues = N.notifications.filter(n => n.lue).slice(0, 10);
+  const notif = n => ligne(esc(n.titre), `${esc(n.detail || "")}${n.par ? ` · par ${esc(n.par)}` : ""} · ${ilYa(n.le)}`, "nt-go", `data-id="${n.id}" data-ecart="${n.ecartId || ""}" data-action="${n.actionId || ""}" data-raction="${n.ractionId || ""}" data-renc="${esc(n.rencontre || "")}"`, false);
+  const acts = [...N.actions.map(a => ligne(esc(a.texte), `${a.noEcart ? esc(a.noEcart) + " · " : ""}${a.echeance ? "échéance " + fmtD(a.echeance) : "sans échéance"} · ${a.statut === "EnCours" ? "en cours" : "à faire"}`, "nt-go", `data-ecart="${a.ecartId || ""}" data-action="${a.id}"`, a.enRetard)),
+    ...N.ractions.map(a => ligne(esc(a.texte), `${esc(a.serie)} · ${a.echeance ? "échéance " + fmtD(a.echeance) : "sans échéance"}`, "nt-go", `data-raction="${a.id}" data-renc="${esc(a.rencontre)}"`, a.enRetard))];
+  modal(`<div class="row between"><h2>Mes notifications</h2>${nouv.length ? `<button class="btn small" type="button" data-act="nt-lu">Tout marquer comme lu</button>` : ""}</div>
+   <h3>Nouveau (${nouv.length})</h3>${nouv.length ? `<ul class="nt-list">${nouv.map(notif).join("")}</ul>` : `<div class="small muted">Rien de nouveau.</div>`}
+   <h3 style="margin-top:12px">Mes actions ouvertes (${acts.length})</h3>${acts.length ? `<ul class="nt-list">${acts.join("")}</ul>` : `<div class="small muted">Aucune action ouverte à votre nom.</div>`}
+   <h3 style="margin-top:12px">Écarts à traiter à mon niveau (${N.ecarts.length})</h3>${N.ecarts.length ? `<ul class="nt-list">${N.ecarts.map(e => ligne(`${esc(e.no)} · ${esc(e.titre)}`, `${esc(e.equipe)} · ${fmtD(e.date)}`, "nt-go", `data-ecart="${e.id}"`, false)).join("")}</ul>` : `<div class="small muted">Aucun écart en attente à votre niveau.</div>`}
+   ${vues.length ? `<details style="margin-top:12px"><summary class="small">Notifications déjà vues</summary><ul class="nt-list">${vues.map(notif).join("")}</ul></details>` : ""}
+   <p class="small muted" style="margin-top:12px">Les notifications s'affichent ici pour l'instant. L'envoi par courriel ou Teams sera branché avec les TI.</p>
+   <div class="row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Fermer</button></div>`);
+}
+
+/* Panneau « Ton action » en haut de la fiche d'un écart */
+function panneauActions(e, focusId) {
+  const miennes = e.actions.filter(a => (a.id === focusId || a.responsableId === ME.id || a.responsable === ME.nom) && (a.statut !== "Fait" || a.id === focusId));
+  if (!miennes.length) return "";
+  return `<div class="ton-action" id="ton-action"><h3>${miennes.length > 1 ? "Tes actions sur cet écart" : "Ton action sur cet écart"}</h3>${miennes.map(a => `<form class="ta-form form" data-id="${a.id}" data-ecart="${e.id}">
+    <div class="full ta-t"><strong>${esc(a.texte)}</strong> <span class="pill neutral">${esc(a.horizon || "")}</span>${a.enRetard ? ` <span class="pill bad">en retard</span>` : ""}<div class="small muted">Responsable : ${esc(a.responsable || "")}</div></div>
+    <label for="ta-s${a.id}">Statut<select id="ta-s${a.id}" name="statut">${opt(ASTAT_OPT, a.statut)}</select></label>
+    <label for="ta-e${a.id}">Échéance<input id="ta-e${a.id}" type="date" name="echeance" value="${esc(a.echeance || "")}"></label>
+    <label class="full" for="ta-r${a.id}">Ce qui a été fait ou avancé<textarea id="ta-r${a.id}" name="resultat" rows="2" placeholder="Ex. Appel fait au fournisseur, nouvelle date de livraison le 25">${esc(a.resultat || "")}</textarea></label>
+    <div class="full row" style="justify-content:flex-end"><span class="small" id="ta-msg${a.id}" role="status"></span><button class="btn" type="submit" name="go" value="maj">Enregistrer</button>${a.statut !== "Fait" ? `<button class="btn primary" type="submit" name="go" value="fait">Marquer comme faite</button>` : ""}</div></form>`).join("")}
+   <div class="small muted">Si l'action règle l'écart, utilisez « Régler » en bas de la fiche pour inscrire la solution.</div></div>`;
+}
+
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='nt-'], [data-act='ouvrir-action']"); if (!a) return; const act = a.dataset.act;
+  try {
+    if (act === "nt-open") await ouvrirNotifs();
+    else if (act === "nt-lu") { await Api.marquerLues(null); await ouvrirNotifs(); majCloche(); }
+    else if (act === "ouvrir-action") await openDetail(Number(a.dataset.ecart), Number(a.dataset.id));
+    else if (act === "nt-go") {
+      if (a.dataset.id) { await Api.marquerLues([Number(a.dataset.id)]); majCloche(); }
+      if (a.dataset.ecart) await openDetail(Number(a.dataset.ecart), Number(a.dataset.action) || null);
+      else if (a.dataset.raction && typeof bEditRact === "function") { closeModal(); ui.suite = a.dataset.renc; ui.tenue = null; if (route() === "rencontres") await render(); else { location.hash = "rencontres"; await new Promise(r => setTimeout(r, 400)); } await bEditRact(Number(a.dataset.raction), a.dataset.renc); }
+    }
+  } catch (err) { alertBox(err.message); }
+});
+document.addEventListener("submit", async ev => {
+  const f = ev.target; if (!f.classList || !f.classList.contains("ta-form")) return; ev.preventDefault();
+  const fait = ev.submitter && ev.submitter.value === "fait", id = Number(f.dataset.id), m = document.getElementById("ta-msg" + id);
+  const d = { statut: fait ? "Fait" : f.statut.value, echeance: f.echeance.value, resultat: f.resultat.value };
+  if (fait && !d.resultat.trim()) { m.innerHTML = `<span class="err-txt">Écrivez en une phrase ce qui a été fait.</span>`; f.resultat.focus(); return; }
+  try { await Api.majActionDetail(id, d); await openDetail(Number(f.dataset.ecart), fait ? null : id); majCloche(); render(); }
+  catch (err) { m.innerHTML = `<span class="err-txt">${esc(err.message)}</span>`; }
+});
+setInterval(() => { if (document.visibilityState === "visible") majCloche(); }, 120000);
+
+</script>
+<script>
 /* Portail DMS EBI — interface. Toute donnée passe par window.Api (js/api.js). */
 "use strict";
 const $ = s => document.querySelector(s);
@@ -1571,10 +1736,10 @@ function renderWho() {
   const w = $("#who");
   if (Api.mode === "supabase") {
     const band = $("#demo-band"); band.hidden = false; band.textContent = "Prototype sur Supabase (Canada). Les données de démonstration se retirent dans Administration avant le pilote.";
-    w.innerHTML = `<span>${esc(ME.nom)}</span><span class="tag">${esc(ME.role || "")}</span><button class="btn small" type="button" data-act="logout">Se déconnecter</button>`;
+    w.innerHTML = `${typeof clocheHtml === "function" ? clocheHtml() : ""}<span>${esc(ME.nom)}</span><span class="tag">${esc(ME.role || "")}</span><button class="btn small" type="button" data-act="logout">Se déconnecter</button>`;
   } else if (Api.mode === "demo") {
     $("#demo-band").hidden = false;
-    w.innerHTML = `<label for="demo-user" class="small">Connecté comme</label><select id="demo-user">${Api.personnesDemo().map(p => `<option value="${p.id}" ${p.id === ME.id ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}</select><button class="btn small" type="button" data-act="reset">Réinitialiser</button>`;
+    w.innerHTML = `${typeof clocheHtml === "function" ? clocheHtml() : ""}<label for="demo-user" class="small">Connecté comme</label><select id="demo-user">${Api.personnesDemo().map(p => `<option value="${p.id}" ${p.id === ME.id ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}</select><button class="btn small" type="button" data-act="reset">Réinitialiser</button>`;
   } else w.innerHTML = `<span>${esc(ME.nom)}</span><span class="tag">${esc(ME.role || "")}</span>`;
 }
 function renderTabs() {
@@ -1588,6 +1753,7 @@ async function render() {
     const html = await ({ accueil: vAccueil, rencontres: vRencontres, ecarts: vEcarts, actions: vActions, tableaux: vTableaux, journal: vJournal, admin: vAdmin }[route()])();
     if (seq === renderSeq) app.innerHTML = html;
   } catch (err) { if (seq === renderSeq) app.innerHTML = `<div class="error">${esc(err.message)}</div>`; }
+  if (typeof majCloche === "function" && Date.now() - (render.cloche || 0) > 15000) { render.cloche = Date.now(); majCloche(); }
 }
 
 /* ---------- Accueil ---------- */
@@ -1627,7 +1793,7 @@ async function vRencontres() {
   const items = m.points.map((p, i) => { const cls = run ? (i < run.idx ? "done" : i === run.idx ? "current" : "") : "";
     return `<div class="ag ${cls}"><div class="ag-h"><span class="ag-n">${p.ordre}</span><span class="ag-t">${esc(p.titre)}</span><span class="muted small num">${p.dureeMin} min</span></div><div class="ag-b">${bloc(p.bloc, ctx)}</div></div>`; }).join("");
   const cr = tenues.length ? tenues.map(c => `<div class="small"><strong>${fmtD(c.debut)}</strong> · ${c.dureeMin} min · ${esc(c.animeePar || "")} · ${esc(c.decisions)}</div>`).join("") : `<div class="muted small">Aucun compte rendu pour l'instant.</div>`;
-  return `<div class="layout-meet"><aside class="meet-list" aria-label="Structure des rencontres">${list}</aside><section>${head}<div class="agenda">${items}</div><div class="card" style="margin-top:14px"><h3>Derniers comptes rendus</h3><div class="grid" style="gap:6px;margin-top:6px">${cr}</div></div></section></div>`;
+  return `<div class="layout-meet"><aside class="meet-list" aria-label="Structure des rencontres">${list}</aside><section>${head}${typeof slotPbi === "function" ? slotPbi(m.code) : ""}<div class="agenda">${items}</div><div class="card" style="margin-top:14px"><h3>Derniers comptes rendus</h3><div class="grid" style="gap:6px;margin-top:6px">${cr}</div></div></section></div>`;
 }
 const mmss = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
 function bloc(b, { m, t, ecarts, actions, sujets, kpi }) {
@@ -1693,7 +1859,7 @@ function ecartCard(e, withActs) { const t = eq(e.equipeCourante);
   <div class="small" style="margin-top:3px">${esc(e.description)}</div></div>
   <div class="acts">${withActs && e.statut === "Ouvert" ? `<button class="btn small primary" data-act="regler" data-id="${e.id}" type="button">Régler à ce niveau</button>${t.parent ? `<button class="btn small" data-act="escalader" data-id="${e.id}" type="button">Escalader au T${t.strate + 1}</button>` : ""}` : ""}<button class="btn small" data-act="detail" data-id="${e.id}" type="button">Ouvrir</button></div></div>`; }
 function actionsTable(list) {
-  return `<div class="scroll"><table class="t"><thead><tr><th>Action</th><th>Horizon</th><th>Responsable</th><th>Échéance</th><th>Statut</th><th>Écart</th></tr></thead><tbody>${list.map(a => `<tr><td>${esc(a.texte)}</td><td><span class="pill neutral">${a.horizon}</span></td><td>${esc(a.responsable)}</td><td class="num">${a.enRetard ? `<span class="pill bad">${fmtD(a.echeance)} · en retard</span>` : fmtD(a.echeance)}</td><td>${a.statut === "Fait" ? `<span class="pill ok">Fait</span>` : `<select data-act="act-statut" data-id="${a.id}" aria-label="Statut de l'action">${["AFaire", "EnCours", "Fait"].map(s => `<option value="${s}" ${a.statut === s ? "selected" : ""}>${ASTATUT[s]}</option>`).join("")}</select>`}</td><td>${a.ecartId ? `<button class="btn small" data-act="detail" data-id="${a.ecartId}" type="button">${a.noEcart}</button>` : ""}</td></tr>`).join("")}</tbody></table></div>`;
+  return `<div class="scroll"><table class="t"><thead><tr><th>Action</th><th>Horizon</th><th>Responsable</th><th>Échéance</th><th>Statut</th><th>Écart</th></tr></thead><tbody>${list.map(a => `<tr><td>${a.ecartId ? `<button type="button" class="lien-act" data-act="ouvrir-action" data-ecart="${a.ecartId}" data-id="${a.id}" title="Ouvrir l'écart et cette action">${esc(a.texte)}</button>` : esc(a.texte)}${a.resultat ? `<div class="small muted">${esc(a.resultat)}</div>` : ""}</td><td><span class="pill neutral">${a.horizon}</span></td><td>${esc(a.responsable)}</td><td class="num">${a.enRetard ? `<span class="pill bad">${fmtD(a.echeance)} · en retard</span>` : fmtD(a.echeance)}</td><td>${a.statut === "Fait" ? `<span class="pill ok">Fait</span>` : `<select data-act="act-statut" data-id="${a.id}" aria-label="Statut de l'action">${["AFaire", "EnCours", "Fait"].map(s => `<option value="${s}" ${a.statut === s ? "selected" : ""}>${ASTATUT[s]}</option>`).join("")}</select>`}</td><td>${a.ecartId ? `<button class="btn small" data-act="detail" data-id="${a.ecartId}" type="button">${a.noEcart}</button>` : ""}</td></tr>`).join("")}</tbody></table></div>`;
 }
 function paretoBars(list, mesure, max) {
   const agg = {}; list.forEach(e => { const a = agg[e.type] = agg[e.type] || { cat: e.cat, n: 0, h: 0, c: 0 }; a.n++; a.h += e.minutes / 60; a.c += e.cout; });
@@ -1765,7 +1931,7 @@ async function vActions() {
   return `<div class="row between"><h2>Plans d'action</h2><span class="pill ${all.length ? "bad" : "ok"}">${all.length} action(s) en retard</span></div>
   <div class="filters"><select id="fa-resp" aria-label="Responsable">${opt([["", "Tous les responsables"], [ME.nom, "Mes actions"], ...REF.personnes.filter(p => p.nom !== ME.nom).map(p => [p.nom, p.nom])], f.responsable)}</select>
   <select id="fa-statut" aria-label="Statut">${opt([["ouvertes", "Ouvertes"], ["retard", "En retard"], ["", "Toutes"]], f.statut)}</select>
-  <span class="muted small">Une action en retard déclenche une relance au responsable par Teams ou courriel.</span></div>
+  <span class="muted small">Cliquez sur une action pour ouvrir l'écart et la faire avancer. Les actions confiées à quelqu'un apparaissent dans sa cloche, en haut à droite.</span></div>
   <div class="card"><h3 style="margin-bottom:8px">Actions des écarts</h3>${list.length ? actionsTable(list) : `<div class="empty">Aucune action.</div>`}</div>
   ${await ractionsCard()}`;
 }
@@ -1905,11 +2071,13 @@ async function openTraiter(id, suite) {
   $("#f-tr").addEventListener("submit", async ev => { ev.preventDefault();
     try { const d = lireDetails(); await Api.traiterEcart(id, d); if (ui.run && d.suite !== "enregistrer") ui.run.traites++; closeModal(); render(); } catch (err) { formErr("t-msg", err.message); } });
 }
-async function openDetail(id) {
+async function openDetail(id, focusAction) {
   const e = await Api.ecart(id); const t = eq(e.equipeCourante);
   modal(`<div class="row between"><h2>${esc(e.titre)}</h2><span>${e.archive ? `<span class="pill neutral">Archivé</span> ` : ""}${statutPill(e)}</span></div>
   <div class="meta" style="margin-bottom:10px"><span>${e.no}</span><span><span class="sq">${e.cat}</span> ${esc((REF.categories.find(c => c.code === e.cat) || {}).nom)}</span><span>${esc(deptNom(e.dept))}</span><span>Vu par ${esc(eq(e.equipeOrigine).nom)}</span><span>Maintenant au T${t.strate}</span><span class="num">${e.minutes} min perdues</span>${e.cout ? `<span class="num">${e.cout.toLocaleString("fr-CA")} $</span>` : ""}${e.noFab ? `<span>FAB ${esc(e.noFab)}</span>` : ""}</div>
   <p style="margin:0 0 10px">${esc(e.description)}</p>
+  ${!e.solution && e.cause ? `<div class="small" style="margin:-4px 0 10px"><strong>Cause (6M) :</strong> ${esc(e.cause)}${e.causeDetail ? " · " + esc(e.causeDetail) : ""}</div>` : ""}
+  ${typeof panneauActions === "function" ? panneauActions(e, focusAction || null) : ""}
   ${e.solution ? `<div class="card" style="margin-bottom:10px"><div class="small"><strong>Cause :</strong> ${esc(e.cause)} · ${esc(e.causeDetail)}</div><div class="small"><strong>Solution :</strong> ${esc(e.solution)}</div>${e.procedureModifiee ? `<div class="small"><strong>Procédure modifiée :</strong> ${esc(e.procedureNom)}</div>` : ""}${e.collaborateurs.length ? `<div class="small"><strong>Collaborateurs :</strong> ${e.collaborateurs.map(esc).join(", ")}</div>` : ""}</div>` : ""}
   ${e.actions.length ? `<h3>Actions</h3>${actionsTable(e.actions)}` : ""}
   ${typeof sectionsEcart === "function" ? await sectionsEcart(e) : ""}
