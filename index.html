@@ -306,6 +306,194 @@ body.pbi-ouvert{overflow:hidden}
 .ract-pt > .row{margin-bottom:6px}
 .ract-pt tr[data-st="fait"] .lien-act{text-decoration:line-through;color:var(--muted)}
 
+/* Tournées gemba */
+.g-std{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.g-std:first-of-type{border-top:0}
+.g-days{display:inline-flex;gap:3px}
+.g-day{display:inline-grid;place-items:center;min-width:26px;height:24px;padding:0 3px;border-radius:5px;font-size:.75rem;font-weight:700;border:1px solid var(--line);color:var(--muted);background:var(--surface)}
+.g-day[data-e="fait"]{background:#2e8540;border-color:#2e8540;color:#fff}
+.g-day[data-e="manque"]{background:#c62828;border-color:#c62828;color:#fff}
+.g-day[data-e="jour"]{background:#f1d200;border-color:#d4b800;color:#0b2545}
+.g-day[data-e="avenir"]{border-style:dashed}
+.g-day[data-e="libre"]{opacity:.45}
+.g-list{margin-top:12px}
+.g-theme h4{margin:16px 0 6px;display:flex;gap:8px;align-items:center}
+.g-theme h4 .cat{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 4px;border-radius:4px;background:var(--navy);color:#fff;font-size:.75rem}
+.g-item{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(180px,260px);gap:6px 12px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;margin-bottom:6px;background:var(--surface)}
+.g-item[data-r="ok"]{border-left-color:#2e8540}
+.g-item[data-r="corriger"]{border-left-color:#c62828;background:rgba(198,40,40,.06)}
+.g-item[data-r="so"]{border-left-color:#9aa5b1}
+.g-res{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.g-res button{all:unset;cursor:pointer;padding:7px 12px;font-size:.85rem;font-weight:600;color:var(--muted);background:var(--surface);border-left:1px solid var(--line)}
+.g-res button:first-child{border-left:0}
+.g-res button[aria-pressed="true"][data-r="ok"]{background:#2e8540;color:#fff}
+.g-res button[aria-pressed="true"][data-r="corriger"]{background:#c62828;color:#fff}
+.g-res button[aria-pressed="true"][data-r="so"]{background:#6b7785;color:#fff}
+.g-res button:disabled{cursor:default}
+.g-res button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.g-com{width:100%}
+.g-suite{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.g-fin{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.g-fin textarea{width:100%}
+.g-jours{display:flex;flex-wrap:wrap;gap:10px 16px;border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.g-edit-row{display:grid;grid-template-columns:70px minmax(0,1fr) 70px auto;gap:6px;align-items:center;margin-bottom:6px}
+.g-edit-row[data-st="off"] input[data-f="texte"]{text-decoration:line-through;color:var(--muted)}
+@media (max-width:760px){.g-item{grid-template-columns:1fr}.g-std{grid-template-columns:1fr auto}}
+.g-com{border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;font-size:.88rem;background:var(--surface);color:var(--ink)}
+
+/* Fiches FAB et avis */
+.tab-search{margin-left:auto;display:flex;align-items:center;padding:6px 0}
+.tab-search input{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:6px;padding:6px 10px;font:inherit;font-size:.88rem;width:190px}
+.tab-search input::placeholder{color:rgba(255,255,255,.7)}
+.avis{border:1px solid var(--line);border-left:5px solid #f1d200;border-radius:8px;padding:10px 12px;margin:8px 0;background:var(--surface);display:grid;gap:4px}
+.avis[data-b="true"]{border-left-color:#c62828;background:rgba(198,40,40,.05)}
+.avis[data-st="leve"]{border-left-color:var(--line);opacity:.8}
+.avis-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.avis-b{display:flex;gap:6px}
+.avis-et .pill{margin-right:2px}
+.avis-bandeau{border:1px solid #d4b800;background:rgba(241,210,0,.08);border-radius:10px;padding:10px 12px;margin-bottom:14px}
+.fab-sol{margin:-4px 0 10px 14px;padding:6px 10px;border-left:3px solid #2e8540;background:rgba(46,133,64,.06);border-radius:0 6px 6px 0}
+.avis-et .pill{background:var(--navy);color:#fff;padding:2px 8px}
+#fab-in{border:1px solid var(--line);border-radius:6px;padding:7px 10px;font:inherit;background:var(--surface);color:var(--ink)}
+
+/* ---------- Cellulaire et tablette ---------- */
+.form > *, .layout-meet > *, .two > *{min-width:0}
+.form input, .form select, .form textarea{max-width:100%}
+header.top .who{flex-wrap:wrap}
+@media (max-width:760px){
+  header.top{padding:8px 12px;gap:6px 12px}
+  header.top .brand h1{font-size:1.2rem}
+  header.top .tag{display:none}
+  header.top .who{font-size:.85rem;gap:6px}
+  /* Onglets sur une seule ligne qu'on fait glisser */
+  nav.tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 6px}
+  nav.tabs::-webkit-scrollbar{display:none}
+  nav.tabs a{flex:0 0 auto;white-space:nowrap}
+  .tab-search{display:none}
+  main, #app{padding-left:10px;padding-right:10px}
+  .modal{width:100%;padding:14px 14px 18px;border-radius:10px 10px 0 0}
+  .card{padding:12px}
+  .g-res{display:flex;width:100%}
+  .g-res button{flex:1;text-align:center}
+  .g-suite .btn{flex:1 1 auto}
+}
+/* Écrans tactiles : cibles assez grandes pour un doigt (44 px) */
+@media (pointer:coarse){
+  .g-res button{padding:12px 14px;min-height:44px;box-sizing:border-box}
+  .btn{min-height:40px}
+  .g-com, .form input, .form select, .form textarea{min-height:44px;font-size:16px}
+}
+@media (max-width:760px){ .overlay{padding:8px 6px} main{padding:12px 10px 32px} }
+.agenda, .ag, .ag-h, .ag-b, .cx-slot{min-width:0}
+@media (max-width:760px){ .ag-t{white-space:normal;min-width:0;flex:1 1 auto} .ag-b{overflow-x:auto} }
+
+/* Fil de suivi */
+.fil-new{display:grid;gap:6px;margin-bottom:10px}
+.fil-new textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--surface);color:var(--ink)}
+.fil-l{list-style:none;margin:0;padding:0;border-left:2px solid var(--line);margin-left:9px}
+.fil-l li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;padding:6px 0 6px 0;margin-left:-11px}
+.fil-i{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--surface);border:1px solid var(--line);font-size:.7rem}
+.fil-l li[data-g="commentaire"] .fil-c{background:rgba(22,68,130,.06);border-radius:8px;padding:6px 10px;margin-top:2px;white-space:pre-wrap}
+.fil-l li[data-g="Escalade"] .fil-i{background:#fff3c4;border-color:#d4b800}
+.fil-l li[data-g="Reglement"] .fil-i{background:#2e8540;color:#fff;border-color:#2e8540}
+.ac-cr{display:grid;gap:4px;margin:-2px 0 10px;padding:8px 10px;border:1px dashed var(--line);border-radius:8px}
+.ac-cr select{font:inherit;font-size:.85rem;max-width:100%}
+.recid{border:1px solid #d4b800;background:rgba(241,210,0,.08);border-radius:8px;padding:8px 12px;display:grid;gap:4px}
+.recid legend{font-weight:600;font-size:.9rem}
+/* Groupe d'amélioration continue */
+.ac-bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.ac-bar span{display:block;height:100%;background:var(--navy)}
+.ac-cl{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,260px) auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.ac-cl select, .ac-cl input, .ac-ct input{font:inherit;font-size:.88rem;border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--surface);color:var(--ink);max-width:100%}
+.ac-new{display:flex;gap:4px}
+.ac-ty{margin:10px 0 4px}
+.ac-ct{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px;align-items:center;margin:3px 0 3px 18px}
+.ac-ct[data-off="true"] input{text-decoration:line-through;color:var(--muted)}
+.ac-pj{border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--surface)}
+.ac-pj[data-st="termine"]{border-left-color:#2e8540}.ac-pj[data-st="abandonne"]{opacity:.7}
+.ac-pdca{display:flex;gap:4px;margin:6px 0;flex-wrap:wrap}
+.ac-pdca span{font-size:.75rem;padding:2px 8px;border-radius:10px;border:1px solid var(--line);color:var(--muted)}
+.ac-pdca span[data-on="true"]{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:600}
+@media (max-width:760px){.ac-cl{grid-template-columns:1fr}.ac-ct{grid-template-columns:1fr auto}}
+.ac-par td.num{white-space:nowrap}
+
+/* Écarts envoyés au groupe AC */
+.ac-dm{border:1px solid var(--line);border-left:4px solid #f1d200;border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--surface)}
+.ac-dm[data-st="projet"]{border-left-color:#2e8540}.ac-dm[data-st="refusee"]{border-left-color:var(--line);opacity:.85}
+/* A3 */
+.a3-head{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;border-bottom:3px solid var(--navy);padding-bottom:10px;margin-bottom:12px}
+.a3-titre{width:100%;font:inherit;font-family:var(--display);font-size:1.5rem;font-weight:700;border:1px solid transparent;border-radius:6px;padding:2px 6px;background:transparent;color:var(--ink)}
+.a3-titre:hover,.a3-titre:focus{border-color:var(--line);background:var(--surface)}
+.a3-meta{display:flex;gap:8px;flex-wrap:wrap}.a3-meta label{display:grid;gap:2px;font-size:.78rem;color:var(--muted)}
+.a3 input,.a3 select,.a3 textarea{font:inherit;font-size:.9rem;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--surface);color:var(--ink);max-width:100%;box-sizing:border-box}
+.a3 textarea{width:100%;resize:vertical}
+.a3-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.a3-col{display:grid;gap:12px;align-content:start;min-width:0}
+.a3 section{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-width:0}
+.a3 section h3{margin:0 0 6px;display:flex;align-items:center;gap:8px;font-size:1rem}
+.a3 section h3 span{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:.8rem}
+.a3-l{display:grid;gap:3px;margin-top:8px;font-size:.85rem;font-weight:600}
+.a3-sub{margin-top:8px;padding:8px;border-radius:8px;background:rgba(22,68,130,.05)}
+.a3-ec{font-size:.88rem;margin-top:3px}
+.fishbone{display:grid;gap:6px;margin-top:6px}
+.fb-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.fb-box{display:grid;gap:3px;font-size:.8rem}.fb-box b{color:var(--navy)}
+.fb-spine{position:relative;height:30px;display:flex;align-items:center;justify-content:flex-end}
+.fb-spine::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:3px solid var(--navy)}
+.fb-spine span{position:relative;background:var(--navy);color:#fff;font-size:.8rem;font-weight:600;padding:4px 10px;border-radius:6px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pq{margin:6px 0 0;padding-left:22px;display:grid;gap:4px}.pq input{width:100%}
+.pa input,.pa select{width:100%;min-width:90px}.pa td{padding:3px 4px}
+.pa tr[data-retard="true"] input[type=date]{border-color:#c62828;color:#c62828}
+.pa tr[data-st="fait"] input[data-f="texte"]{text-decoration:line-through;color:var(--muted)}
+.gantt{margin-top:10px;display:grid;gap:3px}
+.gantt-row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px;align-items:center}
+.gantt-lab{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gantt-track{position:relative;height:18px;background:rgba(11,37,69,.04);border-radius:4px}
+.gantt-head .gantt-track{background:none;height:16px}
+.gantt-tick{position:absolute;top:0;font-size:.65rem;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
+.gantt-today{position:absolute;top:-2px;bottom:-2px;border-left:2px solid #f1d200;z-index:1}
+.gantt-bar{position:absolute;top:3px;height:12px;border-radius:6px;background:#9aa5b1}
+.gantt-bar[data-e="cours"]{background:var(--accent)}.gantt-bar[data-e="fait"]{background:#2e8540}.gantt-bar[data-e="retard"]{background:#c62828}.gantt-bar[data-e="bloque"]{background:#e07b00}
+.ac-courbe{display:flex;gap:10px;align-items:flex-end;height:96px}
+.ac-courbe div{display:grid;justify-items:center;gap:2px;font-size:.72rem}
+.ac-courbe span{width:26px;background:#9aa5b1;border-radius:3px 3px 0 0}.ac-courbe span[data-apres="true"]{background:var(--navy)}
+.ac-courbe i{font-style:normal;color:var(--muted)}
+@media (max-width:900px){.a3-grid{grid-template-columns:1fr}.fb-row{grid-template-columns:1fr}.gantt-row{grid-template-columns:100px minmax(0,1fr)}}
+#print-area .a3p{page:a3}
+@page a3{size:letter landscape;margin:7mm}
+@media print{
+  #print-area .a3p{font-size:9pt;line-height:1.3;color:#000;background:#fff}
+  .a3p-h{display:flex;gap:10px;align-items:center;border-bottom:2px solid #0b2545;padding-bottom:3px;margin-bottom:4px}
+  .a3p-logo{height:26px;background:#0b2545;padding:3px 6px;border-radius:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .a3p-k{font-size:7pt;color:#555}.a3p h1{font-size:15pt!important;margin:0!important}.a3p-m{font-size:7pt;color:#333}
+  .a3p-g{display:grid;grid-template-columns:1fr 1fr;gap:7px}.a3p-g > div{display:grid;gap:7px;align-content:start}
+  .a3p-b{border:1px solid #9aa5b1;border-radius:4px;padding:5px 7px;break-inside:avoid}
+  .a3p-b h3{font-size:10pt!important;margin:0 0 2px!important;display:flex;gap:4px;align-items:center}
+  .a3p-b h3 span{display:inline-grid;place-items:center;width:13px;height:13px;border-radius:50%;background:#0b2545;color:#fff;font-size:7pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .a3p-s{margin-top:2px}.a3p-vide{color:#777}
+  .a3p-fb{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 6px}.a3p-fb b{color:#0b2545}
+  .a3p table{font-size:8.5pt!important;margin:0!important}.a3p th,.a3p td{padding:1px 3px!important;border-bottom:1px solid #ddd}
+  .a3p .gantt{margin-top:3px}.a3p .gantt-row{grid-template-columns:110px 1fr}.a3p .gantt-lab{font-size:7.5pt}.a3p .gantt-track{height:10px}.a3p .gantt-bar{top:2px;height:6px}
+  .a3p .gantt > .small{display:none}
+  .a3p .gantt-bar,.a3p .gantt-today,.a3p .ac-courbe span{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .a3p .ac-courbe{height:50px}.a3p .ac-courbe span{width:16px}
+  .a3p-f{margin-top:3px;font-size:6.5pt;color:#777;text-align:right}
+}
+
+.pa{display:grid;gap:6px}
+.pa-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 8px;padding:8px;border:1px solid var(--line);border-left:4px solid #9aa5b1;border-radius:8px}
+.pa-row label{display:grid;gap:2px;font-size:.72rem;color:var(--muted)}
+.pa-row .pa-txt{grid-column:1 / -1;font-weight:600}
+.pa-row .pa-av{grid-column:1 / -1}
+.pa-row input,.pa-row select{width:100%}
+.pa-row[data-st="cours"]{border-left-color:var(--accent)}.pa-row[data-st="fait"]{border-left-color:#2e8540}.pa-row[data-st="bloque"]{border-left-color:#e07b00}
+.pa-row[data-retard="true"]{border-left-color:#c62828}.pa-row[data-retard="true"] input[data-f="echeance"]{border-color:#c62828;color:#c62828}
+.pa-row[data-st="fait"] .pa-txt{text-decoration:line-through;color:var(--muted)}
+.pa-new{border-style:dashed}
+@media (max-width:760px){.pa-row{grid-template-columns:1fr 1fr}}
+.a3-l select, .a3-l input{width:100%}
+#a3-lier{flex:1 1 auto;min-width:0;width:100%}
+
 </style>
 </head>
 <body>
@@ -331,7 +519,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.8.5", dateVersion: "18 novembre 2026"
+  version: "0.11.0", dateVersion: "18 novembre 2026"
 };
 
 </script>
@@ -420,6 +608,36 @@ function httpApi(base) {
     supprimerRaction: id => call("DELETE", "/actions-rencontre/" + id),
     ractions: f => call("GET", "/actions-rencontre" + qs(f)),
     ajouterRactionRenc: (code, d) => call("POST", `/rencontres/${code}/actions`, d),
+    gemba: depuis => call("GET", "/gemba" + qs({ depuis })),
+    avisFab: fab => call("GET", "/fab/avis" + qs({ fab: fab || "" })),
+    commentaires: id => call("GET", `/ecarts/${id}/commentaires`),
+    commenter: (id, d) => call("POST", `/ecarts/${id}/commentaires`, d),
+    causesTypes: () => call("GET", "/causes-precises"),
+    classerCause: (id, ct) => call("PUT", `/ecarts/${id}/cause-precise`, { causeTypeId: ct }),
+    creerCauseType: (typeId, nom) => call("POST", "/causes-precises", { typeId, nom }),
+    majCauseType: (id, d) => call("PATCH", "/causes-precises/" + id, d),
+    marquerRecidive: (id, de) => call("PUT", `/ecarts/${id}/recidive`, { de }),
+    marquerProcedureDeployee: (id, fait) => call("PUT", `/ecarts/${id}/procedure-deployee`, { fait }),
+    projetsAC: () => call("GET", "/amelioration/projets"),
+    majProjetAC: d => call("PUT", "/amelioration/projets", d),
+    envoyerAC: (id, motif) => call("POST", `/ecarts/${id}/groupe-ac`, { motif }),
+    demandesAC: () => call("GET", "/amelioration/demandes"),
+    deciderDemande: (id, d) => call("POST", `/amelioration/demandes/${id}/decision`, d),
+    projetDetail: id => call("GET", "/amelioration/projets/" + id),
+    majProjetA3: (id, d) => call("PATCH", "/amelioration/projets/" + id, d),
+    majProjetAction: d => call("PUT", "/amelioration/sous-actions", d),
+    lierProjetEcart: (p, e, lier) => call("PUT", `/amelioration/projets/${p}/ecarts/${e}`, { lier }),
+    creerAvisFab: d => call("POST", "/fab/avis", d),
+    leverAvisFab: (id, note) => call("POST", `/fab/avis/${id}/lever`, { note }),
+    tourneeGemba: id => call("GET", "/gemba/tournees/" + id),
+    demarrerTournee: (grilleId, standardId) => call("POST", "/gemba/tournees", { grilleId, standardId }),
+    noterObs: (t, d) => call("POST", `/gemba/tournees/${t}/observations`, d),
+    terminerTournee: (id, note) => call("POST", `/gemba/tournees/${id}/terminer`, { note }),
+    lierObsEcart: (o, e) => call("POST", `/gemba/observations/${o}/ecart`, { ecartId: e }),
+    obsAction: (o, d) => call("POST", `/gemba/observations/${o}/action`, d),
+    majGembaGrille: d => call("PUT", "/gemba/grilles", d),
+    majGembaItem: d => call("PUT", "/gemba/items", d),
+    majGembaStandard: d => call("PUT", "/gemba/standards", d),
     exportCsvUrl: () => base + "/export/ecarts.csv"
   };
 }
@@ -444,6 +662,7 @@ function demoApi() {
       { code: "T2-MOT", nom: "Moteurs (coordonnateur, directeur)", strate: 2, dept: "MOT", depts: ["MOT"], parent: "T3" },
       { code: "T2-VIS", nom: "Vision (responsable, directeur)", strate: 2, dept: "VIS", depts: ["VIS"], parent: "T3" },
       { code: "T3", nom: "Comité de direction", strate: 3, dept: null, parent: "T4" },
+      { code: "AC", nom: "Groupe d'amélioration continue", strate: 3, dept: null, depts: ["PAN", "MOT", "VIS", "DES"], parent: null },
       { code: "T4", nom: "VP", strate: 4, dept: null, parent: null }
     ],
     categories: [{ code: "S", nom: "Sécurité" }, { code: "Q", nom: "Qualité" }, { code: "C", nom: "Coût" }, { code: "D", nom: "Délai" }, { code: "P", nom: "Personnel" }],
@@ -466,6 +685,7 @@ function demoApi() {
       { id: 14, nom: "VP Opérations", role: "VP", equipes: ["T3", "T4"] }
     ]
   };
+  const SEED_CAUSES = {"Quasi-accident": ["Circulation chariot et piéton", "Charge mal arrimée ou instable", "Outil ou équipement défectueux"], "Blessure mineure": ["Coupure (outil, tôle, fil)", "Manutention ou effort", "Projection dans les yeux"], "Condition dangereuse": ["Allée ou sortie encombrée", "Protection ou garde absente", "Déversement au sol"], "EPI manquant": ["EPI non disponible au poste", "EPI non porté"], "Accident avec arrêt de travail": ["Manutention ou effort", "Chute", "Contact avec un équipement"], "Erreur de dessin": ["Liste de matériel faite avant la révision", "Repère ou identification absent", "Dimension ou implantation erronée", "Révision non transmise au plancher"], "Non-conformité de filage": ["Calibre de fil incorrect", "Repérage de fil absent ou erroné", "Raccordement inversé ou oublié"], "Pièce non conforme (fournisseur)": ["Mauvaise pièce livrée", "Pièce endommagée à la réception", "Numéro de pièce ambigu"], "Erreur d'assemblage": ["Instruction absente ou ambiguë", "Mauvaise pièce utilisée", "Étape oubliée"], "Reprise après test": ["Erreur de filage", "Composant défectueux", "Programmation ou réglage"], "Correction au chantier": ["Erreur de dessin découverte au chantier", "Information client incomplète", "Dommage au transport"], "Rebut de matériel": ["Erreur de coupe ou de perçage", "Matériel endommagé à la manutention", "Révision après fabrication"], "Temps supplémentaire non prévu": ["Retard en amont", "Urgence client", "Reprise de travail"], "Transport urgent": ["Commande passée en retard", "Erreur de quantité", "Pièce oubliée à l'expédition"], "Manque de matériel": ["Commande lancée sans valider l'inventaire", "Retard fournisseur", "Erreur d'inventaire"], "Attente de dessin": ["Dessin en retard", "Révision en cours", "Dessin incomplet"], "Attente d'information client": ["Approbation client en retard", "Information manquante à la commande"], "Bris d'équipement": ["Entretien préventif non fait", "Usure normale", "Mauvaise utilisation"], "Changement de priorité": ["Urgence client", "Matériel manquant sur la priorité initiale"], "Manque de main-d'œuvre": ["Absence imprévue", "Surcharge planifiée"], "Formation manquante": ["Nouvel employé sans formation", "Nouvelle méthode non communiquée"], "Communication entre quarts ou départements": ["Changement non transmis", "Information verbale seulement"]};
   const TYPES0 = { S: ["Quasi-accident", "Blessure mineure", "Condition dangereuse", "EPI manquant", "Accident avec arrêt de travail"], Q: ["Erreur de dessin", "Non-conformité de filage", "Pièce non conforme (fournisseur)", "Erreur d'assemblage", "Reprise après test", "Correction au chantier"], C: ["Rebut de matériel", "Temps supplémentaire non prévu", "Transport urgent"], D: ["Manque de matériel", "Attente de dessin", "Attente d'information client", "Bris d'équipement", "Changement de priorité"], P: ["Manque de main-d'œuvre", "Formation manquante", "Communication entre quarts ou départements"] };
   const RENCONTRES = [
     { code: "KO-PAN", dept: "PAN", equipe: "T1-PAN", nom: "Kick-off du matin · Panneaux", frequence: "Chaque jour · 7 h 00 · debout au tableau", dureeMin: 10, participants: "Employés du plancher, chefs d'équipe, contremaître", points: [["Sécurité", 2, "securite"], ["Qualité", 2, "sqcdp-Q"], ["Coûts", 1, "sqcdp-C"], ["Délais : plan de la journée et KPI d'hier", 3, "sqcdp-D"], ["Personnel", 1, "sqcdp-P"], ["Solutions reçues des autres niveaux", 1, "retours"]] },
@@ -479,6 +699,7 @@ function demoApi() {
     { code: "KO-DES", dept: "DES", equipe: "T1-DES", nom: "Kick-off · Dessin", frequence: "Chaque jour · 8 h 00", dureeMin: 10, participants: "Dessinateurs, coordonnateur dessin", points: [["Qualité : erreurs de dessin", 3, "sqcdp-Q"], ["Coûts", 1, "sqcdp-C"], ["Délais : priorités de dessin du jour", 4, "sqcdp-D"], ["Personnel", 1, "sqcdp-P"], ["Solutions reçues des autres niveaux", 1, "retours"]] },
     { code: "RP-USI", dept: null, equipe: "T3", nom: "Revue de production hebdomadaire · Usine", frequence: "Hebdomadaire · jour et heure à confirmer", dureeMin: 60, participants: "Directeur de production, coordonnateurs et contremaîtres de Panneaux, Moteurs et Vision", points: [["Sécurité : croix combinée et par département", 10, "securite"], ["KPI SQCDP des trois départements", 15, "kpi"], ["Charge et carnet de commandes", 10, "charge"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions dues ou en retard", 10, "actions"], ["Sujets suivis", 5, "sujets"]] },
     { code: "CD", dept: null, equipe: "T3", nom: "Comité de direction", frequence: "Lundi · 10 h 00", dureeMin: 60, participants: "Comité de direction", points: [["KPI SQCDP de l'entreprise", 15, "kpi"], ["Écarts escaladés des départements", 15, "ecarts"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions dues ou en retard", 10, "actions"], ["Sujets suivis", 10, "sujets"]] },
+    { code: "AC", dept: null, equipe: "AC", nom: "Groupe d'amélioration continue", frequence: "Aux deux semaines · jour et heure à confirmer", dureeMin: 60, participants: "À confirmer : directeur de production, coordonnateurs, contremaîtres", points: [["Écarts envoyés au groupe", 10, "ac_recus"], ["Récurrences des 90 derniers jours", 10, "recurrences"], ["Causes à classer", 10, "a_classer"], ["Projets d'amélioration (PDCA)", 20, "projets"], ["Procédures modifiées à déployer", 5, "procedures"], ["Sujets suivis", 5, "sujets"]] },
     { code: "VP", dept: null, equipe: "T4", nom: "Revue VP (sur demande)", frequence: "Sur demande", dureeMin: 30, participants: "Les deux VP, directeur de production", points: [["Vue d'ensemble des strates", 10, "apercu"], ["Écarts escaladés au T4", 10, "ecarts"], ["Sujets suivis", 10, "sujets"]] }
   ].map(r => Object.assign(r, { points: r.points.map(([titre, dureeMin, bloc], i) => ({ ordre: i + 1, titre, dureeMin, bloc })) }));
   const PLAN = {
@@ -524,7 +745,7 @@ function demoApi() {
     let tid = 0; for (const c in TYPES0) for (const n of TYPES0[c]) st.types.push({ id: ++tid, cat: c, nom: n, actif: true });
     const tByName = n => st.types.find(t => t.nom === n);
     const mk = (origine, ago, tnom, poste, minutes, cout, desc) => {
-      const t = tByName(tnom); const e = { id: ++st.seq.e, dateEcart: iso(ago), equipeOrigine: origine, equipeCourante: origine, dept: eq(origine).dept, typeId: t.id, poste, noFab: null, minutes, cout, description: desc, statut: "Ouvert", cause: null, causeDetail: null, solution: null, strateReglement: null, dateReglement: null, procedureModifiee: false, procedureNom: null, dateRetourLu: null, collaborateurs: [], mouvements: [{ date: iso(ago), genre: "Creation", texte: "Documenté par " + eq(origine).nom, par: "Chef d'équipe" }] };
+      const t = tByName(tnom); const e = { id: ++st.seq.e, dateEcart: iso(ago), equipeOrigine: origine, equipeCourante: origine, dept: eq(origine).dept, typeId: t.id, poste, noFab: (m => m ? m[1] + "-01" : null)(/Projet (\d\d-\d{3})/.exec(poste)), minutes, cout, description: desc, statut: "Ouvert", cause: null, causeDetail: null, solution: null, strateReglement: null, dateReglement: null, procedureModifiee: false, procedureNom: null, dateRetourLu: null, collaborateurs: [], mouvements: [{ date: iso(ago), genre: "Creation", texte: "Documenté par " + eq(origine).nom, par: "Chef d'équipe" }] };
       st.ecarts.push(e); return e; };
     const esc = (e, ago, raison) => { const from = eq(e.equipeCourante); e.equipeCourante = from.parent; e.mouvements.push({ date: iso(ago), genre: "Escalade", texte: `Escaladé de ${from.nom} vers ${eq(from.parent).nom} (${raison})`, par: "Contremaître Panneaux" }); };
     const regle = (e, ago, cause, detail, sol, procNom, collabs) => { const s = eq(e.equipeCourante).strate; e.statut = s > 1 ? "RetourT1" : "Ferme"; Object.assign(e, { cause, causeDetail: detail, solution: sol, strateReglement: s, dateReglement: iso(ago), procedureModifiee: !!procNom, procedureNom: procNom || null, collaborateurs: collabs || [] }); e.mouvements.push({ date: iso(ago), genre: "Reglement", texte: `Réglé au T${s} : ${sol}`, par: "Gary Doyon" }); };
@@ -573,7 +794,9 @@ function demoApi() {
     const t = type(e.typeId); const acts = S.actions.filter(a => a.ecartId === e.id);
     const aj = S.archiveJours || 30;
     return Object.assign({}, e, { no: no(e.id), cat: t.cat, type: t.nom, titre: t.nom + " · " + e.poste, strateCourante: eq(e.equipeCourante).strate, ageJours: days(e.dateEcart, e.dateReglement || today()), nbActions: acts.length, nbActionsOuvertes: acts.filter(a => a.statut !== "Fait" && a.statut !== "Annule").length,
-      etiquettes: e.etiquettes || [], nbPieces: (S.pieces || []).filter(x => x.ecartId === e.id).length, archive: e.statut === "Ferme" && !!e.dateReglement && days(e.dateReglement, today()) > aj });
+      etiquettes: e.etiquettes || [], nbPieces: (S.pieces || []).filter(x => x.ecartId === e.id).length, archive: e.statut === "Ferme" && !!e.dateReglement && days(e.dateReglement, today()) > aj,
+      causeTypeId: e.causeTypeId || null, causeType: e.causeTypeId ? ((AC().causes.find(c => c.id === e.causeTypeId) || {}).nom || null) : null, recidiveDe: e.recidiveDe || null,
+      nbRecidives: S.ecarts.filter(x => x.recidiveDe === e.id).length, procedureDeployeeLe: e.procedureDeployeeLe || null, nbCommentaires: AC().commentaires.filter(c => c.ecartId === e.id).length });
   }
   function vAction(a) { const e = S.ecarts.find(x => x.id === a.ecartId); return Object.assign({}, a, { responsableId: (persNom(a.responsable) || {}).id || null, noEcart: e ? no(e.id) : null, dept: e ? e.dept : null, enRetard: (a.statut === "AFaire" || a.statut === "EnCours") && a.echeance < today() }); }
 
@@ -736,7 +959,7 @@ function demoApi() {
     majType: (id, d) => { if (!pers(userId).admin) return fail("Réservé à l'administrateur du DMS."); const t = type(Number(id)); if (!t) return fail("Type introuvable"); t.actif = !!d.actif; save(); return wait(t); },
     exportCsvUrl: () => null
   };
-  Object.assign(api, bilansDemo());
+  Object.assign(api, bilansDemo(), gembaDemo(), avisDemo(), acDemo());
   return api;
 
   /* Suites de rencontres et bilans, version démo (mêmes règles que la base) */
@@ -858,6 +1081,184 @@ function demoApi() {
     b.actions.push({ id: ++b.seq.a, rencontre: "SDEMO", tenueOrigine: t2.id, pointId: null, texte: "Préparer la rencontre avec les chefs (rôles et délégation)", responsableId: null, responsableTexte: "Gary", echeance: iso(-3), statut: "cours", depuis: t2.date, fermeLe: null });
     return b;
   }
+
+  /* Fil de suivi, causes précises, récidives et projets d'amélioration, version démo */
+  function AC() { if (S.ac && !S.ac.demandes) Object.assign(S.ac, { demandes: [], sousActions: [], liens: [] }, { seq: Object.assign({ d: 0, a: 0 }, S.ac.seq) });
+    if (!S.ac) { S.ac = { causes: [], commentaires: [], projets: [], demandes: [], sousActions: [], liens: [], seq: { c: 0, k: 0, p: 0, d: 0, a: 0 } };
+      Object.entries(SEED_CAUSES).forEach(([tn, l]) => { const t = S.types.find(x => x.nom === tn); if (t) l.forEach(n => S.ac.causes.push({ id: ++S.ac.seq.c, typeId: t.id, nom: n, actif: true, proposee: true })); });
+      save(); } return S.ac; }
+  function acDemo() {
+    const run = f => { try { const r = f(); save(); return wait(r); } catch (e) { return fail(e.message); } };
+    const peutClasser = () => need(pers(userId).admin || (REF.equipes.find(q => q.code === "AC") && (S.membresAC || []).includes(userId)), "Réservé au groupe d'amélioration continue et à l'administrateur.");
+    const ec = id => { const e = S.ecarts.find(x => x.id === Number(id)); need(e, "Écart introuvable."); return e; };
+    const peutProjet = id => !!pers(userId).admin || (AC().projets.find(j => j.id === Number(id)) || {}).responsableId === userId;
+    const resp = d => { const n = (d.responsable || "").trim().toLowerCase(); const p = d.responsableId ? { id: Number(d.responsableId) } : REF.personnes.find(x => n && (x.nom.toLowerCase() === n));
+      return { responsableId: p ? p.id : null, responsableTexte: p ? null : ((d.responsable || "").trim() || null) }; };
+    return {
+      commentaires: id => wait(AC().commentaires.filter(c => c.ecartId === Number(id)).sort((a, b) => b.le.localeCompare(a.le) || b.id - a.id)
+        .map(c => Object.assign({}, c, { par: pers(c.parId).nom, action: c.actionId ? ((S.actions.find(a => a.id === c.actionId) || {}).texte || null) : null, mentions: c.mentions.map(m => pers(m).nom) }))),
+      commenter: (id, d) => run(() => { const e = ec(id), t = (d.texte || "").trim(); need(t, "Écrivez le commentaire."); need(t.length <= 1000, "Commentaire trop long (1000 caractères au plus).");
+        if (d.actionId) need(S.actions.some(a => a.id === Number(d.actionId) && a.ecartId === e.id), "Cette action n'appartient pas à l'écart.");
+        const k = { id: ++AC().seq.k, ecartId: e.id, actionId: d.actionId ? Number(d.actionId) : null, texte: t, parId: userId, le: new Date().toISOString(), mentions: [...new Set((d.mentions || []).map(Number))] };
+        AC().commentaires.push(k); return k.id; }),
+      causesTypes: () => wait(AC().causes.map(c => Object.assign({}, c, { nbEcarts: S.ecarts.filter(e => e.causeTypeId === c.id).length }))),
+      classerCause: (id, ct) => run(() => { const e = ec(id); if (ct) need(AC().causes.some(c => c.id === Number(ct) && c.typeId === e.typeId && c.actif), "Cette cause précise ne correspond pas au type de l'écart.");
+        e.causeTypeId = ct ? Number(ct) : null; return null; }),
+      creerCauseType: (typeId, nom) => run(() => { peutClasser(); const n = (nom || "").trim(); need(n, "Nommez la cause.");
+        need(!AC().causes.some(c => c.typeId === Number(typeId) && c.nom.toLowerCase() === n.toLowerCase()), "Cette cause existe déjà pour ce type.");
+        const c = { id: ++AC().seq.c, typeId: Number(typeId), nom: n, actif: true, proposee: false }; AC().causes.push(c); return c.id; }),
+      majCauseType: (id, d) => run(() => { peutClasser(); const c = AC().causes.find(x => x.id === Number(id)); need(c, "Cause introuvable.");
+        if ("nom" in d) { need((d.nom || "").trim(), "Nommez la cause."); c.nom = d.nom.trim(); } if ("actif" in d) c.actif = !!d.actif; if ("proposee" in d) c.proposee = !!d.proposee; return null; }),
+      marquerRecidive: (id, de) => run(() => { const e = ec(id); if (!de) { e.recidiveDe = null; return null; }
+        let d = ec(de); if (d.recidiveDe) d = ec(d.recidiveDe); need(d.id !== e.id, "Un écart ne peut pas être sa propre récidive.");
+        need(d.typeId === e.typeId, "Une récidive est du même type d'écart."); need(d.dateEcart <= e.dateEcart, "L'écart d'origine doit être plus ancien."); e.recidiveDe = d.id; return null; }),
+      marquerProcedureDeployee: (id, fait) => run(() => { const e = ec(id); need(e.procedureModifiee, "Cet écart ne modifie aucune procédure."); e.procedureDeployeeLe = fait ? today() : null; return null; }),
+      projetsAC: () => wait(AC().projets.map(j => Object.assign({}, j, { responsable: j.responsableId ? pers(j.responsableId).nom : j.responsableTexte,
+          nbActions: AC().sousActions.filter(a => a.projetId === j.id && a.statut !== "annule").length, nbFaites: AC().sousActions.filter(a => a.projetId === j.id && a.statut === "fait").length,
+          nbRetard: AC().sousActions.filter(a => a.projetId === j.id && !["fait", "annule"].includes(a.statut) && a.echeance && a.echeance < today()).length,
+          nbEcarts: AC().liens.filter(l => l.projetId === j.id).length,
+          causeType: j.causeTypeId ? ((AC().causes.find(c => c.id === j.causeTypeId) || {}).nom || null) : null, enRetard: j.statut === "actif" && !!j.echeance && j.echeance < today() }))
+        .sort((a, b) => (b.statut === "actif") - (a.statut === "actif") || (a.echeance || "9").localeCompare(b.echeance || "9") || a.id - b.id)),
+      majProjetAC: d => run(() => { need(pers(userId).admin || (d.id && peutProjet(d.id)), "Les projets sont réservés au groupe d'amélioration continue."); need((d.titre || "").trim(), "Donnez un titre au projet."); need("PDCA".includes(d.etape || "P"), "Étape PDCA inconnue.");
+        if ((d.statut || "actif") === "termine") need((d.gainMesure || "").trim(), "Pour terminer un projet, inscrivez le gain mesuré.");
+        const r = resp(d), champs = { titre: d.titre.trim(), probleme: d.probleme || null, causeTypeId: d.causeTypeId ? Number(d.causeTypeId) : null, dept: d.dept || null, causeRacine: d.causeRacine || null,
+          contreMesure: d.contreMesure || null, etape: d.etape || "P", statut: d.statut || "actif", responsableId: r.responsableId, responsableTexte: r.responsableTexte, echeance: d.echeance || null,
+          gainAttendu: d.gainAttendu || null, gainMesure: d.gainMesure || null, point: d.point || null, majLe: new Date().toISOString() };
+        if (!d.id) { const j = Object.assign({ id: ++AC().seq.p, creeLe: new Date().toISOString() }, champs); AC().projets.push(j); return j.id; }
+        const j = AC().projets.find(x => x.id === Number(d.id)); need(j, "Projet introuvable."); Object.assign(j, champs); return j.id; }),
+      envoyerAC: (id, motif) => run(() => { const e = ec(id); need((motif || "").trim(), "Dites au groupe pourquoi cet écart mérite un projet.");
+        need(!AC().demandes.some(x => x.ecartId === e.id && x.statut === "recue"), "Cet écart attend déjà la décision du groupe.");
+        const x = { id: ++AC().seq.d, ecartId: e.id, motif: motif.trim(), parId: userId, le: new Date().toISOString(), statut: "recue", projetId: null, decision: null, decideParId: null, decideLe: null };
+        AC().demandes.push(x); return x.id; }),
+      demandesAC: () => wait(AC().demandes.map(x => Object.assign({}, x, { par: pers(x.parId).nom, decidePar: x.decideParId ? pers(x.decideParId).nom : null,
+          projet: x.projetId ? (AC().projets.find(j => j.id === x.projetId) || {}).titre : null })).sort((a, b) => (b.statut === "recue") - (a.statut === "recue") || b.le.localeCompare(a.le))),
+      deciderDemande: (id, d) => run(() => { need(pers(userId).admin, "Réservé au groupe d'amélioration continue et à l'administrateur.");
+        const x = AC().demandes.find(y => y.id === Number(id)); need(x && x.statut === "recue", "Demande introuvable ou déjà décidée."); const e = ec(x.ecartId);
+        if (d.decision === "refusee") { need((d.note || "").trim(), "Dites pourquoi le groupe ne retient pas cet écart."); Object.assign(x, { statut: "refusee", decision: d.note.trim(), decideParId: userId, decideLe: new Date().toISOString() }); return null; }
+        need(d.decision === "projet", "Décision inconnue."); let pid = d.projetId ? Number(d.projetId) : null;
+        if (!pid) { const t = S.types.find(y => y.id === e.typeId); const j = { id: ++AC().seq.p, titre: (d.titre || "").trim() || t.nom + " · " + e.poste, probleme: e.description, causeTypeId: e.causeTypeId || null, dept: e.dept, etape: "P", statut: "actif",
+            responsableId: null, responsableTexte: null, echeance: null, gainAttendu: null, gainMesure: null, point: null, creeLe: new Date().toISOString(), majLe: new Date().toISOString() }; AC().projets.push(j); pid = j.id; }
+        else need(AC().projets.some(j => j.id === pid), "Projet introuvable.");
+        if (!AC().liens.some(l => l.projetId === pid && l.ecartId === e.id)) AC().liens.push({ projetId: pid, ecartId: e.id });
+        Object.assign(x, { statut: "projet", projetId: pid, decision: (d.note || "").trim() || null, decideParId: userId, decideLe: new Date().toISOString() }); return pid; }),
+      projetDetail: id => { const j = AC().projets.find(x => x.id === Number(id)); if (!j) return fail("Projet introuvable.");
+        return wait(Object.assign({ pourquoi: [], ishikawa: {} }, j, { responsable: j.responsableId ? pers(j.responsableId).nom : j.responsableTexte,
+          causeType: j.causeTypeId ? ((AC().causes.find(c => c.id === j.causeTypeId) || {}).nom || null) : null, modifiable: !!pers(userId).admin || j.responsableId === userId,
+          actions: AC().sousActions.filter(a => a.projetId === j.id).sort((a, b) => a.ordre - b.ordre || a.id - b.id).map(a => Object.assign({}, a, { responsable: a.responsableId ? pers(a.responsableId).nom : a.responsableTexte,
+            enRetard: !["fait", "annule"].includes(a.statut) && !!a.echeance && a.echeance < today() })),
+          ecarts: AC().liens.filter(l => l.projetId === j.id).map(l => l.ecartId) })); },
+      majProjetA3: (id, d) => run(() => { const j = AC().projets.find(x => x.id === Number(id)); need(j, "Projet introuvable."); need(peutProjet(j.id), "Réservé au groupe d'amélioration continue et au responsable du projet.");
+        if ("titre" in d) need((d.titre || "").trim(), "Donnez un titre au projet."); if ("etape" in d) need("PDCA".includes(d.etape), "Étape PDCA inconnue.");
+        if ((d.statut || j.statut) === "termine") need(((("gainMesure" in d) ? d.gainMesure : j.gainMesure) || "").trim(), "Pour terminer un projet, inscrivez le gain mesuré.");
+        const r = ("responsable" in d) ? resp(d) : null;
+        Object.keys(d).forEach(k => { if (k !== "responsable") j[k] = typeof d[k] === "string" ? (d[k].trim() || null) : d[k]; });
+        if (d.causeTypeId !== undefined) j.causeTypeId = d.causeTypeId ? Number(d.causeTypeId) : null;
+        if (r) { j.responsableId = r.responsableId; j.responsableTexte = r.responsableTexte; } j.majLe = new Date().toISOString(); return null; }),
+      majProjetAction: d => run(() => { let a = d.id ? AC().sousActions.find(x => x.id === Number(d.id)) : null; if (d.id) need(a, "Sous-action introuvable.");
+        const pid = a ? a.projetId : Number(d.projetId); need(AC().projets.some(j => j.id === pid), "Projet introuvable.");
+        need(peutProjet(pid) || (a && a.responsableId === userId && !["texte", "responsable", "debut", "echeance"].some(k => k in d)), "Réservé au groupe AC et au responsable du projet.");
+        const st = d.statut || (a ? a.statut : "afaire"); need(["afaire", "cours", "bloque", "fait", "annule"].includes(st), "Statut inconnu.");
+        const deb = "debut" in d ? (d.debut || null) : (a ? a.debut : null), ech = "echeance" in d ? (d.echeance || null) : (a ? a.echeance : null);
+        need(!deb || !ech || deb <= ech, "Le début doit précéder l'échéance.");
+        if (!a) { need((d.texte || "").trim(), "Décrivez la sous-action."); a = { id: ++AC().seq.a, projetId: pid, texte: d.texte.trim(), ordre: Math.max(0, ...AC().sousActions.filter(x => x.projetId === pid).map(x => x.ordre)) + 1, avancement: null }; AC().sousActions.push(a); }
+        else if ("texte" in d) { need((d.texte || "").trim(), "Décrivez la sous-action."); a.texte = d.texte.trim(); }
+        if ("responsable" in d || !("responsableId" in a)) { const r = resp(d); a.responsableId = r.responsableId; a.responsableTexte = r.responsableTexte; }
+        if ("avancement" in d) a.avancement = (d.avancement || "").trim() || null;
+        Object.assign(a, { debut: deb, echeance: ech, statut: st, faitLe: st === "fait" ? (a.faitLe || today()) : null }); return a.id; }),
+      lierProjetEcart: (p, e, lier) => run(() => { need(peutProjet(Number(p)), "Réservé au groupe d'amélioration continue et au responsable du projet."); ec(e);
+        AC().liens = AC().liens.filter(l => !(l.projetId === Number(p) && l.ecartId === Number(e))); if (lier) AC().liens.push({ projetId: Number(p), ecartId: Number(e) }); return null; })
+    };
+  }
+
+  /* Avis sur les FAB, version démo */
+  function avisDemo() {
+    const A = () => { if (!S.avis) { S.avis = { l: [], seq: 0 }; save(); } return S.avis; };
+    const norm = f => (f || "").trim().toUpperCase();
+    const out = a => Object.assign({}, a, { creePar: pers(a.creeParId).nom, levePar: a.leveParId ? pers(a.leveParId).nom : null });
+    return {
+      avisFab: fab => { const f = norm(fab), l = A().l.filter(a => f ? a.noFab === f : a.statut === "actif");
+        return wait(l.sort((x, y) => (y.statut === "actif") - (x.statut === "actif") || y.bloquant - x.bloquant || y.creeLe.localeCompare(x.creeLe)).map(out)); },
+      creerAvisFab: d => { const f = norm(d.noFab); if (!f) return fail("Inscrivez le numéro de FAB."); if (!(d.titre || "").trim()) return fail("Décrivez l'avis en quelques mots.");
+        const a = { id: ++A().seq, noFab: f, dept: d.dept || null, titre: d.titre.trim(), detail: (d.detail || "").trim() || null, etapes: [...new Set((d.etapes || []).map(x => x.trim()).filter(Boolean))],
+          bloquant: !!d.bloquant, ecartId: d.ecartId ? Number(d.ecartId) : null, creeParId: userId, creeLe: new Date().toISOString(), statut: "actif", leveParId: null, leveLe: null, leveNote: null };
+        A().l.push(a); save(); return wait(a.id); },
+      leverAvisFab: (id, note) => { if (!(note || "").trim()) return fail("Indiquez pourquoi l'avis est levé (ex. révision C reçue au plancher).");
+        const a = A().l.find(x => x.id === Number(id) && x.statut === "actif"); if (!a) return fail("Avis introuvable ou déjà levé.");
+        Object.assign(a, { statut: "leve", leveParId: userId, leveLe: new Date().toISOString(), leveNote: note.trim() }); save(); return wait(null); }
+    };
+  }
+
+  /* Tournées gemba, version démo (mêmes règles que la base) */
+  function gembaDemo() {
+    const THEMES = ["S", "Q", "C", "D", "P", "5S"];
+    const G = () => { if (!S.gemba) { S.gemba = seedG(); save(); } return S.gemba; };
+    const run = f => { try { const r = f(); save(); return wait(r); } catch (e) { return fail(e.message); } };
+    const admin = () => need(pers(userId).admin, "Réservé à l'administrateur du DMS.");
+    const tour = (id, ouverte) => { const t = G().tournees.find(x => x.id === Number(id)); need(t, "Tournée introuvable.");
+      need(t.personneId === userId || pers(userId).admin, "Seule la personne qui fait la tournée peut la modifier."); if (ouverte) need(t.statut === "cours", "Cette tournée est terminée."); return t; };
+    const tJson = t => { const o = G().obs.filter(x => x.tourneeId === t.id);
+      return Object.assign({}, t, { personne: pers(t.personneId).nom, nbOk: o.filter(x => x.resultat === "ok").length, nbCorriger: o.filter(x => x.resultat === "corriger").length, nbEcarts: o.filter(x => x.ecartId).length, nbActions: o.filter(x => x.ractionId).length }); };
+    return {
+      gemba: depuis => run(() => { const g = G();
+        return { grilles: g.grilles.map(x => Object.assign({}, x, { items: g.items.filter(i => i.grilleId === x.id).sort((a, b) => a.ordre - b.ordre || a.id - b.id) })),
+          standards: g.standards.map(s => Object.assign({}, s, { personne: pers(s.personneId).nom })),
+          tournees: g.tournees.filter(t => t.date >= depuis).sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id).map(tJson) }; }),
+      tourneeGemba: async id => { const g = G(), t = g.tournees.find(x => x.id === Number(id)); if (!t) return fail("Tournée introuvable.");
+        const acts = await api.ractions({});
+        return wait(Object.assign({}, t, { personne: pers(t.personneId).nom, modifiable: t.personneId === userId || !!pers(userId).admin,
+          obs: g.obs.filter(o => o.tourneeId === t.id).map(o => Object.assign({}, o, { action: (a => a ? { texte: a.texte, responsable: a.responsable, echeance: a.echeance, statut: a.statut, rencontre: a.rencontre } : null)(acts.find(a => a.id === o.ractionId)) })) })); },
+      demarrerTournee: (gid, sid) => run(() => { const g = G(), gr = g.grilles.find(x => x.id === Number(gid) && x.actif); need(gr, "Grille de tournée introuvable.");
+        const ex = g.tournees.find(t => t.personneId === userId && t.grilleId === gr.id && t.date === today() && t.statut === "cours"); if (ex) return ex.id;
+        const t = { id: ++g.seq.t, grilleId: gr.id, standardId: sid ? Number(sid) : null, personneId: userId, dept: gr.dept, date: today(), debut: new Date().toISOString(), fin: null, statut: "cours", note: null };
+        g.tournees.push(t); return t.id; }),
+      noterObs: (tid, d) => run(() => { const g = G(), t = tour(tid, true); need(["ok", "corriger", "so"].includes(d.resultat), "Résultat inconnu.");
+        const com = "commentaire" in d ? ((d.commentaire || "").trim() || null) : undefined;
+        if (d.obsId) { const o = g.obs.find(x => x.id === Number(d.obsId) && x.tourneeId === t.id); need(o, "Observation introuvable."); o.resultat = d.resultat; if (com !== undefined) o.commentaire = com; return o.id; }
+        if (d.itemId) { const i = g.items.find(x => x.id === Number(d.itemId) && x.grilleId === t.grilleId); need(i, "Point de vérification introuvable.");
+          let o = g.obs.find(x => x.tourneeId === t.id && x.itemId === i.id);
+          if (!o) { o = { id: ++g.seq.o, tourneeId: t.id, itemId: i.id, theme: i.theme, texte: i.texte, resultat: d.resultat, commentaire: com || null, ecartId: null, ractionId: null }; g.obs.push(o); }
+          else { o.resultat = d.resultat; if (com !== undefined) o.commentaire = com; } return o.id; }
+        need((d.texte || "").trim(), "Décrivez l'observation."); need(THEMES.includes(d.theme), "Choisissez un thème.");
+        const o = { id: ++g.seq.o, tourneeId: t.id, itemId: null, theme: d.theme, texte: d.texte.trim(), resultat: d.resultat, commentaire: com || null, ecartId: null, ractionId: null };
+        g.obs.push(o); return o.id; }),
+      terminerTournee: (id, note) => run(() => { const t = tour(id, true); t.statut = "terminee"; t.fin = new Date().toISOString(); t.note = (note || "").trim() || null; return null; }),
+      lierObsEcart: (oid, eid) => run(() => { const o = G().obs.find(x => x.id === Number(oid)); need(o, "Observation introuvable."); tour(o.tourneeId, false);
+        need(S.ecarts.some(e => e.id === Number(eid)), "Écart introuvable."); o.ecartId = Number(eid); o.resultat = "corriger"; return null; }),
+      obsAction: async (oid, d) => { const g = G(), o = g.obs.find(x => x.id === Number(oid)); let t, r;
+        try { need(o, "Observation introuvable."); t = tour(o.tourneeId, false); need(!o.ractionId, "Une action existe déjà pour cette observation.");
+          need(d.cat && "SQCDP".includes(d.cat), "Choisissez la lettre SQCDP où suivre l'action.");
+          r = RENCONTRES.filter(m => { const e = eq(m.equipe); return e && e.strate === 2 && (e.dept === t.dept || (e.depts || []).includes(t.dept)); }).sort((a, b) => a.dureeMin - b.dureeMin)[0];
+          need(r, "Aucun caucus T2 trouvé pour ce département."); } catch (e) { return fail(e.message); }
+        const id = await api.ajouterRactionRenc(r.code, { texte: d.texte, responsable: d.responsable, echeance: d.echeance, cat: d.cat });
+        o.ractionId = id; o.resultat = "corriger"; save(); return id; },
+      majGembaGrille: d => run(() => { admin(); const g = G(); need((d.nom || "").trim(), "Nommez la grille.");
+        if (!d.id) { const x = { id: ++g.seq.g, nom: d.nom.trim(), dept: d.dept || null, description: (d.description || "").trim() || null, actif: true }; g.grilles.push(x); return x.id; }
+        const x = g.grilles.find(y => y.id === Number(d.id)); need(x, "Grille introuvable.");
+        Object.assign(x, { nom: d.nom.trim(), dept: d.dept || null, description: (d.description || "").trim() || null }); if ("actif" in d) x.actif = !!d.actif; return x.id; }),
+      majGembaItem: d => run(() => { admin(); const g = G(); need((d.texte || "").trim(), "Décrivez le point à vérifier."); need(THEMES.includes(d.theme), "Choisissez un thème.");
+        if (!d.id) { need(g.grilles.some(x => x.id === Number(d.grilleId)), "Grille introuvable.");
+          const x = { id: ++g.seq.i, grilleId: Number(d.grilleId), ordre: Math.max(0, ...g.items.filter(i => i.grilleId === Number(d.grilleId)).map(i => i.ordre)) + 1, theme: d.theme, texte: d.texte.trim(), actif: true }; g.items.push(x); return x.id; }
+        const x = g.items.find(y => y.id === Number(d.id)); need(x, "Point introuvable.");
+        Object.assign(x, { theme: d.theme, texte: d.texte.trim() }); if ("actif" in d) x.actif = !!d.actif; if (d.ordre != null && d.ordre !== "") x.ordre = Number(d.ordre); return x.id; }),
+      majGembaStandard: d => run(() => { const g = G(), me = pers(userId); const pid = d.personneId ? Number(d.personneId) : userId;
+        need(pid === userId || me.admin, "Seul un administrateur peut modifier le standard d'une autre personne.");
+        const jours = [...new Set((d.jours || []).map(Number))].sort(); need(jours.every(j => j >= 1 && j <= 7), "Jours invalides.");
+        need(g.grilles.some(x => x.id === Number(d.grilleId)), "Choisissez une grille de tournée.");
+        if (!d.id) { need(jours.length, "Choisissez au moins un jour."); const x = { id: ++g.seq.s, personneId: pid, grilleId: Number(d.grilleId), jours, actif: true, depuis: today() }; g.standards.push(x); return x.id; }
+        const x = g.standards.find(y => y.id === Number(d.id)); need(x, "Standard introuvable."); need(x.personneId === userId || me.admin, "Seul un administrateur peut modifier le standard d'une autre personne.");
+        Object.assign(x, { personneId: pid, grilleId: Number(d.grilleId), jours }); if ("actif" in d) x.actif = !!d.actif; return x.id; })
+    };
+    function seedG() {
+      const g = { grilles: [], items: [], standards: [], tournees: [], obs: [], seq: { g: 0, i: 0, s: 0, t: 0, o: 0 } };
+      const base = [["S", "Allées et sorties dégagées, aucun risque de chute"], ["S", "ÉPI portés selon le poste"], ["5S", "Postes rangés : chaque outil à sa place"],
+        ["Q", "Dernières inspections ou tests conformes, rien en attente de reprise"], ["C", "Aucun gaspillage visible (rebuts, attente, surproduction)"],
+        ["D", "Plan de la journée affiché et suivi"], ["D", "Aucun poste en attente de matériel, de dessin ou d'information"], ["P", "Tableau de l'équipe à jour (présences, priorités)"]];
+      [["PAN", "Panneaux"], ["MOT", "Moteurs"], ["VIS", "Vision"]].forEach(([c, n]) => { const id = ++g.seq.g;
+        g.grilles.push({ id, nom: "Tournée " + n, dept: c, description: "Grille de départ, à réviser avec les sujets choisis.", actif: true });
+        base.forEach(([th, tx], k) => g.items.push({ id: ++g.seq.i, grilleId: id, ordre: k + 1, theme: th, texte: tx, actif: true })); });
+      return g;
+    }
+  }
 }
 
 /* Implémentation Supabase : lecture par les vues, écriture par les fonctions (RPC) qui appliquent les règles. */
@@ -866,7 +1267,8 @@ function supabaseApi(cfg) {
   const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true } });
   const ok = ({ data, error }) => { if (error) throw new Error(error.message || "Erreur Supabase"); return data; };
   const rpc = async (fn, args) => ok(await sb.rpc(fn, args || {}));
-  const mapE = r => ({ id: r.id, no: r.no, dateEcart: r.date_ecart, equipeOrigine: r.equipe_origine, equipeCourante: r.equipe_courante, strateCourante: r.strate_courante, dept: r.dept, cat: r.cat, typeId: r.type_id, type: r.type, titre: r.titre, poste: r.poste, noFab: r.no_fab, minutes: r.minutes, cout: Number(r.cout) || 0, description: r.description, statut: r.statut, cause: r.cause, causeDetail: r.cause_detail, solution: r.solution, strateReglement: r.strate_reglement, dateReglement: r.date_reglement, procedureModifiee: r.procedure_modifiee, procedureNom: r.procedure_nom, dateRetourLu: r.date_retour_lu, ageJours: r.age_jours, nbActions: r.nb_actions, nbActionsOuvertes: r.nb_actions_ouvertes, collaborateurs: r.collaborateurs || [], etiquettes: r.etiquettes || [], nbPieces: r.nb_pieces || 0, archive: !!r.archive });
+  const mapE = r => ({ id: r.id, no: r.no, dateEcart: r.date_ecart, equipeOrigine: r.equipe_origine, equipeCourante: r.equipe_courante, strateCourante: r.strate_courante, dept: r.dept, cat: r.cat, typeId: r.type_id, type: r.type, titre: r.titre, poste: r.poste, noFab: r.no_fab, minutes: r.minutes, cout: Number(r.cout) || 0, description: r.description, statut: r.statut, cause: r.cause, causeDetail: r.cause_detail, solution: r.solution, strateReglement: r.strate_reglement, dateReglement: r.date_reglement, procedureModifiee: r.procedure_modifiee, procedureNom: r.procedure_nom, dateRetourLu: r.date_retour_lu, ageJours: r.age_jours, nbActions: r.nb_actions, nbActionsOuvertes: r.nb_actions_ouvertes, collaborateurs: r.collaborateurs || [], etiquettes: r.etiquettes || [], nbPieces: r.nb_pieces || 0, archive: !!r.archive,
+    causeTypeId: r.cause_type_id || null, causeType: r.cause_type || null, recidiveDe: r.recidive_de || null, nbRecidives: r.nb_recidives || 0, procedureDeployeeLe: r.procedure_deployee_le || null, nbCommentaires: r.nb_commentaires || 0 });
   const mapA = r => ({ id: r.id, ecartId: r.ecart_id, sujetId: r.sujet_id, horizon: r.horizon, texte: r.texte, responsable: r.responsable, responsableId: r.responsable_id, resultat: r.resultat, echeance: r.echeance, statut: r.statut, noEcart: r.no_ecart, dept: r.dept, enRetard: r.en_retard });
   const mapS = r => ({ id: r.id, rencontre: r.rencontre, titre: r.titre, responsable: r.responsable, statut: r.statut, prochaineRevue: r.prochaine_revue, notes: r.notes || [] });
   const mapT = r => ({ id: r.id, rencontre: r.rencontre, debut: r.debut, dureeMin: r.duree_min, decisions: r.decisions, animeePar: r.animee_par });
@@ -896,7 +1298,7 @@ function supabaseApi(cfg) {
     ecart: async id => { id = Number(id);
       const [e, a, m] = await Promise.all([sb.from("v_ecart").select("*").eq("id", id).maybeSingle(), sb.from("v_action").select("*").eq("ecart_id", id).order("echeance"), sb.from("v_mouvement").select("*").eq("ecart_id", id).order("id")]);
       const r = ok(e); if (!r) throw new Error("Écart introuvable");
-      return Object.assign(mapE(r), { actions: ok(a).map(mapA), mouvements: ok(m).map(x => ({ date: x.date, genre: x.genre, texte: x.texte, par: x.par })) }); },
+      return Object.assign(mapE(r), { actions: ok(a).map(mapA), mouvements: ok(m).map(x => ({ date: x.date, le: x.le || null, genre: x.genre, texte: x.texte, par: x.par })) }); },
     creerEcart: d => rpc("creer_ecart", { p: d }),
     creerEcartComplet: d => rpc("creer_ecart_complet", { p: d }),
     pieces: async id => { const l = ok(await sb.from("v_piece").select("*").eq("ecart_id", Number(id)).order("ajoute_le"));
@@ -973,6 +1375,36 @@ function supabaseApi(cfg) {
     majRaction: (id, t, d) => rpc("maj_raction", { p_id: Number(id), p_tenue: t ? Number(t) : null, p: d }),
     supprimerRaction: id => rpc("supprimer_raction", { p_id: Number(id) }),
     ajouterRactionRenc: (code, d) => rpc("ajouter_raction_renc", { p_code: code, p: d }),
+    gemba: depuis => rpc("gemba_donnees", { p_depuis: depuis }),
+    avisFab: fab => rpc("avis_fab", { p_fab: fab || null }),
+    commentaires: id => rpc("commentaires_ecart", { p_ecart: Number(id) }),
+    commenter: (id, d) => rpc("commenter_ecart", { p_ecart: Number(id), p: d }),
+    causesTypes: () => rpc("causes_types"),
+    classerCause: (id, ct) => rpc("classer_cause", { p_ecart: Number(id), p_ct: ct ? Number(ct) : null }),
+    creerCauseType: (typeId, nom) => rpc("creer_cause_type", { p_type: Number(typeId), p_nom: nom }),
+    majCauseType: (id, d) => rpc("maj_cause_type", { p_id: Number(id), p: d }),
+    marquerRecidive: (id, de) => rpc("marquer_recidive", { p_ecart: Number(id), p_de: de ? Number(de) : null }),
+    marquerProcedureDeployee: (id, fait) => rpc("marquer_procedure_deployee", { p_ecart: Number(id), p_fait: !!fait }),
+    projetsAC: () => rpc("projets_ac"),
+    majProjetAC: d => rpc("maj_projet_ac", { p: d }),
+    envoyerAC: (id, motif) => rpc("envoyer_ac", { p_ecart: Number(id), p_motif: motif }),
+    demandesAC: () => rpc("demandes_ac"),
+    deciderDemande: (id, d) => rpc("decider_demande", { p_id: Number(id), p: d }),
+    projetDetail: id => rpc("projet_detail", { p_id: Number(id) }),
+    majProjetA3: (id, d) => rpc("maj_projet_a3", { p_id: Number(id), p: d }),
+    majProjetAction: d => rpc("maj_projet_action", { p: d }),
+    lierProjetEcart: (p, e, lier) => rpc("lier_projet_ecart", { p_projet: Number(p), p_ecart: Number(e), p_lier: !!lier }),
+    creerAvisFab: d => rpc("creer_avis_fab", { p: d }),
+    leverAvisFab: (id, note) => rpc("lever_avis_fab", { p_id: Number(id), p_note: note }),
+    tourneeGemba: id => rpc("gemba_tournee_detail", { p_id: Number(id) }),
+    demarrerTournee: (grilleId, standardId) => rpc("demarrer_tournee", { p_grille: Number(grilleId), p_standard: standardId ? Number(standardId) : null }),
+    noterObs: (t, d) => rpc("noter_obs", { p_tournee: Number(t), p: d }),
+    terminerTournee: (id, note) => rpc("terminer_tournee", { p_id: Number(id), p_note: note || null }),
+    lierObsEcart: (o, e) => rpc("lier_obs_ecart", { p_obs: Number(o), p_ecart: Number(e) }),
+    obsAction: (o, d) => rpc("obs_action", { p_obs: Number(o), p: d }),
+    majGembaGrille: d => rpc("maj_gemba_grille", { p: d }),
+    majGembaItem: d => rpc("maj_gemba_item", { p: d }),
+    majGembaStandard: d => rpc("maj_gemba_standard", { p: d }),
     ractions: async f => { f = f || {}; let q = sb.from("v_raction").select("*");
       if (f.rencontre) q = q.eq("rencontre", f.rencontre);
       if (f.statut === "ouvertes") q = q.neq("statut", "fait");
@@ -1718,6 +2150,704 @@ setInterval(() => { if (document.visibilityState === "visible") majCloche(); }, 
 
 </script>
 <script>
+/* Tournées gemba : standard du leader, grilles de vérification, tournées et observations.
+   Une observation « à corriger » devient un écart (si elle atteint le barème) ou une action rapide,
+   suivie au caucus T2 du département sous sa lettre SQCDP. */
+let GEMBA = null;
+const G_THEMES = [["S", "Sécurité"], ["Q", "Qualité"], ["C", "Coûts"], ["D", "Délais"], ["P", "Personnel"], ["5S", "Ordre et propreté (5S)"]];
+const G_JOURS = [[1, "L"], [2, "M"], [3, "Me"], [4, "J"], [5, "V"], [6, "S"], [7, "D"]];
+const G_RES = [["ok", "OK"], ["corriger", "À corriger"], ["so", "S. O."]];
+const gDow = iso => (new Date(iso + "T12:00:00").getDay() + 6) % 7 + 1;
+const gAdd = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const gLundi = iso => gAdd(iso, 1 - gDow(iso));
+const gGrille = id => (GEMBA ? GEMBA.grilles : []).find(g => g.id === id);
+const gPeutStd = s => ME.admin || s.personneId === ME.id;
+
+/* Respect du standard pour la semaine en cours : jours prévus passés (et aujourd'hui) contre jours faits */
+function gSemaine(s, tournees) {
+  const auj = isoToday(), lundi = gLundi(auj);
+  const faits = new Set(tournees.filter(t => t.personneId === s.personneId && t.grilleId === s.grilleId && t.date >= lundi && t.date <= auj).map(t => t.date));
+  const jours = G_JOURS.filter(([j]) => j <= 5 || s.jours.includes(j)).map(([j, l]) => {
+    const date = gAdd(lundi, j - 1), prevu = s.jours.includes(j) && date >= (s.depuis || ""), fait = faits.has(date);
+    const etat = fait ? "fait" : !prevu ? "libre" : date < auj ? "manque" : date === auj ? "jour" : "avenir";
+    return { j, l, date, prevu, fait, etat };
+  });
+  const prevues = jours.filter(d => d.prevu && (d.date < auj || (d.date === auj && d.fait))).length;
+  const faites = jours.filter(d => d.prevu && d.fait && d.date <= auj).length;
+  return { jours, prevues, faites, pct: prevues ? Math.round(100 * faites / prevues) : null };
+}
+const gPill = pct => pct === null ? `<span class="muted small">—</span>` : `<span class="pill ${pct >= 90 ? "ok" : pct >= 70 ? "warn" : "bad"}">${pct} %</span>`;
+const gChips = w => `<span class="g-days">${w.jours.map(d => `<span class="g-day" data-e="${d.etat}" title="${fmtD(d.date)}${d.prevu ? " · prévue" : ""}${d.fait ? " · faite" : ""}">${d.l}</span>`).join("")}</span>`;
+
+async function vGemba() {
+  if (!Api.gemba) return `<div class="empty">Les tournées gemba ne sont pas offertes dans ce mode.</div>`;
+  if (ui.gTour) return vTournee(ui.gTour);
+  const lundi = gLundi(isoToday());
+  GEMBA = await Api.gemba(gAdd(lundi, -28));
+  const { grilles, standards, tournees } = GEMBA;
+  const actives = grilles.filter(g => g.actif), stds = standards.filter(s => s.actif && gGrille(s.grilleId));
+  const miens = stds.filter(s => s.personneId === ME.id);
+  const enCours = tournees.filter(t => t.statut === "cours" && t.personneId === ME.id);
+  const mesCartes = miens.map(s => { const w = gSemaine(s, tournees), g = gGrille(s.grilleId);
+    return `<div class="g-std"><div><strong>${esc(g.nom)}</strong><div class="small muted">${w.faites} / ${w.prevues} tournée(s) prévue(s) faite(s) cette semaine</div></div>${gChips(w)}${gPill(w.pct)}
+      <button class="btn primary small" type="button" data-act="g-start" data-g="${g.id}" data-s="${s.id}">Démarrer</button></div>`; }).join("");
+  const respect = stds.map(s => { const w = gSemaine(s, tournees), g = gGrille(s.grilleId);
+    return `<tr><td>${esc(s.personne)}</td><td>${esc(g.nom)}</td><td>${gChips(w)}</td><td class="num">${w.prevues}</td><td class="num">${w.faites}</td><td>${gPill(w.pct)}</td>
+      <td>${gPeutStd(s) ? `<button class="btn small" type="button" data-act="g-std" data-id="${s.id}">Modifier</button>` : ""}</td></tr>`; }).join("");
+  const recentes = tournees.map(t => { const g = gGrille(t.grilleId);
+    return `<tr><td class="num">${fmtD(t.date)}</td><td><button type="button" class="lien-act" data-act="g-open" data-id="${t.id}">${esc(g ? g.nom : "Tournée")}</button></td><td>${esc(t.personne)}</td>
+      <td>${t.statut === "cours" ? `<span class="pill warn">En cours</span>` : `<span class="pill ok">Terminée</span>`}</td><td class="num">${t.nbOk}</td><td class="num">${t.nbCorriger ? `<strong>${t.nbCorriger}</strong>` : 0}</td>
+      <td class="num">${t.nbEcarts}</td><td class="num">${t.nbActions}</td></tr>`; }).join("");
+  const admin = ME.admin ? `<div class="card" style="margin-top:14px"><div class="row between"><h3>Grilles de vérification</h3><button class="btn small" type="button" data-act="g-grille-new">+ Nouvelle grille</button></div>
+    <p class="small muted" style="margin:2px 0 8px">Les points vérifiés pendant la tournée, classés par thème. Un point retiré reste dans l'historique des tournées passées.</p>
+    <div class="scroll"><table class="t"><thead><tr><th>Grille</th><th>Département</th><th>Points actifs</th><th>État</th><th></th></tr></thead><tbody>${grilles.map(g => `<tr><td>${esc(g.nom)}${g.description ? `<div class="small muted">${esc(g.description)}</div>` : ""}</td><td>${esc(g.dept ? deptNom(g.dept) : "Toute l'usine")}</td>
+      <td class="num">${g.items.filter(i => i.actif).length}</td><td>${g.actif ? "Active" : `<span class="muted">Retirée</span>`}</td><td><button class="btn small" type="button" data-act="g-grille" data-id="${g.id}">Modifier</button></td></tr>`).join("")}</tbody></table></div></div>` : "";
+  return `<div class="row between" style="margin-bottom:12px"><div><h2 style="margin:0">Tournées gemba</h2><div class="small muted">Aller voir au plancher, selon le standard du leader. Ce qui est à corriger devient un écart ou une action suivie au caucus.</div></div>
+     <button class="btn primary" type="button" data-act="g-start-choix">Démarrer une tournée</button></div>
+   ${enCours.length ? `<div class="notice" style="margin-bottom:12px">Tournée en cours : ${enCours.map(t => `<button class="btn small" type="button" data-act="g-open" data-id="${t.id}">${esc((gGrille(t.grilleId) || {}).nom || "Tournée")} · ${fmtD(t.date)}</button>`).join(" ")}</div>` : ""}
+   <div class="card"><div class="row between"><h3>Mon standard cette semaine</h3><button class="btn small" type="button" data-act="g-std-new">+ Ajouter à mon standard</button></div>
+     ${mesCartes || `<div class="empty">Aucune tournée prévue à ton standard. Ajoute les jours où tu fais ta tournée.</div>`}</div>
+   <div class="card" style="margin-top:14px"><div class="row between"><h3>Respect du standard du leader · semaine du ${fmtD(lundi)}</h3>${ME.admin ? `<button class="btn small" type="button" data-act="g-std-new" data-autre="1">+ Ajouter un standard</button>` : ""}</div>
+     <p class="small muted" style="margin:2px 0 8px">Vert : faite · rouge : prévue et manquée · jaune : prévue aujourd'hui · gris : à venir. Le respect compte les jours prévus jusqu'à aujourd'hui.</p>
+     ${respect ? `<div class="scroll"><table class="t"><thead><tr><th>Personne</th><th>Grille</th><th>Semaine</th><th>Prévues</th><th>Faites</th><th>Respect</th><th></th></tr></thead><tbody>${respect}</tbody></table></div>` : `<div class="empty">Aucun standard inscrit.</div>`}</div>
+   <div class="card" style="margin-top:14px"><h3>Tournées des 4 dernières semaines</h3>
+     ${recentes ? `<div class="scroll"><table class="t"><thead><tr><th>Date</th><th>Grille</th><th>Par</th><th>Statut</th><th>OK</th><th>À corriger</th><th>Écarts</th><th>Actions</th></tr></thead><tbody>${recentes}</tbody></table></div>` : `<div class="empty">Aucune tournée pour l'instant.</div>`}</div>
+   ${admin}`;
+}
+
+async function vTournee(id) {
+  const [T, G] = await Promise.all([Api.tourneeGemba(id), GEMBA ? Promise.resolve(GEMBA) : Api.gemba(isoToday())]);
+  GEMBA = G; const g = gGrille(T.grilleId) || { nom: "Tournée", items: [] };
+  const edit = T.modifiable && T.statut === "cours";
+  const ecarts = (T.obs.some(o => o.ecartId)) ? await Api.ecarts({}) : [];
+  const noE = eid => { const e = ecarts.find(x => x.id === eid); return e ? e.no : "Écart"; };
+  const parItem = new Map(T.obs.filter(o => o.itemId).map(o => [o.itemId, o]));
+  const libres = T.obs.filter(o => !o.itemId);
+  const items = g.items.filter(i => i.actif || parItem.has(i.id));
+  const notes = items.filter(i => parItem.has(i.id)).length;
+  const ligne = (texte, o, key, libre) => {
+    const r = o ? o.resultat : "";
+    const suites = o && r === "corriger" ? `<div class="g-suite">${o.ecartId ? `<button class="btn small" type="button" data-act="detail" data-id="${o.ecartId}">${esc(noE(o.ecartId))}</button>` : edit || T.modifiable ? `<button class="btn small" type="button" data-act="g-ecart" data-obs="${o.id}">Documenter un écart</button>` : ""}
+      ${o.action ? `<span class="small">Action : <strong>${esc(o.action.texte)}</strong>${o.action.responsable ? " · " + esc(o.action.responsable) : ""}${o.action.echeance ? " · " + fmtD(o.action.echeance) : ""} · suivie au caucus</span>` : T.modifiable ? `<button class="btn small" type="button" data-act="g-action" data-obs="${o.id}">Action rapide</button>` : ""}</div>` : "";
+    return `<div class="g-item" data-r="${r}"><div class="g-txt">${esc(texte)}${libre ? ` <span class="pill">Observation libre</span>` : ""}</div>
+      <div class="g-res" role="group" aria-label="Résultat">${G_RES.map(([k, l]) => `<button type="button" data-act="g-res" ${key} data-r="${k}" aria-pressed="${r === k}" ${edit ? "" : "disabled"}>${l}</button>`).join("")}</div>
+      ${o ? `<input class="g-com" data-g-com="1" ${key} data-r="${r}" value="${esc(o.commentaire || "")}" placeholder="Ce qui a été vu (facultatif)" maxlength="200" ${edit ? "" : "disabled"} aria-label="Commentaire">` : `<span></span>`}${suites}</div>`;
+  };
+  const blocs = G_THEMES.map(([th, nom]) => {
+    const l = items.filter(i => i.theme === th).map(i => { const o = parItem.get(i.id); return ligne(i.texte, o, o ? `data-obs="${o.id}"` : `data-item="${i.id}"`, false); })
+      .concat(libres.filter(o => o.theme === th).map(o => ligne(o.texte, o, `data-obs="${o.id}"`, true)));
+    return l.length ? `<div class="g-theme"><h4><span class="cat">${esc(th)}</span> ${esc(nom)}</h4>${l.join("")}</div>` : "";
+  }).join("");
+  return `<div class="row between" style="margin-bottom:10px"><button class="btn" type="button" data-act="g-back">← Tournées</button>
+     ${edit ? `<button class="btn" type="button" data-act="g-libre">+ Observation libre</button>` : ""}</div>
+   <div class="card"><div class="row between"><div><h2 style="margin:0">${esc(g.nom)}</h2><div class="small muted">${fmtD(T.date)} · ${esc(T.personne)}${T.dept ? " · " + esc(deptNom(T.dept)) : ""}</div></div>
+     <div>${T.statut === "cours" ? `<span class="pill warn">En cours</span>` : `<span class="pill ok">Terminée</span>`} <span class="small muted">${notes} / ${items.length} points notés</span></div></div>
+     ${!T.modifiable ? `<div class="notice" style="margin-top:8px">Tournée de ${esc(T.personne)} : lecture seulement.</div>` : ""}
+     <div class="g-list">${blocs || `<div class="empty">Cette grille n'a aucun point à vérifier.</div>`}</div>
+     ${edit ? `<div class="g-fin"><label for="g-note">Note de fin de tournée (facultatif)<textarea id="g-note" rows="2" maxlength="400" placeholder="Ce qu'on retient, ce qu'on a souligné à l'équipe">${esc(T.note || "")}</textarea></label>
+       <div class="row" style="justify-content:flex-end"><button class="btn primary" type="button" data-act="g-fin" data-id="${T.id}">Terminer la tournée</button></div></div>`
+       : T.note ? `<div class="g-fin small"><strong>Note :</strong> ${esc(T.note)}</div>` : ""}</div>`;
+}
+
+/* ---------- Fenêtres ---------- */
+function gStartChoix() {
+  const actives = GEMBA.grilles.filter(g => g.actif), mien = GEMBA.standards.find(s => s.actif && s.personneId === ME.id);
+  const def = mien ? mien.grilleId : (actives.find(g => myDepts().includes(g.dept)) || actives[0] || {}).id;
+  modal(`<h2>Démarrer une tournée</h2><form id="f-g-start" class="form"><label class="full" for="gs-g">Grille<select id="gs-g">${opt(actives.map(g => [String(g.id), g.nom]), String(def || ""))}</select></label>
+   <div class="full small muted">Si une tournée de cette grille est déjà en cours aujourd'hui, elle est rouverte.</div>
+   <div id="gs-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Démarrer</button></div></form>`);
+  $("#f-g-start").addEventListener("submit", async ev => { ev.preventDefault();
+    try { const gid = Number($("#gs-g").value), s = GEMBA.standards.find(x => x.actif && x.personneId === ME.id && x.grilleId === gid);
+      ui.gTour = await Api.demarrerTournee(gid, s ? s.id : null); closeModal(); render(); window.scrollTo(0, 0); } catch (err) { formErr("gs-msg", err.message); } });
+}
+function gStd(id, autre) {
+  const s = id ? GEMBA.standards.find(x => x.id === id) : null;
+  const pers = ME.admin ? (REF.personnes || []).filter(p => p.actif !== false) : [{ id: ME.id, nom: ME.nom }];
+  const jours = s ? s.jours : [];
+  modal(`<h2>${s ? "Modifier le standard" : "Ajouter au standard du leader"}</h2><form id="f-g-std" class="form">
+   <label for="gd-p">Personne<select id="gd-p" ${ME.admin ? "" : "disabled"}>${opt(pers.map(p => [String(p.id), p.nom]), String(s ? s.personneId : (autre ? "" : ME.id)))}</select></label>
+   <label for="gd-g">Grille<select id="gd-g">${opt(GEMBA.grilles.filter(g => g.actif || (s && g.id === s.grilleId)).map(g => [String(g.id), g.nom]), String(s ? s.grilleId : ""))}</select></label>
+   <fieldset class="full g-jours"><legend>Jours de tournée</legend>${G_JOURS.map(([j, l]) => `<label><input type="checkbox" name="gd-j" value="${j}" ${jours.includes(j) ? "checked" : ""}> ${["", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"][j]}</label>`).join("")}</fieldset>
+   ${s ? `<label class="full"><input type="checkbox" id="gd-a" ${s.actif ? "checked" : ""}> Standard actif (décocher pour le retirer)</label>` : ""}
+   <div id="gd-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`);
+  $("#f-g-std").addEventListener("submit", async ev => { ev.preventDefault();
+    try { const d = { personneId: Number($("#gd-p").value) || ME.id, grilleId: Number($("#gd-g").value), jours: [...document.querySelectorAll("[name=gd-j]:checked")].map(x => Number(x.value)) };
+      if (s) { d.id = s.id; d.actif = $("#gd-a").checked; } await Api.majGembaStandard(d); closeModal(); render(); } catch (err) { formErr("gd-msg", err.message); } });
+}
+function gGrilleForm(id) {
+  const g = id ? GEMBA.grilles.find(x => x.id === id) : null;
+  const items = g ? g.items.slice().sort((a, b) => (b.actif - a.actif) || a.ordre - b.ordre) : [];
+  modal(`<h2>${g ? "Modifier la grille" : "Nouvelle grille de tournée"}</h2><form id="f-g-grille" class="form">
+   <label for="gg-n">Nom<input id="gg-n" maxlength="80" required value="${esc(g ? g.nom : "")}"></label>
+   <label for="gg-d">Département<select id="gg-d">${opt([["", "Toute l'usine"], ...REF.departements.map(d => [d.code, d.nom])], g ? g.dept || "" : "")}</select></label>
+   <label class="full" for="gg-desc">Description (facultatif)<input id="gg-desc" maxlength="160" value="${esc(g && g.description || "")}"></label>
+   ${g ? `<label class="full"><input type="checkbox" id="gg-a" ${g.actif ? "checked" : ""}> Grille active</label>` : ""}
+   <div id="gg-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Fermer</button><button class="btn primary" type="submit">${g ? "Enregistrer" : "Créer"}</button></div></form>
+   ${g ? `<h3 style="margin-top:16px">Points à vérifier</h3><p class="small muted" style="margin-top:0">Chaque modification s'enregistre dès qu'on quitte le champ.</p>
+   <div class="g-edit">${items.map(i => `<div class="g-edit-row" data-st="${i.actif ? "" : "off"}"><select data-gi="${i.id}" data-f="theme" aria-label="Thème">${opt(G_THEMES.map(([k]) => [k, k]), i.theme)}</select>
+     <input data-gi="${i.id}" data-f="texte" value="${esc(i.texte)}" maxlength="160" aria-label="Point à vérifier"><input data-gi="${i.id}" data-f="ordre" type="number" min="0" value="${i.ordre}" aria-label="Ordre" title="Ordre">
+     <label class="small"><input type="checkbox" data-gi="${i.id}" data-f="actif" ${i.actif ? "checked" : ""}> Actif</label></div>`).join("")}
+   <div class="g-edit-row"><select id="gi-th" aria-label="Thème">${opt(G_THEMES.map(([k]) => [k, k]), "S")}</select><input id="gi-tx" maxlength="160" placeholder="Nouveau point à vérifier" aria-label="Nouveau point"><span></span><button class="btn small" type="button" data-act="g-item-add" data-id="${g.id}">Ajouter</button></div>
+   <div id="gi-msg"></div></div>` : ""}`);
+  $("#f-g-grille").addEventListener("submit", async ev => { ev.preventDefault();
+    try { const d = { nom: $("#gg-n").value, dept: $("#gg-d").value, description: $("#gg-desc").value }; if (g) { d.id = g.id; d.actif = $("#gg-a").checked; }
+      const nid = await Api.majGembaGrille(d); GEMBA = await Api.gemba(gAdd(gLundi(isoToday()), -28));
+      if (g) { closeModal(); render(); } else gGrilleForm(Number(nid)); } catch (err) { formErr("gg-msg", err.message); } });
+}
+async function gRafraichirGrille(id) { GEMBA = await Api.gemba(gAdd(gLundi(isoToday()), -28)); gGrilleForm(id); }
+function gAction(obs) {
+  const o = gObs(obs), t = (o && o.theme && o.theme !== "5S") ? o.theme : "S";
+  modal(`<h2>Action rapide</h2><p class="small muted" style="margin-top:0">${esc(o ? o.texte : "")}${o && o.commentaire ? " · " + esc(o.commentaire) : ""}</p>${dlPers()}<form id="f-g-act" class="form">
+   <label class="full" for="ga-t">Action<textarea id="ga-t" rows="2" maxlength="300" required>${esc(o && o.commentaire ? "Corriger : " + o.commentaire : "")}</textarea></label>
+   <label for="ga-r">Responsable<input id="ga-r" list="dl-pers" placeholder="Personne inscrite ou nom libre"></label><label for="ga-e">Échéance<input id="ga-e" type="date" min="${isoToday()}"></label>
+   <label for="ga-c">Suivie sous la lettre<select id="ga-c">${opt(G_THEMES.filter(([k]) => k !== "5S").map(([k, n]) => [k, k + " · " + n]), t)}</select></label><div></div>
+   <div class="full small muted">L'action est suivie au caucus T2 du département, sous la lettre choisie, jusqu'à ce qu'elle soit faite. Si ce qui a été vu atteint le barème, documente plutôt un écart.</div>
+   <div id="ga-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Créer l'action</button></div></form>`);
+  $("#f-g-act").addEventListener("submit", async ev => { ev.preventDefault();
+    try { await Api.obsAction(obs, { texte: $("#ga-t").value, responsable: $("#ga-r").value, echeance: $("#ga-e").value, cat: $("#ga-c").value }); closeModal(); render(); } catch (err) { formErr("ga-msg", err.message); } });
+}
+function gLibre() {
+  modal(`<h2>Observation libre</h2><form id="f-g-libre" class="form"><label for="gl-th">Thème<select id="gl-th">${opt(G_THEMES.map(([k, n]) => [k, k + " · " + n]), "S")}</select></label>
+   <label for="gl-r">Résultat<select id="gl-r">${opt(G_RES.map(([k, l]) => [k, l]), "corriger")}</select></label>
+   <label class="full" for="gl-t">Ce qui a été vu<input id="gl-t" maxlength="160" required placeholder="Un fait observable"></label>
+   <label class="full" for="gl-c">Précision (facultatif)<input id="gl-c" maxlength="200"></label>
+   <div id="gl-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Ajouter</button></div></form>`);
+  $("#f-g-libre").addEventListener("submit", async ev => { ev.preventDefault();
+    try { await Api.noterObs(ui.gTour, { theme: $("#gl-th").value, texte: $("#gl-t").value, commentaire: $("#gl-c").value, resultat: $("#gl-r").value }); closeModal(); render(); } catch (err) { formErr("gl-msg", err.message); } });
+}
+let G_TOUR = null;
+const gObs = id => G_TOUR ? G_TOUR.obs.find(o => o.id === Number(id)) : null;
+
+/* ---------- Événements ---------- */
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='g-']"); if (!a || a.disabled) return; const act = a.dataset.act;
+  try {
+    if (act === "g-start") { ui.gTour = await Api.demarrerTournee(Number(a.dataset.g), a.dataset.s ? Number(a.dataset.s) : null); render(); window.scrollTo(0, 0); }
+    else if (act === "g-start-choix") gStartChoix();
+    else if (act === "g-open") { ui.gTour = Number(a.dataset.id); render(); window.scrollTo(0, 0); }
+    else if (act === "g-back") { ui.gTour = null; render(); }
+    else if (act === "g-res") { const d = { resultat: a.dataset.r }; if (a.dataset.obs) d.obsId = Number(a.dataset.obs); else d.itemId = Number(a.dataset.item);
+      await Api.noterObs(ui.gTour, d); render(); }
+    else if (act === "g-libre") gLibre();
+    else if (act === "g-fin") { await Api.terminerTournee(Number(a.dataset.id), $("#g-note") ? $("#g-note").value : ""); ui.gTour = null; render(); }
+    else if (act === "g-std-new") gStd(null, !!a.dataset.autre);
+    else if (act === "g-std") gStd(Number(a.dataset.id));
+    else if (act === "g-grille-new") gGrilleForm(null);
+    else if (act === "g-grille") gGrilleForm(Number(a.dataset.id));
+    else if (act === "g-item-add") { try { await Api.majGembaItem({ grilleId: Number(a.dataset.id), theme: $("#gi-th").value, texte: $("#gi-tx").value }); await gRafraichirGrille(Number(a.dataset.id)); } catch (err) { formErr("gi-msg", err.message); } }
+    else if (act === "g-action") { G_TOUR = await Api.tourneeGemba(ui.gTour); gAction(Number(a.dataset.obs)); }
+    else if (act === "g-ecart") { G_TOUR = await Api.tourneeGemba(ui.gTour); const o = gObs(a.dataset.obs); const t = REF.equipes.find(e => e.strate === 1 && e.dept === G_TOUR.dept);
+      openNew(t ? t.code : "", o.theme === "5S" ? "S" : o.theme, { desc: (o.commentaire || o.texte).slice(0, 140), onCree: nid => Api.lierObsEcart(o.id, nid) }); }
+  } catch (err) { alertBox(err.message); }
+});
+document.addEventListener("change", async ev => {
+  const el = ev.target;
+  try {
+    if (el.dataset.gCom) { const d = { resultat: el.dataset.r, commentaire: el.value }; if (el.dataset.obs) d.obsId = Number(el.dataset.obs); else return;
+      await Api.noterObs(ui.gTour, d); }
+    else if (el.dataset.gi) { const g = GEMBA.grilles.find(x => x.items.some(i => i.id === Number(el.dataset.gi))), i = g.items.find(x => x.id === Number(el.dataset.gi));
+      const d = { id: i.id, theme: i.theme, texte: i.texte, actif: i.actif, ordre: i.ordre }; d[el.dataset.f] = el.type === "checkbox" ? el.checked : el.value;
+      await Api.majGembaItem(d); await gRafraichirGrille(g.id); }
+  } catch (err) { alertBox(err.message); }
+});
+
+</script>
+<script>
+/* Fiche FAB et avis sur les FAB.
+   Un avis prévient les étapes en aval d'un enjeu sur une FAB (ex. révision de dessin à venir : ne pas filer avant).
+   Les avis actifs s'affichent d'eux-mêmes dans les rencontres et à l'accueil du département ; la fiche regroupe
+   tous les avis et tous les écarts d'une FAB. Plus tard, Midguard ou la cédule pourront afficher l'avis au punch. */
+const FAB_ETAPES = { PAN: ["Dessin", "Achats", "Mécanique", "Filage", "Test", "Expédition"], MOT: ["Bobinage", "Assemblage", "Test", "Expédition"], VIS: ["Assemblage", "Programmation", "Test", "Expédition"], DES: ["Dessin"] };
+const fabNorm = f => (f || "").trim().toUpperCase();
+
+function avisCard(a, surFiche) {
+  const actif = a.statut === "actif";
+  return `<div class="avis" data-b="${actif && a.bloquant}" data-st="${a.statut}"><div class="avis-h"><div><strong>FAB ${esc(a.noFab)}</strong> · ${esc(a.titre)}
+     ${a.dept ? `<span class="small muted"> · ${esc(deptNom(a.dept))}</span>` : ""}</div>
+     <div class="avis-b">${!surFiche ? `<button class="btn small" type="button" data-act="fab-open" data-fab="${esc(a.noFab)}">Fiche FAB</button>` : ""}
+     ${actif ? `<button class="btn small" type="button" data-act="fab-lever" data-id="${a.id}">Lever l'avis</button>` : ""}</div></div>
+   ${a.etapes.length ? `<div class="avis-et">${actif && a.bloquant ? "<strong>Ne pas commencer avant la levée :</strong> " : "Étapes visées : "}${a.etapes.map(e => `<span class="pill">${esc(e)}</span>`).join(" ")}</div>` : ""}
+   ${a.detail ? `<div class="small">${esc(a.detail)}</div>` : ""}
+   <div class="small muted">Par ${esc(a.creePar || "")}, ${fmtD(a.creeLe)}${a.ecartId ? ` · <button class="lien-act" type="button" data-act="detail" data-id="${a.ecartId}">voir l'écart</button>` : ""}
+   ${!actif ? ` · <strong>Levé</strong> par ${esc(a.levePar || "")}, ${fmtD(a.leveLe)} : ${esc(a.leveNote || "")}` : ""}</div></div>`;
+}
+
+/* Bandeau des avis actifs, dans une rencontre ou à l'accueil */
+async function avisBandeau(depts) {
+  if (!Api.avisFab) return "";
+  const l = (await Api.avisFab(null)).filter(a => !depts || !a.dept || depts.includes(a.dept));
+  if (!l.length) return "";
+  return `<div class="avis-bandeau"><div class="row between"><strong>⚠ ${l.length} avis actif${l.length > 1 ? "s" : ""} sur des FAB</strong><span class="small muted">Vérifiez avant de commencer une étape visée.</span></div>${l.map(a => avisCard(a, false)).join("")}</div>`;
+}
+
+async function vFab() {
+  if (!Api.avisFab) return `<div class="empty">Les fiches FAB ne sont pas offertes dans ce mode.</div>`;
+  const fab = fabNorm(ui.fab);
+  const recherche = `<form id="f-fab" class="row" style="gap:8px;margin-bottom:14px"><input id="fab-in" value="${esc(fab)}" placeholder="No de FAB, ex. 26-130-01" aria-label="Numéro de FAB" style="max-width:260px">
+    <button class="btn primary" type="submit">Voir la fiche</button>${fab ? `<button class="btn" type="button" data-act="fab-open" data-fab="">Tous les avis actifs</button>` : ""}
+    <span style="flex:1"></span><button class="btn" type="button" data-act="fab-new" data-fab="${esc(fab)}">+ Avis sur une FAB</button></form>`;
+  if (!fab) {
+    const l = await Api.avisFab(null);
+    return `<h2 style="margin:0 0 4px">Fiches FAB</h2><p class="small muted" style="margin:0 0 12px">Avant de commencer une étape, cherchez la FAB : vous voyez les avis en cours (révision attendue, matériel, consigne) et tous ses écarts, pour ne pas répéter une erreur faite en amont.</p>
+      ${recherche}<div class="card"><h3>Avis actifs (${l.length})</h3>${l.length ? l.map(a => avisCard(a, false)).join("") : `<div class="empty">Aucun avis actif.</div>`}</div>`;
+  }
+  const [avis, ecarts0] = await Promise.all([Api.avisFab(fab), Api.ecarts({ q: fab })]);
+  const ecarts = ecarts0.filter(e => fabNorm(e.noFab) === fab);
+  const actifs = avis.filter(a => a.statut === "actif"), leves = avis.filter(a => a.statut !== "actif");
+  const lignesE = ecarts.map(e => ecartCard(e, false) + (e.solution ? `<div class="fab-sol small"><strong>Solution${e.strateReglement ? " (T" + e.strateReglement + ")" : ""} :</strong> ${esc(e.solution)}</div>` : "")).join("");
+  return `<h2 style="margin:0 0 12px">Fiche FAB ${esc(fab)}</h2>${recherche}
+   <div class="card"><div class="row between"><h3>Avis en cours</h3><button class="btn small" type="button" data-act="fab-new" data-fab="${esc(fab)}">+ Ajouter un avis</button></div>
+     ${actifs.length ? actifs.map(a => avisCard(a, true)).join("") : `<div class="empty">Aucun avis en cours sur cette FAB.</div>`}</div>
+   <div class="card" style="margin-top:14px"><h3>Écarts sur cette FAB (${ecarts.length})</h3><p class="small muted" style="margin:2px 0 8px">Tous les écarts documentés avec ce numéro de FAB, ouverts ou fermés, avec leur solution.</p>
+     ${lignesE || `<div class="empty">Aucun écart documenté avec ce numéro de FAB.</div>`}</div>
+   ${leves.length ? `<div class="card" style="margin-top:14px"><h3>Avis levés (${leves.length})</h3>${leves.map(a => avisCard(a, true)).join("")}</div>` : ""}`;
+}
+
+function fabNouvel(fab, ecartId, dept) {
+  const d0 = dept || (myDepts()[0] || "PAN");
+  const etapesHtml = dep => (FAB_ETAPES[dep] || FAB_ETAPES.PAN).map(e => `<label><input type="checkbox" name="fa-et" value="${esc(e)}"> ${esc(e)}</label>`).join("");
+  modal(`<h2>Avis sur une FAB</h2><form id="f-fab-avis" class="form">
+   <label for="fa-fab">No de FAB<input id="fa-fab" required maxlength="30" value="${esc(fab || "")}" placeholder="ex. 26-130-01"></label>
+   <label for="fa-d">Département<select id="fa-d">${opt(REF.departements.map(d => [d.code, d.nom]), d0)}</select></label>
+   <label class="full" for="fa-t">L'avis en quelques mots<input id="fa-t" required maxlength="120" placeholder="ex. Révision C du dessin à venir"></label>
+   <label class="full" for="fa-x">Détail (facultatif)<textarea id="fa-x" rows="2" maxlength="400" placeholder="Ce qui change, qui attendre, où trouver la bonne information"></textarea></label>
+   <fieldset class="full g-jours"><legend>Étapes visées</legend><span id="fa-ets">${etapesHtml(d0)}</span><label>Autre <input id="fa-autre" maxlength="40" style="width:140px"></label></fieldset>
+   <label class="full"><input type="checkbox" id="fa-b" checked> Ne pas commencer ces étapes tant que l'avis n'est pas levé</label>
+   <div class="full small muted">L'avis s'affiche dans les rencontres et à l'accueil du département jusqu'à ce que quelqu'un le lève, en disant pourquoi.</div>
+   <div id="fa-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Publier l'avis</button></div></form>`);
+  $("#fa-d").addEventListener("change", ev => { $("#fa-ets").innerHTML = etapesHtml(ev.target.value); });
+  $("#f-fab-avis").addEventListener("submit", async ev => { ev.preventDefault();
+    try { const et = [...document.querySelectorAll("[name=fa-et]:checked")].map(x => x.value); if ($("#fa-autre").value.trim()) et.push($("#fa-autre").value.trim());
+      await Api.creerAvisFab({ noFab: $("#fa-fab").value, dept: $("#fa-d").value, titre: $("#fa-t").value, detail: $("#fa-x").value, etapes: et, bloquant: $("#fa-b").checked, ecartId: ecartId || null });
+      closeModal(); if (route() === "fab") ui.fab = fabNorm($("#fa-fab") ? $("#fa-fab").value : fab); render(); } catch (err) { formErr("fa-msg", err.message); } });
+}
+function fabLever(id) {
+  modal(`<h2>Lever l'avis</h2><form id="f-fab-lever" class="form"><label class="full" for="fl-n">Pourquoi l'avis est levé<input id="fl-n" required maxlength="200" placeholder="ex. Révision C reçue et affichée au filage"></label>
+   <div id="fl-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Lever l'avis</button></div></form>`);
+  $("#f-fab-lever").addEventListener("submit", async ev => { ev.preventDefault();
+    try { await Api.leverAvisFab(id, $("#fl-n").value); closeModal(); render(); } catch (err) { formErr("fl-msg", err.message); } });
+}
+
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='fab-']"); if (!a || a.disabled) return; const act = a.dataset.act;
+  try {
+    if (act === "fab-open") { closeModal(); ui.fab = a.dataset.fab || ""; if (route() === "fab") render(); else location.hash = "fab"; window.scrollTo(0, 0); }
+    else if (act === "fab-new") fabNouvel(a.dataset.fab || "", a.dataset.ecart ? Number(a.dataset.ecart) : null, a.dataset.dept || "");
+    else if (act === "fab-lever") fabLever(Number(a.dataset.id));
+  } catch (err) { alertBox(err.message); }
+});
+document.addEventListener("submit", ev => {
+  if (ev.target.id === "f-fab" || ev.target.id === "f-fab-top") { ev.preventDefault(); const v = fabNorm(ev.target.querySelector("input").value);
+    ui.fab = v; if (route() === "fab") render(); else location.hash = "fab"; }
+});
+
+</script>
+<script>
+/* Fil de suivi, cause précise, récidives et espace du groupe d'amélioration continue (AC).
+   Règle : ce qui se compte reste dans des champs fermés (type, cause 6M, cause précise, récidive) ;
+   le fil sert à se parler et ne compte pas dans les statistiques. */
+
+/* ---------- Causes précises (3e niveau, liste fermée par type d'écart) ---------- */
+async function acRefCauses() { if (Api.causesTypes) REF.causeTypes = await Api.causesTypes(); return REF.causeTypes || []; }
+function ctOptions(typeId, sel) {
+  const l = (REF.causeTypes || []).filter(c => c.typeId === Number(typeId) && (c.actif || c.id === sel));
+  return `<option value="">${l.length ? "Autre, à classer par le groupe AC" : "À classer par le groupe AC"}</option>` + l.map(c => `<option value="${c.id}" ${c.id === sel ? "selected" : ""}>${esc(c.nom)}</option>`).join("");
+}
+function ctSync(typeId) { const s = $("#d-ct"); if (s) s.innerHTML = ctOptions(typeId, null); }
+
+/* ---------- Récidives : écarts semblables des 90 derniers jours ---------- */
+const acNorm = s => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+const acProjet = s => { const m = /(\d\d-\d{3})/.exec(s || ""); return m ? m[1] : ""; };
+function semblables(l, d, sauf) {
+  const lim = isoPlus(-90), p = acProjet(d.poste) || acProjet(d.noFab), fab = acNorm(d.noFab), poste = acNorm(d.poste);
+  return l.filter(e => e.id !== sauf && e.typeId === Number(d.typeId) && e.dateEcart >= lim && !e.recidiveDe && (!d.dateEcart || e.dateEcart <= d.dateEcart))
+    .map(e => ({ e, score: (fab && acNorm(e.noFab) === fab ? 4 : 0) + (p && (acProjet(e.poste) === p || acProjet(e.noFab) === p) ? 3 : 0) + (poste && acNorm(e.poste) === poste ? 2 : 0) + (e.dept === d.dept ? 1 : 0) }))
+    .filter(x => x.score > 0).sort((a, b) => b.score - a.score || b.e.dateEcart.localeCompare(a.e.dateEcart)).slice(0, 5).map(x => x.e);
+}
+function recidHtml(cands) {
+  if (!cands.length) return "";
+  return `<fieldset class="recid"><legend>Écarts semblables des 90 derniers jours : est-ce une récidive ?</legend>
+    <label class="check"><input type="radio" name="n-rec" value="" checked> Non, c'est un nouveau problème</label>
+    ${cands.map(e => `<label class="check"><input type="radio" name="n-rec" value="${e.id}"> Récidive de <strong>${esc(e.no)}</strong> · ${esc(e.titre)} <span class="muted small">(${fmtD(e.dateEcart)}${e.causeType ? " · " + esc(e.causeType) : ""})</span></label>`).join("")}</fieldset>`;
+}
+/* Branché sur le formulaire « Documenter un écart » */
+async function acNouvelEcart() {
+  const typeSel = $("#n-type"); if (!typeSel) return;
+  const desc = $("#n-desc"); const zone = document.createElement("div"); zone.className = "full"; zone.id = "n-recid";
+  (desc.closest("label") || desc).after(zone);
+  const tous = await Api.ecarts({});
+  const lire = () => ({ typeId: typeSel.value, poste: ($("#n-poste") || {}).value, noFab: ($("#n-fab") || {}).value, dept: (eq(($("#n-team") || {}).value) || {}).dept, dateEcart: ($("#n-date") || {}).value });
+  const maj = () => { const z = $("#n-recid"); if (z) z.innerHTML = recidHtml(semblables(tous, lire(), null)); };
+  ["#n-type", "#n-poste", "#n-fab", "#n-team", "#n-date"].forEach(s => { const el = $(s); if (el) { el.addEventListener("change", maj); el.addEventListener("input", maj); } });
+  typeSel.addEventListener("change", () => ctSync(typeSel.value));
+  const cat = $("#n-cat"); if (cat) cat.addEventListener("change", () => { ctSync($("#n-type").value); maj(); });
+  ctSync(typeSel.value); maj();
+}
+/* Après l'enregistrement d'un écart (création ou traitement) : cause précise et récidive */
+async function acApresEnregistrement(id) {
+  const ct = $("#d-ct"), rec = document.querySelector('input[name="n-rec"]:checked');
+  if (ct && ct.dataset.init !== ct.value) await Api.classerCause(id, ct.value ? Number(ct.value) : null);
+  if (rec && rec.value) await Api.marquerRecidive(id, Number(rec.value));
+}
+
+/* ---------- Fil de suivi d'un écart ---------- */
+function acMentions(txt) {
+  const out = new Set(); const pers = (REF.personnes || []).filter(p => p.actif !== false);
+  (txt.match(/@[\p{L}'’-]+(?:\s[\p{L}'’-]+)?/gu) || []).forEach(tok => {
+    const t = acNorm(tok.slice(1)), mots = t.split(/\s+/);
+    const p = pers.find(p => acNorm(p.nom) === t) || pers.find(p => acNorm(p.nom).split(/\s+/)[0] === mots[0] && (mots.length < 2 || acNorm(p.nom).includes(mots[1])))
+      || pers.find(p => acNorm(p.nom).split(/\s+/)[0] === mots[0]);
+    if (p) out.add(p.id);
+  });
+  return [...out];
+}
+const FIL_ICO = { creation: "✚", Escalade: "↑", Reglement: "✔", RetourLu: "↓", Note: "•", commentaire: "💬", action: "▸" };
+async function filHtml(e) {
+  if (!Api.commentaires) return "";
+  const [coms, jA] = await Promise.all([Api.commentaires(e.id), Api.journal && e.actions.length ? Api.journal({ table: "action", lignes: e.actions.map(x => x.id), limite: 200 }) : []]);
+  const ST = { AFaire: "à faire", EnCours: "en cours", Fait: "faite", Annule: "annulée" };
+  const evts = [{ le: e.dateEcart + "T00:00:00", genre: "creation", texte: `Écart documenté (vu par ${eq(e.equipeOrigine).nom})` },
+    ...e.mouvements.map(m => ({ le: m.le || (m.date + "T00:00:01"), genre: m.genre, texte: m.texte, par: m.par })),
+    ...coms.map(c => ({ le: c.le, genre: "commentaire", texte: c.texte, par: c.par, sur: c.action, mentions: c.mentions })),
+    ...jA.map(j => { const a = j.apres || j.avant || {}; const t = a.texte || "";
+      const txt = j.operation === "Ajout" ? `Action ajoutée : ${t}${a.echeance ? " (échéance " + fmtD(a.echeance) + ")" : ""}`
+        : j.operation === "Suppression" ? `Action retirée : ${t}`
+        : (j.champs || []).includes("statut") ? `Action « ${t} » : ${ST[a.statut] || a.statut}${a.resultat ? " · " + a.resultat : ""}`
+        : `Action « ${t} » modifiée (${(j.champs || []).map(c => JC[c] || c).join(", ")})`;
+      return { le: j.le, genre: "action", texte: txt, par: j.par }; })]
+    .sort((a, b) => String(b.le).localeCompare(String(a.le)));
+  return `<div class="fil" id="fil"><h3 style="margin-top:12px">Fil de suivi <span class="muted small">(${coms.length} commentaire${coms.length > 1 ? "s" : ""})</span></h3>
+    <form class="fil-new" data-ecart="${e.id}"><textarea id="fil-t" rows="2" maxlength="1000" placeholder="Écrire au fil… Tapez @ et un prénom pour aviser quelqu'un (ex. @Shane)" aria-label="Commentaire"></textarea>
+      <div class="row between" style="gap:8px;flex-wrap:wrap"><label class="small">À propos de <select id="fil-a">${opt([["", "l'écart"], ...e.actions.map(a => [String(a.id), "l'action : " + a.texte.slice(0, 60)])], "")}</select></label>
+      <span id="fil-m" class="small muted"></span><button class="btn primary small" type="submit">Publier</button></div><div id="fil-msg"></div></form>
+    <ol class="fil-l">${evts.map(v => `<li data-g="${esc(v.genre)}"><span class="fil-i" aria-hidden="true">${FIL_ICO[v.genre] || "•"}</span><div><div>${v.genre === "commentaire" ? `<strong>${esc(v.par || "")}</strong>${v.sur ? ` <span class="muted small">sur l'action « ${esc(v.sur)} »</span>` : ""}<div class="fil-c">${esc(v.texte)}</div>` : esc(v.texte)}</div>
+      <div class="small muted">${v.genre !== "commentaire" && v.par ? esc(v.par) + " · " : ""}${String(v.le).length > 10 && !/T00:00:0[01]$/.test(String(v.le)) ? ilYa(v.le) : fmtD(String(v.le).slice(0, 10))}${v.mentions && v.mentions.length ? " · avisé : " + v.mentions.map(esc).join(", ") : ""}</div></div></li>`).join("")}</ol></div>`;
+}
+document.addEventListener("input", ev => {
+  if (ev.target.id !== "fil-t") return; const ids = acMentions(ev.target.value), z = $("#fil-m");
+  if (z) z.textContent = ids.length ? "Sera avisé : " + ids.map(i => (REF.personnes.find(p => p.id === i) || {}).nom).join(", ") : "";
+});
+document.addEventListener("submit", async ev => {
+  const f = ev.target.closest(".fil-new"); if (!f) return; ev.preventDefault();
+  const id = Number(f.dataset.ecart), t = $("#fil-t").value;
+  try { await Api.commenter(id, { texte: t, actionId: $("#fil-a").value || null, mentions: acMentions(t) }); await openDetail(id); const fl = $("#fil"); if (fl) fl.scrollIntoView({ block: "start" }); }
+  catch (err) { formErr("fil-msg", err.message); }
+});
+
+/* Bandeau « cause précise et récidive » dans la fiche d'un écart */
+async function acCauseRecidive(e) {
+  if (!Api.marquerRecidive) return "";
+  const [de, dem] = await Promise.all([e.recidiveDe ? Api.ecart(e.recidiveDe).catch(() => null) : null, Api.demandesAC ? Api.demandesAC().catch(() => []) : []]);
+  const mesD = dem.filter(d => d.ecartId === e.id), enCours = mesD.find(d => d.statut === "recue"), projets = mesD.filter(d => d.statut === "projet");
+  const acLigne = !Api.envoyerAC ? "" : `<div><strong>Groupe AC :</strong> ${enCours ? `envoyé le ${fmtD(String(enCours.le).slice(0, 10))} par ${esc(enCours.par || "")}, en attente de décision`
+      : projets.length ? projets.map(d => `projet <button class="lien-act" type="button" data-act="ac-a3" data-id="${d.projetId}">« ${esc(d.projet || "")} »</button>`).join(", ")
+      : mesD.length ? `non retenu (${esc(mesD[0].decision || "")})` : "non envoyé"}
+    ${enCours ? "" : ` · <button class="lien-act" type="button" data-act="ac-envoyer" data-id="${e.id}">Envoyer au groupe AC…</button>`}</div>`;
+  const typeCauses = (REF.causeTypes || []).filter(c => c.typeId === e.typeId && c.actif);
+  return `<div class="ac-cr small">
+    <div><strong>Cause précise :</strong> ${e.causeType ? esc(e.causeType) : e.cause ? `<span class="pill warn">À classer</span>` : `<span class="muted">pas encore de cause</span>`}
+      ${e.cause && typeCauses.length ? ` <select data-ac-ct="${e.id}" aria-label="Cause précise">${ctOptions(e.typeId, e.causeTypeId)}</select>` : ""}</div>
+    <div><strong>Récidive :</strong> ${de ? `de <button class="lien-act" type="button" data-act="detail" data-id="${de.id}">${esc(de.no)}</button> · <button class="lien-act" type="button" data-act="ac-recid-x" data-id="${e.id}">retirer</button>`
+      : `non · <button class="lien-act" type="button" data-act="ac-recid" data-id="${e.id}">c'est une récidive…</button>`}${e.nbRecidives ? ` · <span class="pill bad">${e.nbRecidives} récidive${e.nbRecidives > 1 ? "s" : ""} de cet écart</span>` : ""}</div>${acLigne}</div>`;
+}
+document.addEventListener("change", async ev => {
+  const s = ev.target.closest("[data-ac-ct]"); if (!s) return;
+  try { await Api.classerCause(Number(s.dataset.acCt), s.value ? Number(s.value) : null); await acRefCauses(); } catch (err) { alertBox(err.message); }
+});
+
+/* ---------- Espace du groupe d'amélioration continue ---------- */
+const AC_BLOCS = ["ac_recus", "recurrences", "a_classer", "projets", "procedures"];
+async function acCharger() { const [ecarts, projets, demandes] = await Promise.all([Api.ecarts({}), Api.projetsAC ? Api.projetsAC() : [], Api.demandesAC ? Api.demandesAC() : [], acRefCauses()]); return { ecarts, projets, demandes }; }
+const acCleCause = e => e.causeTypeId ? "ct:" + e.causeTypeId : e.cause ? "ac:" + e.typeId : "nd:" + e.typeId;
+function acRecurrences(ac) {
+  const jours = ui.acJours || 90, dept = ui.acDept || "", tri = ui.acTri || "nb", lim = isoPlus(-jours);
+  const l = ac.ecarts.filter(e => e.dateEcart >= lim && (!dept || e.dept === dept));
+  const g = new Map();
+  l.forEach(e => { const k = acCleCause(e); const r = g.get(k) || { k, type: e.type, cat: e.cat, typeId: e.typeId, causeTypeId: e.causeTypeId,
+      cause: e.causeType || (e.cause ? "Cause à classer" : "Cause pas encore trouvée"), nb: 0, rec: 0, min: 0, cout: 0, ids: [] };
+    r.nb++; r.min += e.minutes || 0; r.cout += e.cout || 0; if (e.recidiveDe) r.rec++; r.ids.push(e.id); g.set(k, r); });
+  const rows = [...g.values()].sort((a, b) => tri === "min" ? b.min - a.min : tri === "cout" ? b.cout - a.cout : b.nb - a.nb || b.min - a.min);
+  const val = r => tri === "min" ? r.min : tri === "cout" ? r.cout : r.nb, tot = rows.reduce((s, r) => s + val(r), 0) || 1;
+  let cumul = 0; const max = Math.max(1, ...rows.map(val));
+  const classes = l.filter(e => e.causeTypeId).length, rec = l.filter(e => e.recidiveDe).length;
+  const ctl = `<div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
+    <select data-ac-f="acJours" aria-label="Période">${opt([["30", "30 jours"], ["90", "90 jours"], ["180", "6 mois"], ["365", "12 mois"]], String(jours))}</select>
+    <select data-ac-f="acDept" aria-label="Département">${opt([["", "Tous les départements"], ...REF.departements.map(d => [d.code, d.nom])], dept)}</select>
+    <select data-ac-f="acTri" aria-label="Classer par">${opt([["nb", "Classer par nombre"], ["min", "Classer par minutes perdues"], ["cout", "Classer par coût"]], tri)}</select></div>
+    <div class="small muted" style="margin-bottom:8px">${l.length} écart(s) · ${l.length ? Math.round(100 * classes / l.length) : 0} % avec une cause précise · ${rec} récidive(s) déclarée(s)</div>`;
+  if (!rows.length) return ctl + `<div class="empty">Aucun écart sur la période.</div>`;
+  return ctl + `<div class="scroll"><table class="t ac-par"><thead><tr><th>Type d'écart</th><th>Cause précise</th><th class="num">Écarts</th><th class="num">Récidives</th><th class="num">Heures</th><th class="num">Coût</th><th style="min-width:140px">Pareto</th><th></th></tr></thead><tbody>
+    ${rows.slice(0, 15).map(r => { cumul += val(r); return `<tr><td><span class="sq">${esc(r.cat)}</span> ${esc(r.type)}</td><td>${r.causeTypeId ? esc(r.cause) : `<span class="muted">${esc(r.cause)}</span>`}</td>
+      <td class="num">${r.nb}</td><td class="num">${r.rec ? `<strong>${r.rec}</strong>` : 0}</td><td class="num">${(r.min / 60).toFixed(1)}</td><td class="num">${Math.round(r.cout).toLocaleString("fr-CA")} $</td>
+      <td><div class="ac-bar"><span style="width:${Math.round(100 * val(r) / max)}%"></span></div><div class="small muted">${Math.round(100 * cumul / tot)} % cumulé</div></td>
+      <td style="white-space:nowrap"><button class="btn small" type="button" data-act="ac-voir" data-ids="${r.ids.join(",")}" data-t="${esc(r.type + " · " + r.cause)}">Voir</button>${r.causeTypeId ? ` <button class="btn small" type="button" data-act="ac-projet-new" data-ct="${r.causeTypeId}" data-t="${esc(r.cause)}">Projet</button>` : ""}</td></tr>`; }).join("")}</tbody></table></div>`;
+}
+function acAClasser(ac) {
+  const l = ac.ecarts.filter(e => e.cause && !e.causeTypeId).sort((a, b) => b.dateEcart.localeCompare(a.dateEcart));
+  const prop = (REF.causeTypes || []).filter(c => c.proposee && c.actif);
+  const types = REF.types || [];
+  const lignes = l.slice(0, 25).map(e => `<div class="ac-cl"><div><strong>${esc(e.no)}</strong> · ${esc(e.titre)}<div class="small muted">${esc(e.cause)}${e.causeDetail ? " · « " + esc(e.causeDetail) + " »" : ""}</div></div>
+    <select data-ac-classe="${e.id}" aria-label="Cause précise">${ctOptions(e.typeId, null).replace(/^<option value="">[^<]*<\/option>/, '<option value="">Choisir la cause précise…</option>')}</select>
+    <span class="ac-new"><input data-ac-nom="${e.id}" maxlength="80" placeholder="ou nouvelle cause" aria-label="Nouvelle cause précise"><button class="btn small" type="button" data-act="ac-cree" data-id="${e.id}" data-type="${e.typeId}">Créer</button></span></div>`).join("");
+  return `<p class="small muted" style="margin:0 0 8px">Écarts dont la cause (6M) est connue, mais pas encore rangée dans la liste fermée. Choisissez une cause existante, ou créez-en une si le cas revient.</p>
+    ${lignes || `<div class="empty">Rien à classer.</div>`}${l.length > 25 ? `<div class="small muted">… et ${l.length - 25} autre(s).</div>` : ""}
+    <details style="margin-top:10px"><summary class="small">Liste des causes précises (${(REF.causeTypes || []).filter(c => c.actif).length} actives${prop.length ? `, ${prop.length} proposées à valider` : ""})</summary>
+    ${types.map(t => { const cs = (REF.causeTypes || []).filter(c => c.typeId === t.id); return cs.length ? `<div class="ac-ty"><div class="small"><span class="sq">${esc(t.cat)}</span> <strong>${esc(t.nom)}</strong></div>
+      ${cs.map(c => `<div class="ac-ct" data-off="${!c.actif}"><input data-ac-ren="${c.id}" value="${esc(c.nom)}" maxlength="80" aria-label="Nom de la cause"><span class="small muted">${c.nbEcarts} écart(s)</span>
+        ${c.proposee && c.actif ? `<button class="btn small" type="button" data-act="ac-valide" data-id="${c.id}">Valider</button>` : ""}
+        <button class="btn small" type="button" data-act="ac-actif" data-id="${c.id}" data-v="${!c.actif}">${c.actif ? "Retirer" : "Remettre"}</button></div>`).join("")}</div>` : ""; }).join("")}
+    <p class="small muted">« Proposée » : cause de départ suggérée, à valider ou retirer par le groupe. Modifier un nom ou valider est réservé au groupe AC et à l'administrateur.</p></details>`;
+}
+const PDCA = [["P", "Planifier"], ["D", "Faire"], ["C", "Vérifier"], ["A", "Standardiser"]];
+function acProjets(ac) {
+  const act = ac.projets.filter(j => j.statut === "actif"), fini = ac.projets.filter(j => j.statut !== "actif"), lim = isoPlus(-90);
+  const effet = j => j.causeTypeId ? ac.ecarts.filter(e => e.causeTypeId === j.causeTypeId && e.dateEcart >= lim).length : null;
+  const carte = j => `<div class="ac-pj" data-st="${j.statut}"><div class="row between" style="gap:8px"><div><strong>${esc(j.titre)}</strong>${j.causeType ? `<div class="small muted">Cause visée : ${esc(j.causeType)} · ${effet(j)} écart(s) en 90 jours</div>` : ""}</div>
+      <button class="btn small primary" type="button" data-act="ac-a3" data-id="${j.id}">Ouvrir l'A3</button></div>
+    <div class="ac-pdca">${PDCA.map(([k, n]) => `<span data-on="${k === j.etape}" title="${n}">${k} · ${n}</span>`).join("")}</div>
+    <div class="small">${esc(j.responsable || "Sans responsable")}${j.echeance ? ` · ${j.enRetard ? `<span class="pill bad">${fmtD(j.echeance)}</span>` : "échéance " + fmtD(j.echeance)}` : ""}${j.gainAttendu ? ` · gain visé : ${esc(j.gainAttendu)}` : ""}${j.gainMesure ? ` · <strong>gain mesuré : ${esc(j.gainMesure)}</strong>` : ""}</div>
+    ${j.nbActions ? `<div class="small" style="margin-top:4px">${j.nbFaites} / ${j.nbActions} sous-action(s) faite(s)${j.nbRetard ? ` · <span class="pill bad">${j.nbRetard} en retard</span>` : ""}${j.nbEcarts ? ` · ${j.nbEcarts} écart(s) lié(s)` : ""}</div>` : j.nbEcarts ? `<div class="small" style="margin-top:4px">${j.nbEcarts} écart(s) lié(s) · aucune sous-action encore</div>` : ""}
+    ${j.point ? `<div class="small" style="margin-top:4px"><strong>Point :</strong> ${esc(j.point)}</div>` : ""}</div>`;
+  return `<div class="row" style="justify-content:flex-end;margin-bottom:8px"><button class="btn small" type="button" data-act="ac-projet-new">+ Nouveau projet</button></div>
+    ${act.length ? act.map(carte).join("") : `<div class="empty">Aucun projet en cours. Choisissez une récurrence ci-dessus et cliquez « Projet ».</div>`}
+    ${fini.length ? `<details style="margin-top:8px"><summary class="small">Projets terminés ou abandonnés (${fini.length})</summary>${fini.map(carte).join("")}</details>` : ""}`;
+}
+function acProcedures(ac) {
+  const l = ac.ecarts.filter(e => e.procedureModifiee).sort((a, b) => (a.procedureDeployeeLe ? 1 : 0) - (b.procedureDeployeeLe ? 1 : 0) || (b.dateReglement || "").localeCompare(a.dateReglement || ""));
+  const ligne = e => `<tr><td><button class="lien-act" type="button" data-act="detail" data-id="${e.id}">${esc(e.no)}</button></td><td>${esc(e.procedureNom || "À nommer")}</td><td>${esc(deptNom(e.dept))}</td>
+    <td class="num">${e.dateReglement ? fmtD(e.dateReglement) : "—"}</td><td><label class="check"><input type="checkbox" data-ac-dep="${e.id}" ${e.procedureDeployeeLe ? "checked" : ""}> ${e.procedureDeployeeLe ? "Déployée le " + fmtD(e.procedureDeployeeLe) : "À déployer"}</label></td></tr>`;
+  return l.length ? `<p class="small muted" style="margin:0 0 8px">Solutions qui changent une procédure ou une méthode EBI : à faire vivre dans les départements, puis à cocher.</p>
+    <div class="scroll"><table class="t"><thead><tr><th>Écart</th><th>Procédure touchée</th><th>Département</th><th>Réglé le</th><th>Déploiement</th></tr></thead><tbody>${l.map(ligne).join("")}</tbody></table></div>` : `<div class="empty">Aucune procédure modifiée pour l'instant.</div>`;
+}
+function acBloc(b, ac) {
+  if (!ac) return `<div class="empty">Chargement…</div>`;
+  return b === "ac_recus" ? acRecus(ac) : b === "recurrences" ? acRecurrences(ac) : b === "a_classer" ? acAClasser(ac) : b === "projets" ? acProjets(ac) : acProcedures(ac);
+}
+function acProjetForm(j, pre) {
+  j = j || Object.assign({ etape: "P", statut: "actif" }, pre || {});
+  const cts = (REF.causeTypes || []).filter(c => c.actif || c.id === j.causeTypeId);
+  const typeNom = id => ((REF.types || []).find(t => t.id === id) || {}).nom || "";
+  modal(`<h2>${j.id ? "Projet d'amélioration" : "Nouveau projet d'amélioration"}</h2>${dlPers()}<form id="f-ac-pj" class="form">
+   <label class="full" for="pj-t">Titre<input id="pj-t" required maxlength="120" value="${esc(j.titre || "")}" placeholder="ex. Vérification croisée schéma et liste de matériel"></label>
+   <label class="full" for="pj-ct">Cause précise visée (facultatif)<select id="pj-ct">${opt([["", "Aucune en particulier"], ...cts.map(c => [String(c.id), typeNom(c.typeId) + " · " + c.nom])], String(j.causeTypeId || ""))}</select></label>
+   <label class="full" for="pj-p">Problème (les faits, les chiffres)<textarea id="pj-p" rows="2" maxlength="500">${esc(j.probleme || "")}</textarea></label>
+   <label for="pj-cr">Cause racine<textarea id="pj-cr" rows="2" maxlength="400">${esc(j.causeRacine || "")}</textarea></label>
+   <label for="pj-cm">Contre-mesure<textarea id="pj-cm" rows="2" maxlength="400">${esc(j.contreMesure || "")}</textarea></label>
+   <label for="pj-e">Étape PDCA<select id="pj-e">${opt(PDCA.map(([k, n]) => [k, k + " · " + n]), j.etape)}</select></label>
+   <label for="pj-s">Statut<select id="pj-s">${opt([["actif", "En cours"], ["termine", "Terminé"], ["abandonne", "Abandonné"]], j.statut)}</select></label>
+   <label for="pj-r">Responsable<input id="pj-r" list="dl-pers" value="${esc(j.responsable || "")}"></label>
+   <label for="pj-ech">Échéance<input id="pj-ech" type="date" value="${esc(j.echeance || "")}"></label>
+   <label for="pj-ga">Gain visé<input id="pj-ga" maxlength="120" value="${esc(j.gainAttendu || "")}" placeholder="ex. −50 % de ces écarts en 3 mois"></label>
+   <label for="pj-gm">Gain mesuré<input id="pj-gm" maxlength="120" value="${esc(j.gainMesure || "")}" placeholder="Obligatoire pour terminer"></label>
+   <label for="pj-d">Département<select id="pj-d">${opt([["", "Toute l'usine"], ...REF.departements.map(d => [d.code, d.nom])], j.dept || "")}</select></label>
+   <label class="full" for="pj-pt">Point de situation<textarea id="pj-pt" rows="2" maxlength="400" placeholder="Où en est-on depuis la dernière rencontre ?">${esc(j.point || "")}</textarea></label>
+   <div id="pj-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`);
+  $("#f-ac-pj").addEventListener("submit", async ev => { ev.preventDefault();
+    try { const pid = await Api.majProjetAC({ id: j.id || null, titre: $("#pj-t").value, causeTypeId: $("#pj-ct").value || null, probleme: $("#pj-p").value, causeRacine: $("#pj-cr").value, contreMesure: $("#pj-cm").value,
+        etape: $("#pj-e").value, statut: $("#pj-s").value, responsable: $("#pj-r").value, echeance: $("#pj-ech").value, gainAttendu: $("#pj-ga").value, gainMesure: $("#pj-gm").value, dept: $("#pj-d").value, point: $("#pj-pt").value });
+      closeModal(); if (!j.id && pid) acOuvrirA3(Number(pid)); else render(); } catch (err) { formErr("pj-msg", err.message); } });
+}
+async function acRecidChoix(id) {
+  const e = await Api.ecart(id), l = semblables(await Api.ecarts({}), e, e.id);
+  modal(`<h2>${esc(e.no)} est-il une récidive ?</h2><p class="small muted" style="margin-top:0">Écarts du même type dans les 90 derniers jours, les plus proches d'abord (même FAB, même projet, même poste).</p>
+    <form id="f-recid" class="form"><div class="full">${l.length ? recidHtml(l) : `<div class="empty">Aucun écart semblable dans les 90 derniers jours.</div>`}</div>
+    <div id="rc-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="detail" data-id="${e.id}">Retour</button>${l.length ? `<button class="btn primary" type="submit">Enregistrer</button>` : ""}</div></form>`);
+  const f = $("#f-recid"); if (f) f.addEventListener("submit", async ev => { ev.preventDefault();
+    const r = document.querySelector('input[name="n-rec"]:checked');
+    try { await Api.marquerRecidive(e.id, r && r.value ? Number(r.value) : null); await openDetail(e.id); } catch (err) { formErr("rc-msg", err.message); } });
+}
+
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='ac-']"); if (!a || a.disabled) return; const act = a.dataset.act;
+  try {
+    if (act === "ac-voir") { const ids = a.dataset.ids.split(",").map(Number), l = (await Api.ecarts({})).filter(e => ids.includes(e.id));
+      modal(`<h2>${esc(a.dataset.t)}</h2>${l.map(e => ecartCard(e, false)).join("")}<div class="row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Fermer</button></div>`); }
+    else if (act === "ac-projet-new") acProjetForm(null, a.dataset.ct ? { causeTypeId: Number(a.dataset.ct), titre: "Réduire : " + a.dataset.t } : null);
+    else if (act === "ac-projet") { const j = (await Api.projetsAC()).find(x => x.id === Number(a.dataset.id)); acProjetForm(j); }
+    else if (act === "ac-cree") { const nom = document.querySelector(`[data-ac-nom="${a.dataset.id}"]`).value; const ct = await Api.creerCauseType(Number(a.dataset.type), nom);
+      await Api.classerCause(Number(a.dataset.id), Number(ct)); await acRefCauses(); render(); }
+    else if (act === "ac-valide") { await Api.majCauseType(Number(a.dataset.id), { proposee: false }); await acRefCauses(); render(); }
+    else if (act === "ac-actif") { await Api.majCauseType(Number(a.dataset.id), { actif: a.dataset.v === "true" }); await acRefCauses(); render(); }
+    else if (act === "ac-recid") await acRecidChoix(Number(a.dataset.id));
+    else if (act === "ac-recid-x") { await Api.marquerRecidive(Number(a.dataset.id), null); await openDetail(Number(a.dataset.id)); }
+  } catch (err) { alertBox(err.message); }
+});
+document.addEventListener("change", async ev => {
+  const el = ev.target;
+  try {
+    if (el.dataset.acF) { ui[el.dataset.acF] = el.dataset.acF === "acJours" ? Number(el.value) : el.value; render(); }
+    else if (el.dataset.acClasse && el.value) { await Api.classerCause(Number(el.dataset.acClasse), Number(el.value)); await acRefCauses(); render(); }
+    else if (el.dataset.acRen) { await Api.majCauseType(Number(el.dataset.acRen), { nom: el.value }); await acRefCauses(); }
+    else if (el.dataset.acDep) { await Api.marquerProcedureDeployee(Number(el.dataset.acDep), el.checked); render(); }
+  } catch (err) { alertBox(err.message); render(); }
+});
+
+/* ---------- Écarts envoyés au groupe AC ---------- */
+function acRecus(ac) {
+  const att = ac.demandes.filter(d => d.statut === "recue"), fait = ac.demandes.filter(d => d.statut !== "recue");
+  const eOf = id => ac.ecarts.find(e => e.id === id);
+  const carte = d => { const e = eOf(d.ecartId) || { no: "E-" + String(d.ecartId).padStart(5, "0"), titre: "" };
+    return `<div class="ac-dm" data-st="${d.statut}"><div class="row between" style="gap:8px;align-items:flex-start"><div>
+      <button class="lien-act" type="button" data-act="detail" data-id="${d.ecartId}"><strong>${esc(e.no)}</strong></button> · ${esc(e.titre || "")}
+      <div class="small muted">${e.dept ? esc(deptNom(e.dept)) + " · " : ""}${e.minutes ? e.minutes + " min · " : ""}${e.cout ? Math.round(e.cout).toLocaleString("fr-CA") + " $ · " : ""}${e.causeType ? esc(e.causeType) + " · " : ""}${e.nbRecidives ? e.nbRecidives + " récidive(s) · " : ""}envoyé par ${esc(d.par || "")}, ${fmtD(String(d.le).slice(0, 10))}</div>
+      <div class="small" style="margin-top:3px"><strong>Pourquoi :</strong> ${esc(d.motif)}</div>
+      ${d.statut === "projet" ? `<div class="small">→ Projet <button class="lien-act" type="button" data-act="ac-a3" data-id="${d.projetId}">« ${esc(d.projet || "")} »</button></div>` : d.statut === "refusee" ? `<div class="small muted">Non retenu : ${esc(d.decision || "")}</div>` : ""}</div>
+      ${d.statut === "recue" ? `<div class="row" style="gap:6px"><button class="btn small primary" type="button" data-act="ac-dec-projet" data-id="${d.id}">En faire un projet</button><button class="btn small" type="button" data-act="ac-dec-non" data-id="${d.id}">Ne pas retenir</button></div>` : ""}</div></div>`; };
+  return `<p class="small muted" style="margin:0 0 8px">Écarts que les équipes envoient au groupe parce qu'ils reviennent, coûtent cher ou touchent plusieurs départements. Le groupe décide d'en faire un projet ou non.</p>
+    ${att.length ? att.map(carte).join("") : `<div class="empty">Aucun écart en attente de décision.</div>`}
+    ${fait.length ? `<details style="margin-top:8px"><summary class="small">Décisions des 120 derniers jours (${fait.length})</summary>${fait.map(carte).join("")}</details>` : ""}`;
+}
+async function acDecider(id, decision) {
+  const projets = decision === "projet" ? (await Api.projetsAC()).filter(j => j.statut === "actif") : [];
+  modal(decision === "projet" ? `<h2>En faire un projet</h2><form id="f-dec" class="form">
+      <label class="full" for="dc-p">Projet<select id="dc-p">${opt([["", "Nouveau projet"], ...projets.map(j => [String(j.id), "Rattacher à : " + j.titre])], "")}</select></label>
+      <label class="full" for="dc-t">Titre du nouveau projet (facultatif)<input id="dc-t" maxlength="120" placeholder="Par défaut : le type et le poste de l'écart"></label>
+      <label class="full" for="dc-n">Note pour l'équipe qui l'a envoyé (facultatif)<input id="dc-n" maxlength="200"></label>
+      <div id="dc-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Confirmer</button></div></form>`
+    : `<h2>Ne pas retenir cet écart</h2><form id="f-dec" class="form"><label class="full" for="dc-n">Pourquoi (l'équipe qui l'a envoyé sera avisée)<input id="dc-n" required maxlength="200" placeholder="ex. Réglé au T2, pas de récurrence"></label>
+      <div id="dc-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Confirmer</button></div></form>`);
+  $("#f-dec").addEventListener("submit", async ev => { ev.preventDefault();
+    try { const pid = await Api.deciderDemande(id, decision === "projet" ? { decision, projetId: $("#dc-p").value || null, titre: $("#dc-t").value, note: $("#dc-n").value } : { decision, note: $("#dc-n").value });
+      closeModal(); if (decision === "projet" && pid) acOuvrirA3(Number(pid)); else render(); } catch (err) { formErr("dc-msg", err.message); } });
+}
+function acEnvoyer(id) {
+  modal(`<h2>Envoyer au groupe d'amélioration continue</h2><p class="small muted" style="margin-top:0">L'écart continue sa route normale (régler, escalader). Le groupe reçoit une copie et décide s'il en fait un projet.</p>
+    <form id="f-env" class="form"><label class="full" for="ev-m">Pourquoi cet écart mérite un projet<textarea id="ev-m" rows="2" required maxlength="300" placeholder="ex. 3e fois ce trimestre · coûte 2 000 $ chaque fois · touche le dessin et le filage"></textarea></label>
+    <div id="ev-msg" class="full"></div><div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="detail" data-id="${id}">Retour</button><button class="btn primary" type="submit">Envoyer</button></div></form>`);
+  $("#f-env").addEventListener("submit", async ev => { ev.preventDefault();
+    try { await Api.envoyerAC(id, $("#ev-m").value); await openDetail(id); } catch (err) { formErr("ev-msg", err.message); } });
+}
+
+/* ---------- A3 d'un projet : problème, état actuel, objectif, causes (6M, 5 pourquoi), contre-mesures, vérification, standard ---------- */
+const M6 = ["Main-d'œuvre", "Méthode", "Matière", "Machine", "Milieu", "Mesure"];
+const PA_ST = [["afaire", "À faire"], ["cours", "En cours"], ["bloque", "Bloquée"], ["fait", "Faite"], ["annule", "Annulée"]];
+function acOuvrirA3(id) { closeModal(); ui.acProjet = id; if (route() === "projet") render(); else location.hash = "projet"; window.scrollTo(0, 0); }
+function acGantt(j) {
+  const acts = j.actions.filter(a => a.statut !== "annule"); if (!acts.length) return "";
+  const debJ = String(j.creeLe).slice(0, 10), auj = isoToday();
+  const dates = acts.flatMap(a => [a.debut, a.echeance]).filter(Boolean).concat([debJ, auj]);
+  const d0 = dates.reduce((a, b) => a < b ? a : b), d1 = isoPlusFrom(dates.reduce((a, b) => a > b ? a : b), 7);
+  const span = Math.max(7, (new Date(d1) - new Date(d0)) / 864e5), x = d => 100 * ((new Date(d) - new Date(d0)) / 864e5) / span;
+  const ticks = []; for (let d = d0; d <= d1; d = isoPlusFrom(d, 7)) ticks.push(d);
+  return `<div class="gantt" role="img" aria-label="Ligne de temps des sous-actions"><div class="gantt-row gantt-head"><span></span><div class="gantt-track">${ticks.map(t => `<span class="gantt-tick" style="left:${x(t)}%">${fmtD(t)}</span>`).join("")}</div></div>
+    ${acts.map(a => { const s = a.debut || (a.echeance && a.echeance < debJ ? a.echeance : debJ), e = a.echeance || s;
+      const etat = a.statut === "fait" ? "fait" : a.enRetard ? "retard" : a.statut;
+      return `<div class="gantt-row"><span class="gantt-lab" title="${esc(a.texte)}">${esc(a.texte)}</span><div class="gantt-track"><span class="gantt-today" style="left:${x(auj)}%"></span>
+        ${a.echeance ? `<span class="gantt-bar" data-e="${etat}" style="left:${x(s)}%;width:${Math.max(1.2, x(e) - x(s))}%" title="${a.debut ? fmtD(a.debut) + " → " : ""}${fmtD(a.echeance)} · ${esc(a.responsable || "")}"></span>` : `<span class="small muted" style="position:absolute;left:4px;top:2px">sans échéance</span>`}</div></div>`; }).join("")}
+    <div class="small muted" style="margin-top:4px">Trait jaune : aujourd'hui · vert : faite · rouge : en retard · orange : bloquée · bleu : en cours · gris : à faire</div></div>`;
+}
+function acCourbe(j, ecarts) {
+  if (!j.causeTypeId) return `<div class="small muted">Choisissez la cause précise visée pour suivre son évolution ici.</div>`;
+  const mois = []; const d = new Date(); d.setDate(1); for (let i = 5; i >= 0; i--) { const m = new Date(d.getFullYear(), d.getMonth() - i, 1); mois.push(m.toISOString().slice(0, 7)); }
+  const n = mois.map(m => ecarts.filter(e => e.causeTypeId === j.causeTypeId && e.dateEcart.slice(0, 7) === m).length), max = Math.max(1, ...n), debut = String(j.creeLe).slice(0, 7);
+  const nomM = m => new Date(m + "-15").toLocaleDateString("fr-CA", { month: "short" });
+  return `<div class="small" style="margin-bottom:4px">Écarts « ${esc(j.causeType || "")} » par mois (barre foncée : depuis le début du projet)</div>
+    <div class="ac-courbe">${mois.map((m, i) => `<div><span style="height:${Math.round(56 * n[i] / max) + 2}px" data-apres="${m >= debut}"></span><b>${n[i]}</b><i>${nomM(m)}</i></div>`).join("")}</div>`;
+}
+async function vProjetAC() {
+  if (!Api.projetDetail || !ui.acProjet) return `<div class="empty">Choisissez un projet dans la rencontre du groupe d'amélioration continue. <button class="btn small" type="button" data-act="ac-retour">Aller au groupe AC</button></div>`;
+  const [j, ecarts] = await Promise.all([Api.projetDetail(ui.acProjet), Api.ecarts({}), acRefCauses()]);
+  const ro = j.modifiable ? "" : "disabled", lies = ecarts.filter(e => j.ecarts.includes(e.id));
+  const tot = lies.reduce((s, e) => ({ min: s.min + (e.minutes || 0), cout: s.cout + (e.cout || 0) }), { min: 0, cout: 0 });
+  const ta = (f, v, rows, ph) => `<textarea data-a3="${f}" rows="${rows || 3}" maxlength="1500" ${ro} placeholder="${esc(ph || "")}">${esc(v || "")}</textarea>`;
+  const pq = j.pourquoi || [], ish = j.ishikawa || {};
+  const cands = ecarts.filter(e => !j.ecarts.includes(e.id) && (j.causeTypeId ? e.causeTypeId === j.causeTypeId : true)).slice(0, 40);
+  const procs = lies.filter(e => e.procedureModifiee);
+  const typeNom = id => ((REF.types || []).find(t => t.id === id) || {}).nom || "";
+  return `<div class="a3"><div class="row between no-print" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-act="ac-retour">← Groupe d'amélioration continue</button>
+      <div class="row" style="gap:6px"><span class="small muted">Enregistré automatiquement</span><button class="btn" type="button" data-act="a3-print">Imprimer l'A3</button></div></div>
+    <div class="a3-head"><div style="flex:1;min-width:240px"><div class="small muted">A3 · Projet d'amélioration · Groupe AC</div><input class="a3-titre" data-a3="titre" value="${esc(j.titre)}" maxlength="120" ${ro} aria-label="Titre du projet"></div>
+      <div class="a3-meta"><label>Responsable<input data-a3="responsable" list="dl-pers" value="${esc(j.responsable || "")}" ${ro}></label>
+        <label>Échéance<input type="date" data-a3="echeance" value="${esc(j.echeance || "")}" ${ro}></label>
+        <label>Étape<select data-a3="etape" ${ro}>${opt(PDCA.map(([k, n]) => [k, k + " · " + n]), j.etape)}</select></label>
+        <label>Statut<select data-a3="statut" ${ro}>${opt([["actif", "En cours"], ["termine", "Terminé"], ["abandonne", "Abandonné"]], j.statut)}</select></label></div></div>
+    ${dlPers()}${!j.modifiable ? `<div class="notice no-print">Lecture seulement : réservé au groupe d'amélioration continue et au responsable du projet.</div>` : ""}
+    <div class="a3-grid"><div class="a3-col">
+      <section><h3><span>1</span> Problème</h3>${ta("probleme", j.probleme, 3, "Les faits : quoi, où, quand, combien. Pas de solution ici.")}</section>
+      <section><h3><span>2</span> État actuel</h3>${ta("etatActuel", j.etatActuel, 3, "Ce qu'on observe aujourd'hui, avec des chiffres")}
+        <div class="a3-sub"><strong>Écarts liés (${lies.length})</strong>${lies.length ? ` · ${(tot.min / 60).toFixed(1)} h perdues · ${Math.round(tot.cout).toLocaleString("fr-CA")} $` : ""}
+          ${lies.map(e => `<div class="a3-ec"><button class="lien-act" type="button" data-act="detail" data-id="${e.id}">${esc(e.no)}</button> ${esc(e.titre)} <span class="muted">· ${fmtD(e.dateEcart)}</span>${j.modifiable ? ` <button class="lien-act no-print" type="button" data-act="a3-delier" data-e="${e.id}">retirer</button>` : ""}</div>`).join("")}
+          ${j.modifiable ? `<div class="row no-print" style="gap:6px;margin-top:4px"><select id="a3-lier" aria-label="Lier un écart">${opt([["", "Lier un écart…"], ...cands.map(e => [String(e.id), e.no + " · " + e.titre])], "")}</select><button class="btn small" type="button" data-act="a3-lier">Lier</button></div>` : ""}</div></section>
+      <section><h3><span>3</span> Objectif</h3>${ta("objectif", j.objectif, 2, "Où on veut être, et quand")}<label class="a3-l">Gain visé<input data-a3="gainAttendu" value="${esc(j.gainAttendu || "")}" maxlength="120" ${ro} placeholder="ex. −50 % de ces écarts en 3 mois"></label>
+        <label class="a3-l">Cause précise visée<select data-a3="causeTypeId" ${ro}>${opt([["", "Aucune en particulier"], ...(REF.causeTypes || []).filter(c => c.actif || c.id === j.causeTypeId).map(c => [String(c.id), typeNom(c.typeId) + " · " + c.nom])], String(j.causeTypeId || ""))}</select></label></section>
+      <section><h3><span>4</span> Analyse des causes</h3>
+        <div class="small muted">Diagramme causes-effet (6M) : une cause par ligne.</div>
+        <div class="fishbone"><div class="fb-row">${M6.slice(0, 3).map(m => `<label class="fb-box"><b>${esc(m)}</b><textarea data-ish="${esc(m)}" rows="3" ${ro}>${esc((ish[m] || []).join("\n"))}</textarea></label>`).join("")}</div>
+          <div class="fb-spine"><span>${esc(j.titre)}</span></div>
+          <div class="fb-row">${M6.slice(3).map(m => `<label class="fb-box"><b>${esc(m)}</b><textarea data-ish="${esc(m)}" rows="3" ${ro}>${esc((ish[m] || []).join("\n"))}</textarea></label>`).join("")}</div></div>
+        <div class="small muted" style="margin-top:10px">5 pourquoi : partir du problème, demander « pourquoi ? » jusqu'à la cause qu'on peut corriger.</div>
+        <ol class="pq">${[0, 1, 2, 3, 4].map(i => `<li><input data-pq="${i}" value="${esc(pq[i] || "")}" maxlength="200" ${ro} placeholder="Pourquoi ?" aria-label="Pourquoi ${i + 1}"></li>`).join("")}</ol>
+        <label class="a3-l">Cause racine retenue${ta("causeRacine", j.causeRacine, 2, "La cause qu'on attaque")}</label></section>
+    </div><div class="a3-col">
+      <section><h3><span>5</span> Contre-mesures (sous-actions)</h3>
+        <div class="pa">${j.actions.map(a => `<div class="pa-row" data-st="${a.statut}" data-retard="${a.enRetard}">
+          <input class="pa-txt" data-pa="${a.id}" data-f="texte" value="${esc(a.texte)}" maxlength="200" ${ro} aria-label="Sous-action">
+          <label>Responsable<input data-pa="${a.id}" data-f="responsable" list="dl-pers" value="${esc(a.responsable || "")}" ${ro}></label>
+          <label>Début<input type="date" data-pa="${a.id}" data-f="debut" value="${esc(a.debut || "")}" ${ro}></label>
+          <label>Échéance<input type="date" data-pa="${a.id}" data-f="echeance" value="${esc(a.echeance || "")}" ${ro}></label>
+          <label>Statut<select data-pa="${a.id}" data-f="statut">${opt(PA_ST, a.statut)}</select></label>
+          <label class="pa-av">Avancement<input data-pa="${a.id}" data-f="avancement" value="${esc(a.avancement || "")}" maxlength="200" placeholder="Où en est-on ?"></label></div>`).join("")}
+        ${j.modifiable ? `<div class="pa-row pa-new no-print"><input class="pa-txt" id="pa-t" maxlength="200" placeholder="Nouvelle sous-action : un verbe, un résultat" aria-label="Nouvelle sous-action">
+          <label>Responsable<input id="pa-r" list="dl-pers"></label><label>Début<input type="date" id="pa-d"></label><label>Échéance<input type="date" id="pa-e"></label>
+          <label>&nbsp;<button class="btn small primary" type="button" data-act="a3-pa-add">Ajouter</button></label></div>` : ""}</div><div id="pa-msg"></div>${acGantt(j)}</section>
+      <section><h3><span>6</span> Vérification</h3>${acCourbe(j, ecarts)}<label class="a3-l">Gain mesuré<input data-a3="gainMesure" value="${esc(j.gainMesure || "")}" maxlength="120" ${ro} placeholder="Obligatoire pour terminer le projet"></label></section>
+      <section><h3><span>7</span> Standardisation</h3>${ta("standardisation", j.standardisation, 3, "Ce qui devient la nouvelle façon de faire : procédure, gabarit, formation, contrôle")}
+        ${procs.length ? `<div class="a3-sub small"><strong>Procédures déjà modifiées par les écarts liés :</strong> ${procs.map(e => `${esc(e.procedureNom || "À nommer")} (${esc(e.no)}${e.procedureDeployeeLe ? ", déployée" : ", à déployer"})`).join(" · ")}</div>` : ""}</section>
+      <section><h3><span>8</span> Point de situation</h3>${ta("point", j.point, 2, "Où en est-on depuis la dernière rencontre ?")}</section>
+    </div></div><div class="small muted">Créé le ${fmtD(String(j.creeLe).slice(0, 10))} · mis à jour ${ilYa(j.majLe)} · v0.11</div></div>`;
+}
+const isoPlusFrom = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+async function a3Sauver(d) { try { await Api.majProjetA3(ui.acProjet, d); } catch (err) { alertBox(err.message); render(); } }
+document.addEventListener("change", async ev => {
+  const el = ev.target; if (route() !== "projet") return;
+  if (el.dataset.a3) { const v = el.dataset.a3 === "causeTypeId" ? (el.value ? Number(el.value) : null) : el.value; await a3Sauver({ [el.dataset.a3]: v });
+    if (["statut", "causeTypeId", "etape"].includes(el.dataset.a3)) render(); }
+  else if (el.dataset.ish !== undefined) { const o = {}; document.querySelectorAll("[data-ish]").forEach(t => { const l = t.value.split("\n").map(x => x.trim()).filter(Boolean); if (l.length) o[t.dataset.ish] = l; }); await a3Sauver({ ishikawa: o }); }
+  else if (el.dataset.pq !== undefined) { const l = [...document.querySelectorAll("[data-pq]")].map(t => t.value.trim()); while (l.length && !l[l.length - 1]) l.pop(); await a3Sauver({ pourquoi: l }); }
+  else if (el.dataset.pa) { try { await Api.majProjetAction({ id: Number(el.dataset.pa), [el.dataset.f]: el.value }); render(); } catch (err) { alertBox(err.message); render(); } }
+});
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='a3-'], [data-act='ac-a3'], [data-act='ac-retour'], [data-act='ac-envoyer'], [data-act^='ac-dec-']"); if (!a) return; const act = a.dataset.act;
+  try {
+    if (act === "ac-a3") acOuvrirA3(Number(a.dataset.id));
+    else if (act === "ac-retour") { ui.acProjet = null; ui.meeting = "AC"; ui.suite = null; location.hash = "rencontres"; }
+    else if (act === "ac-envoyer") acEnvoyer(Number(a.dataset.id));
+    else if (act === "ac-dec-projet") await acDecider(Number(a.dataset.id), "projet");
+    else if (act === "ac-dec-non") await acDecider(Number(a.dataset.id), "refusee");
+    else if (act === "a3-print") { const [j, ecarts] = await Promise.all([Api.projetDetail(ui.acProjet), Api.ecarts({})]);
+      let pa = $("#print-area"); if (!pa) { pa = document.createElement("div"); pa.id = "print-area"; document.body.appendChild(pa); }
+      pa.innerHTML = a3PrintHtml(j, ecarts); document.body.classList.add("printing"); const prev = document.title; document.title = "A3 - " + j.titre;
+      setTimeout(() => { window.print(); document.title = prev; document.body.classList.remove("printing"); }, 50); }
+    else if (act === "a3-lier") { const v = $("#a3-lier").value; if (v) { await Api.lierProjetEcart(ui.acProjet, Number(v), true); render(); } }
+    else if (act === "a3-delier") { await Api.lierProjetEcart(ui.acProjet, Number(a.dataset.e), false); render(); }
+    else if (act === "a3-pa-add") { try { await Api.majProjetAction({ projetId: ui.acProjet, texte: $("#pa-t").value, responsable: $("#pa-r").value, debut: $("#pa-d").value, echeance: $("#pa-e").value }); render(); } catch (err) { formErr("pa-msg", err.message); } }
+  } catch (err) { alertBox(err.message); }
+});
+
+/* Version imprimable de l'A3 : une page, paysage, texte seulement */
+function a3PrintHtml(j, ecarts) {
+  const lies = ecarts.filter(e => j.ecarts.includes(e.id)), t = s => s ? esc(s).replace(/\n/g, "<br>") : `<span class="a3p-vide">—</span>`;
+  const ish = j.ishikawa || {}, pq = (j.pourquoi || []).filter(Boolean);
+  const etape = (PDCA.find(([k]) => k === j.etape) || ["", ""])[1], statut = { actif: "En cours", termine: "Terminé", abandonne: "Abandonné" }[j.statut];
+  const box = (n, titre, html) => `<div class="a3p-b"><h3><span>${n}</span> ${titre}</h3>${html}</div>`;
+  return `<div class="a3p"><div class="a3p-h"><img src="${(document.querySelector(".brand-logo") || {}).src || ""}" alt="" class="a3p-logo"><div><div class="a3p-k">A3 · Projet d'amélioration continue</div><h1>${esc(j.titre)}</h1>
+      <div class="a3p-m">Responsable : ${esc(j.responsable || "—")} · Étape : ${esc(j.etape)} ${esc(etape)} · ${esc(statut)}${j.echeance ? " · Échéance : " + fmtD(j.echeance) : ""}${j.causeType ? " · Cause visée : " + esc(j.causeType) : ""} · Imprimé le ${fmtD(isoToday())}</div></div></div>
+    <div class="a3p-g"><div>
+      ${box(1, "Problème", t(j.probleme))}
+      ${box(2, "État actuel", t(j.etatActuel) + (lies.length ? `<div class="a3p-s">Écarts liés : ${lies.map(e => esc(e.no) + " " + esc(e.titre)).join(" · ")} — ${(lies.reduce((s, e) => s + (e.minutes || 0), 0) / 60).toFixed(1)} h, ${Math.round(lies.reduce((s, e) => s + (e.cout || 0), 0)).toLocaleString("fr-CA")} $</div>` : ""))}
+      ${box(3, "Objectif", t(j.objectif) + (j.gainAttendu ? `<div class="a3p-s"><strong>Gain visé :</strong> ${esc(j.gainAttendu)}</div>` : ""))}
+      ${box(4, "Analyse des causes", `<div class="a3p-fb">${M6.map(m => `<div><b>${esc(m)}</b>${(ish[m] || []).map(c => `<div>· ${esc(c)}</div>`).join("") || `<div class="a3p-vide">—</div>`}</div>`).join("")}</div>
+        <div class="a3p-s"><strong>5 pourquoi :</strong> ${pq.length ? pq.map((p, i) => `${i + 1}. ${esc(p)}`).join(" → ") : "—"}</div><div class="a3p-s"><strong>Cause racine :</strong> ${t(j.causeRacine)}</div>`)}
+    </div><div>
+      ${box(5, "Contre-mesures", j.actions.filter(a => a.statut !== "annule").length ? `<table><thead><tr><th>Sous-action</th><th>Responsable</th><th>Échéance</th><th>Statut</th></tr></thead><tbody>${j.actions.filter(a => a.statut !== "annule").map(a => `<tr><td>${esc(a.texte)}${a.avancement ? `<div class="a3p-vide">${esc(a.avancement)}</div>` : ""}</td><td>${esc(a.responsable || "")}</td><td>${a.echeance ? fmtD(a.echeance) : ""}${a.enRetard ? " ⚠" : ""}</td><td>${(PA_ST.find(([k]) => k === a.statut) || ["", ""])[1]}</td></tr>`).join("")}</tbody></table>${acGantt(j)}` : "—")}
+      ${box(6, "Vérification", (j.causeTypeId ? acCourbe(j, ecarts) : "") + `<div class="a3p-s"><strong>Gain mesuré :</strong> ${t(j.gainMesure)}</div>`)}
+      ${box(7, "Standardisation", t(j.standardisation))}
+      ${box(8, "Point de situation", t(j.point))}
+    </div></div><div class="a3p-f">EBI Electric · Portail DMS · Groupe d'amélioration continue · A3 v0.11</div></div>`;
+}
+
+</script>
+<script>
 /* Portail DMS EBI — interface. Toute donnée passe par window.Api (js/api.js). */
 "use strict";
 const $ = s => document.querySelector(s);
@@ -1730,7 +2860,7 @@ const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
 const STATUT = { Ouvert: "Ouvert", RetourT1: "Retour au T1", Ferme: "Fermé", Annule: "Annulé" };
 const ASTATUT = { AFaire: "À faire", EnCours: "En cours", Fait: "Fait", Annule: "Annulé" };
 const SSTATUT = { ADecider: "À décider", Planifie: "Planifié", EnCours: "En cours", Termine: "Terminé" };
-const ROUTES = [["accueil", "Accueil"], ["rencontres", "Rencontres"], ["ecarts", "Écarts"], ["actions", "Actions"], ["tableaux", "Tableaux de bord"], ["journal", "Journal"], ["admin", "Administration"]];
+const ROUTES = [["accueil", "Accueil"], ["rencontres", "Rencontres"], ["ecarts", "Écarts"], ["fab", "Fiches FAB"], ["actions", "Actions"], ["gemba", "Gemba"], ["tableaux", "Tableaux de bord"], ["journal", "Journal"], ["admin", "Administration"]];
 
 let REF = null, ME = null, RENC = null;
 const ui = { meeting: null, run: null, fE: { dept: "", statut: "actifs", strate: "", cat: "", q: "", vue: "registre", etiquette: "", annee: "" }, fA: { responsable: "", statut: "ouvertes" }, tbDept: "", tbMesure: "heures", tbJours: 28, tbVue: "dms", pbi: null };
@@ -1742,7 +2872,8 @@ const myTeams = () => ME.equipes || [];
 const myDepts = () => { const t = myTeams().map(eq).filter(Boolean); if (t.some(x => x.strate >= 3)) return REF.departements.map(d => d.code); return [...new Set(t.flatMap(x => x.depts || [x.dept]))]; };
 const inTeamScope = (e, t) => t.strate === 1 ? e.equipeOrigine === t.code : t.strate === 2 ? t.depts.includes(e.dept) : true;
 const sev = e => { const h = e.minutes / 60; if (e.cat === "S" || h >= 4 || e.cout >= 2000) return 3; if (h >= 1 || e.cout >= 500) return 2; return 1; };
-const route = () => { const h = location.hash.slice(1); return ROUTES.some(r => r[0] === h) ? h : "accueil"; };
+const ROUTES_CACHEES = ["projet"];
+const route = () => { const h = location.hash.slice(1); return ROUTES.some(r => r[0] === h) || ROUTES_CACHEES.includes(h) ? h : "accueil"; };
 
 /* ---------- Démarrage ---------- */
 async function boot() {
@@ -1753,6 +2884,7 @@ async function boot() {
   }
   try {
     [ME, REF, RENC] = await Promise.all([Api.moi(), Api.referentiels(), Api.rencontres()]);
+    if (typeof acRefCauses === "function") await acRefCauses();
     await chargerSuites();
   } catch (err) {
     if (Api.mode === "supabase") { await Api.deconnexion(); showLogin(err.message); return; }
@@ -1783,14 +2915,15 @@ function renderWho() {
   } else w.innerHTML = `<span>${esc(ME.nom)}</span><span class="tag">${esc(ME.role || "")}</span>`;
 }
 function renderTabs() {
-  $("#tabs").innerHTML = ROUTES.filter(r => (r[0] !== "admin" || ME.admin) && (r[0] !== "journal" || Api.journal)).map(([k, l]) => `<a href="#${k}" ${route() === k ? 'aria-current="page"' : ""}>${l}</a>`).join("");
+  $("#tabs").innerHTML = ROUTES.filter(r => (r[0] !== "admin" || ME.admin) && (r[0] !== "journal" || Api.journal)).map(([k, l]) => `<a href="#${k}" ${route() === k ? 'aria-current="page"' : ""}>${l}</a>`).join("")
+    + (Api.avisFab ? `<form id="f-fab-top" class="tab-search" role="search"><input placeholder="Rechercher une FAB" aria-label="Rechercher une FAB" maxlength="30"></form>` : "");
 }
 async function render() {
   renderTabs();
   const seq = ++renderSeq; const app = $("#app");
   if (!app.innerHTML) app.innerHTML = `<div class="loading">Chargement…</div>`;
   try {
-    const html = await ({ accueil: vAccueil, rencontres: vRencontres, ecarts: vEcarts, actions: vActions, tableaux: vTableaux, journal: vJournal, admin: vAdmin }[route()])();
+    const html = await ({ accueil: vAccueil, rencontres: vRencontres, ecarts: vEcarts, actions: vActions, fab: vFab, projet: typeof vProjetAC === "function" ? vProjetAC : () => "", gemba: vGemba, tableaux: vTableaux, journal: vJournal, admin: vAdmin }[route()])();
     if (seq === renderSeq) app.innerHTML = html;
   } catch (err) { if (seq === renderSeq) app.innerHTML = `<div class="error">${esc(err.message)}</div>`; }
   if (typeof majCloche === "function" && Date.now() - (render.cloche || 0) > 15000) { render.cloche = Date.now(); majCloche(); }
@@ -1806,7 +2939,8 @@ async function vAccueil() {
   const mine = actions.filter(a => a.responsable === ME.nom);
   const hors = kpi.filter(k => myDepts().includes(k.dept)).filter(k => kpiState(k) === "bad");
   const date = new Date().toLocaleDateString("fr-CA", { weekday: "long", day: "numeric", month: "long" });
-  return `<div class="row between" style="margin-bottom:14px"><div><h2>Bonjour ${esc(prenom)}</h2><div class="muted">${date} · ${esc(ME.role || "")}</div></div><button class="btn primary" type="button" data-act="new">+ Documenter un écart</button></div>
+  const avisH = typeof avisBandeau === "function" ? await avisBandeau(myDepts().length ? myDepts() : null) : "";
+  return avisH + `<div class="row between" style="margin-bottom:14px"><div><h2>Bonjour ${esc(prenom)}</h2><div class="muted">${date} · ${esc(ME.role || "")}</div></div><button class="btn primary" type="button" data-act="new">+ Documenter un écart</button></div>
   <div class="home">
    <div class="card"><h3>Mes rencontres</h3>${meets.length || SUITES.length ? `<ul class="list-plain">${meets.map(r => `<li><span><strong>${esc(r.nom)}</strong><br><span class="small muted">${esc(r.frequence)} · ${r.dureeMin} min</span></span><button class="btn small" type="button" data-act="goto-meet" data-code="${r.code}">Ouvrir</button></li>`).join("")}${SUITES.filter(s => s.actif !== false).map(s => `<li><span><strong>${esc(s.nom)}</strong> ${s.prive ? `<span class="pill neutral">Privée</span>` : ""}<br><span class="small muted">${s.nbTenues} rencontre(s)${s.derniere ? " · dernière " + fmtD(s.derniere) : ""}${s.actionsOuvertes ? ` · ${s.actionsOuvertes} action(s) ouverte(s)` : ""}</span></span><button class="btn small" type="button" data-act="b-goto" data-code="${esc(s.code)}">Ouvrir</button></li>`).join("")}</ul>` : `<div class="empty">Aucune rencontre attitrée.</div>`}</div>
    <div class="card"><h3>À traiter dans mes équipes</h3>${aTraiter.length ? `<ul class="list-plain">${aTraiter.map(x => `<li><span><span class="pill lvl">T${x.t.strate}</span> ${esc(x.t.nom)}${x.r ? `<br><span class="small muted">${x.r} solution(s) à lire à l'équipe</span>` : ""}</span><span class="count num">${x.n}</span></li>`).join("")}</ul>` : `<div class="empty">Aucune équipe attitrée.</div>`}</div>
@@ -1825,16 +2959,18 @@ async function vRencontres() {
   const t = eq(m.equipe);
   const [ecarts, actions, sujets, tenues, kpi, ractions0] = await Promise.all([Api.ecarts({}), Api.actions({ statut: "ouvertes" }), Api.sujets(m.code), Api.tenues(m.code), Api.kpi(""), Api.ractions ? Api.ractions({ rencontre: m.code }) : []]);
   const ractions = ractions0.filter(a => a.statut !== "fait" || a.fermeLe === isoToday());
+  const avisH = typeof avisBandeau === "function" ? await avisBandeau(t.strate >= 3 ? null : (t.depts || [t.dept])) : "";
   const list = aside;
   const run = ui.run && ui.run.code === m.code ? ui.run : null;
   const el = run ? Math.floor((Date.now() - run.start) / 1000) : 0;
-  const ctx = { m, t, ecarts, actions, sujets, kpi, ractions };
+  const ac = typeof acCharger === "function" && m.points.some(p => AC_BLOCS.includes(p.bloc)) ? await acCharger() : null;
+  const ctx = { m, t, ecarts, actions, sujets, kpi, ractions, ac };
   const head = `<div class="meet-head"><div><h2>${esc(m.nom)}</h2><div class="meta"><span>${esc(m.frequence)}</span><span>${m.dureeMin} min</span><span>Strate T${t.strate} : ${esc(t.nom)}</span></div><div class="meta"><span>Participants : ${esc(m.participants)}</span></div></div>
    <div class="row">${run ? `<div class="timer num ${el > m.dureeMin * 60 ? "over" : ""}" id="timer">${mmss(el)}</div><span class="muted small">/ ${m.dureeMin}:00</span><button class="btn" data-act="next" type="button">Point suivant</button><button class="btn primary" data-act="close-meet" type="button">Clore la rencontre</button>` : `<button class="btn primary" data-act="start-meet" type="button">Démarrer la rencontre</button>`}</div></div>`;
   const items = m.points.map((p, i) => { const cls = run ? (i < run.idx ? "done" : i === run.idx ? "current" : "") : "";
     return `<div class="ag ${cls}"><div class="ag-h"><span class="ag-n">${i + 1}</span><span class="ag-t">${esc(p.titre)}</span><span class="muted small num">${p.dureeMin} min</span></div><div class="ag-b">${bloc(p.bloc, ctx)}</div></div>`; }).join("");
   const cr = tenues.length ? tenues.map(c => `<div class="small"><strong>${fmtD(c.debut)}</strong> · ${c.dureeMin} min · ${esc(c.animeePar || "")} · ${esc(c.decisions)}</div>`).join("") : `<div class="muted small">Aucun compte rendu pour l'instant.</div>`;
-  return `<div class="layout-meet"><aside class="meet-list" aria-label="Structure des rencontres">${list}</aside><section>${head}${typeof slotPbi === "function" ? slotPbi(m.code) : ""}<div class="agenda">${items}</div><div class="card" style="margin-top:14px"><h3>Derniers comptes rendus</h3><div class="grid" style="gap:6px;margin-top:6px">${cr}</div></div></section></div>`;
+  return `<div class="layout-meet"><aside class="meet-list" aria-label="Structure des rencontres">${list}</aside><section>${head}${avisH}${typeof slotPbi === "function" ? slotPbi(m.code) : ""}<div class="agenda">${items}</div><div class="card" style="margin-top:14px"><h3>Derniers comptes rendus</h3><div class="grid" style="gap:6px;margin-top:6px">${cr}</div></div></section></div>`;
 }
 /* Actions de suivi décidées en rencontre, classées par lettre SQCDP (table raction, comme les actions des suites) */
 function ractPoint(L, m, ractions, ecarts) {
@@ -1875,7 +3011,8 @@ async function raEdit(id, code) {
     catch (err) { formErr("re-msg", err.message); } });
 }
 const mmss = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-function bloc(b, { m, t, ecarts, actions, sujets, kpi, ractions }) {
+function bloc(b, { m, t, ecarts, actions, sujets, kpi, ractions, ac }) {
+  if (typeof AC_BLOCS !== "undefined" && AC_BLOCS.includes(b)) return acBloc(b, ac);
   const depts = t.strate === 1 ? [t.dept] : t.strate === 2 ? t.depts : REF.departements.map(d => d.code);
   const scope = ecarts.filter(e => inTeamScope(e, t));
   if (b === "kpi") return kpiTiles(kpi.filter(k => depts.includes(k.dept)), depts.length > 1);
@@ -1943,7 +3080,7 @@ function kpiTiles(list, grouped) {
 }
 function ecartCard(e, withActs) { const t = eq(e.equipeCourante);
   return `<div class="ecart sev${sev(e)}"><div class="stripe"></div><div class="body"><div class="row" style="gap:8px"><span class="sq">${e.cat}</span><span class="title">${esc(e.titre)}</span>${e.equipeCourante !== e.equipeOrigine ? `<span class="pill lvl">Escaladé depuis ${esc(eq(e.equipeOrigine).nom)}</span>` : ""}</div>
-  <div class="meta"><span>${e.no}</span><span>${fmtD(e.dateEcart)} (${e.ageJours} j)</span><span class="num">${e.minutes} min perdues</span>${e.cout ? `<span class="num">${e.cout.toLocaleString("fr-CA")} $</span>` : ""}<span>${esc(deptNom(e.dept))}</span>${e.nbActionsOuvertes ? `<span>${e.nbActionsOuvertes} action(s) ouverte(s)</span>` : ""}</div>
+  <div class="meta"><span>${e.no}</span><span>${fmtD(e.dateEcart)} (${e.ageJours} j)</span><span class="num">${e.minutes} min perdues</span>${e.cout ? `<span class="num">${e.cout.toLocaleString("fr-CA")} $</span>` : ""}<span>${esc(deptNom(e.dept))}</span>${e.nbActionsOuvertes ? `<span>${e.nbActionsOuvertes} action(s) ouverte(s)</span>` : ""}${e.recidiveDe ? `<span class="pill bad">Récidive</span>` : ""}${e.nbRecidives ? `<span class="pill bad">${e.nbRecidives} récidive(s)</span>` : ""}${e.nbCommentaires ? `<span>💬 ${e.nbCommentaires}</span>` : ""}</div>
   <div class="small" style="margin-top:3px">${esc(e.description)}</div></div>
   <div class="acts">${withActs && e.statut === "Ouvert" ? `<button class="btn small primary" data-act="regler" data-id="${e.id}" type="button">Régler à ce niveau</button>${t.parent ? `<button class="btn small" data-act="escalader" data-id="${e.id}" type="button">Escalader au T${t.strate + 1}</button>` : ""}` : ""}<button class="btn small" data-act="detail" data-id="${e.id}" type="button">Ouvrir</button></div></div>`; }
 function actionsTable(list) {
@@ -2086,6 +3223,7 @@ function detailsHtml(e) {
   return `<div class="full section-t">Cause et actions <span class="muted small">(si on les connaît déjà)</span></div>
   <label for="d-cause">Cause (6M)<select id="d-cause"><option value="">À déterminer</option>${REF.causes.map(c => `<option ${e.cause === c ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
   <label for="d-cd">Cause en une phrase<input id="d-cd" maxlength="140" value="${esc(e.causeDetail || "")}"></label>
+  ${typeof ctOptions === "function" ? `<label class="full" for="d-ct">Cause précise <span class="muted small">(liste du groupe AC; sinon « à classer »)</span><select id="d-ct" data-init="${e.causeTypeId || ""}">${ctOptions(e.typeId, e.causeTypeId || null)}</select></label>` : ""}
   <div class="full">${(e.actions || []).length ? `<div class="small muted" style="margin-bottom:4px">Actions déjà inscrites</div><ul class="small" style="margin:0 0 8px;padding-left:18px">${e.actions.map(a => `<li>${a.horizon} · ${esc(a.texte)} · ${esc(a.responsable)} · ${fmtD(a.echeance)} · ${ASTATUT[a.statut]}</li>`).join("")}</ul>` : ""}
    <div class="small muted" style="margin-bottom:4px">Actions court (CT), moyen (MT) et long terme (LT)</div><div id="d-acts">${actRowHtml("CT")}</div><button class="btn small" type="button" data-act="add-act">+ Ajouter une action</button></div>
   <div class="full"><div class="small muted" style="margin-bottom:4px">Collaborateurs abonnés à l'écart</div><div class="collabs">${pers.map(p => `<label class="check" for="dc-${p.id}"><input type="checkbox" class="d-col" value="${esc(p.nom)}" id="dc-${p.id}" ${deja.includes(p.nom) ? "checked disabled" : ""}>${esc(p.nom)}</label>`).join("")}</div></div>
@@ -2116,7 +3254,7 @@ function lireDetails() {
     actions: [...document.querySelectorAll("#d-acts .act-row")].map(r => ({ horizon: r.querySelector(".a-h").value, texte: r.querySelector(".a-t").value.trim(), responsable: r.querySelector(".a-r").value, echeance: r.querySelector(".a-e").value || isoPlus(7) })).filter(a => a.texte),
     suite: suiteActive(), solution: ($("#d-sol") || {}).value || "", raison: ($("#d-raison") || {}).value || "", texte: ($("#d-texte") || {}).value || "" };
 }
-function openNew(team, cat) {
+function openNew(team, cat, pre) {
   const t1 = REF.equipes.filter(t => t.strate === 1); const def = team || (myTeams().find(c => eq(c) && eq(c).strate === 1)) || "T1-PAN";
   modal(`<h2>Documenter un écart</h2><form id="f-new" class="form">
   <label for="n-team">Équipe qui a vu l'écart<select id="n-team">${opt(t1.map(t => [t.code, t.nom]), def)}</select></label>
@@ -2145,9 +3283,11 @@ function openNew(team, cat) {
   ["n-cat", "n-type", "n-poste", "n-min", "n-cout"].forEach(id => document.getElementById(id).addEventListener("input", upd));
   $("#n-team").addEventListener("change", suite); $("#n-suite").addEventListener("change", () => majSuite($("#n-save"), true));
   upd(); suite();
+  if (pre && pre.desc) $("#n-desc").value = pre.desc;
+  if (typeof acNouvelEcart === "function") acNouvelEcart();
   $("#f-new").addEventListener("submit", async ev => { ev.preventDefault();
     try { $("#n-save").disabled = true; const r = await Api.creerEcartComplet(Object.assign({ equipeOrigine: $("#n-team").value, dateEcart: $("#n-date").value, typeId: Number($("#n-type").value), poste: $("#n-poste").value, noFab: $("#n-fab").value.trim() || null, minutes: Number($("#n-min").value) || 0, cout: Number($("#n-cout").value) || 0, description: $("#n-desc").value }, lireDetails()));
-      const nid = r && typeof r === "object" ? r.id : r; const errs = nid && typeof apresCreation === "function" ? await apresCreation(nid, "n-msg") : [];
+      const nid = r && typeof r === "object" ? r.id : r; if (nid && pre && pre.onCree) await pre.onCree(nid); if (nid && typeof acApresEnregistrement === "function") await acApresEnregistrement(nid); const errs = nid && typeof apresCreation === "function" ? await apresCreation(nid, "n-msg") : [];
       closeModal(); render(); if (errs.length) alertBox("L'écart est enregistré, mais : " + errs.join(" · ")); } catch (err) { $("#n-save").disabled = false; formErr("n-msg", err.message); } });
 }
 async function openTraiter(id, suite) {
@@ -2157,19 +3297,20 @@ async function openTraiter(id, suite) {
   <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit" id="t-save">Enregistrer</button></div></form>`);
   $("#f-tr").addEventListener("change", ev => { if (ev.target.name === "suite") majSuite($("#t-save"), false); }); majSuite($("#t-save"), false);
   $("#f-tr").addEventListener("submit", async ev => { ev.preventDefault();
-    try { const d = lireDetails(); await Api.traiterEcart(id, d); if (ui.run && d.suite !== "enregistrer") ui.run.traites++; closeModal(); render(); } catch (err) { formErr("t-msg", err.message); } });
+    try { const d = lireDetails(); await Api.traiterEcart(id, d); if (typeof acApresEnregistrement === "function") await acApresEnregistrement(id); if (ui.run && d.suite !== "enregistrer") ui.run.traites++; closeModal(); render(); } catch (err) { formErr("t-msg", err.message); } });
 }
 async function openDetail(id, focusAction) {
   const e = await Api.ecart(id); const t = eq(e.equipeCourante);
   modal(`<div class="row between"><h2>${esc(e.titre)}</h2><span>${e.archive ? `<span class="pill neutral">Archivé</span> ` : ""}${statutPill(e)}</span></div>
-  <div class="meta" style="margin-bottom:10px"><span>${e.no}</span><span><span class="sq">${e.cat}</span> ${esc((REF.categories.find(c => c.code === e.cat) || {}).nom)}</span><span>${esc(deptNom(e.dept))}</span><span>Vu par ${esc(eq(e.equipeOrigine).nom)}</span><span>Maintenant au T${t.strate}</span><span class="num">${e.minutes} min perdues</span>${e.cout ? `<span class="num">${e.cout.toLocaleString("fr-CA")} $</span>` : ""}${e.noFab ? `<span>FAB ${esc(e.noFab)}</span>` : ""}</div>
+  <div class="meta" style="margin-bottom:10px"><span>${e.no}</span><span><span class="sq">${e.cat}</span> ${esc((REF.categories.find(c => c.code === e.cat) || {}).nom)}</span><span>${esc(deptNom(e.dept))}</span><span>Vu par ${esc(eq(e.equipeOrigine).nom)}</span><span>Maintenant au T${t.strate}</span><span class="num">${e.minutes} min perdues</span>${e.cout ? `<span class="num">${e.cout.toLocaleString("fr-CA")} $</span>` : ""}${e.noFab ? `<span>FAB ${esc(e.noFab)} · <button class="lien-act" type="button" data-act="fab-open" data-fab="${esc(e.noFab)}">fiche</button> · <button class="lien-act" type="button" data-act="fab-new" data-fab="${esc(e.noFab)}" data-ecart="${e.id}" data-dept="${esc(e.dept)}">+ avis</button></span>` : ""}</div>
   <p style="margin:0 0 10px">${esc(e.description)}</p>
   ${!e.solution && e.cause ? `<div class="small" style="margin:-4px 0 10px"><strong>Cause (6M) :</strong> ${esc(e.cause)}${e.causeDetail ? " · " + esc(e.causeDetail) : ""}</div>` : ""}
+  ${typeof acCauseRecidive === "function" ? await acCauseRecidive(e) : ""}
   ${typeof panneauActions === "function" ? panneauActions(e, focusAction || null) : ""}
-  ${e.solution ? `<div class="card" style="margin-bottom:10px"><div class="small"><strong>Cause :</strong> ${esc(e.cause)} · ${esc(e.causeDetail)}</div><div class="small"><strong>Solution :</strong> ${esc(e.solution)}</div>${e.procedureModifiee ? `<div class="small"><strong>Procédure modifiée :</strong> ${esc(e.procedureNom)}</div>` : ""}${e.collaborateurs.length ? `<div class="small"><strong>Collaborateurs :</strong> ${e.collaborateurs.map(esc).join(", ")}</div>` : ""}</div>` : ""}
+  ${e.solution ? `<div class="card" style="margin-bottom:10px"><div class="small"><strong>Cause :</strong> ${esc(e.cause)}${e.causeType ? " · " + esc(e.causeType) : ""} · ${esc(e.causeDetail)}</div><div class="small"><strong>Solution :</strong> ${esc(e.solution)}</div>${e.procedureModifiee ? `<div class="small"><strong>Procédure modifiée :</strong> ${esc(e.procedureNom)}</div>` : ""}${e.collaborateurs.length ? `<div class="small"><strong>Collaborateurs :</strong> ${e.collaborateurs.map(esc).join(", ")}</div>` : ""}</div>` : ""}
   ${e.actions.length ? `<h3>Actions</h3>${actionsTable(e.actions)}` : ""}
   ${typeof sectionsEcart === "function" ? await sectionsEcart(e) : ""}
-  <h3 style="margin-top:10px">Historique</h3><div class="timeline">${e.mouvements.map(m => `<div><span class="muted num">${fmtD(m.date)}</span> · ${esc(m.texte)} <span class="muted small">(${esc(m.par)})</span></div>`).join("")}</div>
+  ${typeof filHtml === "function" && Api.commentaires ? await filHtml(e) : `<h3 style="margin-top:10px">Historique</h3><div class="timeline">${e.mouvements.map(m => `<div><span class="muted num">${fmtD(m.date)}</span> · ${esc(m.texte)} <span class="muted small">(${esc(m.par)})</span></div>`).join("")}</div>`}
   ${Api.journal ? await (async () => { const [a, b] = await Promise.all([Api.journal({ table: "ecart", lignes: [e.id], limite: 200 }), e.actions.length ? Api.journal({ table: "action", lignes: e.actions.map(x => x.id), limite: 200 }) : []]);
     const l = [...a, ...b].sort((x, y) => (y.le || "").localeCompare(x.le || "")); return `<details class="journal-det"><summary>Détail des modifications (${l.length}) : qui, quand, avant et après</summary>${journalTable(l)}</details>`; })() : ""}
   <div class="row" style="justify-content:flex-end;margin-top:14px">${e.statut === "Ouvert" ? `${t.parent ? `<button class="btn" data-act="escalader" data-id="${e.id}" type="button">Escalader</button>` : ""}<button class="btn primary" data-act="regler" data-id="${e.id}" type="button">Régler</button>` : ""}<button class="btn" data-act="close" type="button">Fermer</button></div>`);
@@ -2239,7 +3380,7 @@ document.addEventListener("change", async ev => {
   const el = ev.target; const id = el.id;
   try {
     if (el.dataset.act === "act-statut") { await Api.majAction(el.dataset.id, { statut: el.value }); render(); return; }
-    if (el.dataset.act === "type-actif") { await Api.majType(el.dataset.id, { actif: el.checked }); REF = await Api.referentiels(); return; }
+    if (el.dataset.act === "type-actif") { await Api.majType(el.dataset.id, { actif: el.checked }); REF = await Api.referentiels(); if (typeof acRefCauses === "function") await acRefCauses(); return; }
     if (el.dataset.act === "cible") { await Api.majCible(el.dataset.code, { cible: Number(el.value) }); return; }
     if (id === "demo-user") { Api.setDemoUser(Number(el.value)); ui.meeting = null; ui.run = null; await boot(); return; }
     const fe = { "fe-dept": "dept", "fe-statut": "statut", "fe-strate": "strate", "fe-cat": "cat" }; if (fe[id]) { ui.fE[fe[id]] = el.value; render(); return; }
