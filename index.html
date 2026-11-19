@@ -519,7 +519,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.11.0", dateVersion: "18 novembre 2026"
+  version: "0.11.1", dateVersion: "18 novembre 2026"
 };
 
 </script>
@@ -3313,7 +3313,7 @@ async function openDetail(id, focusAction) {
   ${typeof filHtml === "function" && Api.commentaires ? await filHtml(e) : `<h3 style="margin-top:10px">Historique</h3><div class="timeline">${e.mouvements.map(m => `<div><span class="muted num">${fmtD(m.date)}</span> · ${esc(m.texte)} <span class="muted small">(${esc(m.par)})</span></div>`).join("")}</div>`}
   ${Api.journal ? await (async () => { const [a, b] = await Promise.all([Api.journal({ table: "ecart", lignes: [e.id], limite: 200 }), e.actions.length ? Api.journal({ table: "action", lignes: e.actions.map(x => x.id), limite: 200 }) : []]);
     const l = [...a, ...b].sort((x, y) => (y.le || "").localeCompare(x.le || "")); return `<details class="journal-det"><summary>Détail des modifications (${l.length}) : qui, quand, avant et après</summary>${journalTable(l)}</details>`; })() : ""}
-  <div class="row" style="justify-content:flex-end;margin-top:14px">${e.statut === "Ouvert" ? `${t.parent ? `<button class="btn" data-act="escalader" data-id="${e.id}" type="button">Escalader</button>` : ""}<button class="btn primary" data-act="regler" data-id="${e.id}" type="button">Régler</button>` : ""}<button class="btn" data-act="close" type="button">Fermer</button></div>`);
+  <div class="row" style="justify-content:flex-end;margin-top:14px">${e.statut === "Ouvert" ? `${t.parent ? `<button class="btn" data-act="escalader" data-id="${e.id}" type="button">Escalader</button>` : ""}<button class="btn primary" data-act="regler" data-id="${e.id}" type="button">Régler</button>` : ""}${Api.envoyerAC ? `<button class="btn" data-act="ac-envoyer" data-id="${e.id}" type="button" title="Le groupe d'amélioration continue décidera s'il en fait un projet">Envoyer au groupe AC</button>` : ""}<button class="btn" data-act="close" type="button">Fermer</button></div>`);
 }
 async function openCsv() {
   const url = Api.exportCsvUrl(); if (url) { location.href = url; return; }
