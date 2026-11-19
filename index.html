@@ -519,7 +519,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.11.1", dateVersion: "18 novembre 2026"
+  version: "0.11.2", dateVersion: "18 novembre 2026"
 };
 
 </script>
@@ -2183,7 +2183,7 @@ async function vGemba() {
   if (!Api.gemba) return `<div class="empty">Les tournées gemba ne sont pas offertes dans ce mode.</div>`;
   if (ui.gTour) return vTournee(ui.gTour);
   const lundi = gLundi(isoToday());
-  GEMBA = await Api.gemba(gAdd(lundi, -28));
+  GEMBA = (await Api.gemba(gAdd(lundi, -28))) || { grilles: [], standards: [], tournees: [] };
   const { grilles, standards, tournees } = GEMBA;
   const actives = grilles.filter(g => g.actif), stds = standards.filter(s => s.actif && gGrille(s.grilleId));
   const miens = stds.filter(s => s.personneId === ME.id);
