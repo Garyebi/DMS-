@@ -493,6 +493,38 @@ header.top .who{flex-wrap:wrap}
 @media (max-width:760px){.pa-row{grid-template-columns:1fr 1fr}}
 .a3-l select, .a3-l input{width:100%}
 #a3-lier{flex:1 1 auto;min-width:0;width:100%}
+.modal-garde{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;position:sticky;top:0;z-index:2}
+/* Centre des connaissances */
+.lec{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--ok);border-radius:10px;padding:12px 14px;margin:10px 0}
+.lec[data-st="proposee"]{border-left-color:var(--warn)}
+.lec[data-st="archivee"]{border-left-color:var(--line);opacity:.8}
+.lec-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.lec-chip{font-size:.75rem;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--ink)}
+.lec-hz{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:8px}
+.lec-h{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.9rem}
+.lec-ht{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.03em;font-size:.8rem;color:var(--muted);margin-bottom:2px}
+.lec-h[data-h="solutionMoyen"]{border-top:3px solid var(--accent)}
+.lec-h[data-h="solutionLong"]{border-top:3px solid var(--navy)}
+.lec.met{border-left-color:var(--navy)}
+.lec.met[data-st="brouillon"]{border-left-color:var(--warn)}
+.met-et{margin:6px 0 0;padding-left:22px}
+.met-et li{margin:2px 0}
+/* Structure : éditeur d'ordre du jour */
+.st-head,.st-pt{display:grid;grid-template-columns:22px minmax(140px,2fr) 64px minmax(150px,1.6fr) minmax(130px,1.6fr) auto;gap:6px;align-items:center}
+.st-head{margin:6px 0 2px}
+.st-pt{padding:5px 0;border-top:1px solid var(--line)}
+.st-pt input,.st-pt select{font:inherit;font-size:.88rem;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);min-width:0;width:100%;box-sizing:border-box}
+.st-n{font-weight:700;color:var(--muted);text-align:center}
+.st-btns{display:flex;gap:3px}
+.st-btns .btn{padding:3px 7px}
+@media (max-width:760px){
+  .st-head{display:none}
+  .st-pt{grid-template-columns:22px 1fr 64px;grid-template-areas:"n t d" "b b b" "l l l" "x x x"}
+  .st-n{grid-area:n}.st-t{grid-area:t}.st-d{grid-area:d}.st-b{grid-area:b}.st-l{grid-area:l}.st-btns{grid-area:x;justify-content:flex-end}
+}
+#f-st-r label,#f-st-e label{min-width:0}
+#f-st-r select,#f-st-e select{max-width:100%;min-width:0;width:100%}
+.wr-late{color:var(--bad);font-weight:700}
 
 </style>
 </head>
@@ -519,7 +551,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.11.2", dateVersion: "18 novembre 2026"
+  version: "0.15.0", dateVersion: "22 novembre 2026"
 };
 
 </script>
@@ -563,6 +595,10 @@ function httpApi(base) {
     mesNotifications: () => call("GET", "/moi/notifications"),
     marquerLues: ids => call("POST", "/moi/notifications/lues", { ids: ids || null }),
     rencontres: () => call("GET", "/rencontres"),
+    rencontresAdmin: () => call("GET", "/admin/rencontres"),
+    majRencontre: d => call("PUT", "/admin/rencontres", d),
+    majEquipe: d => call("PUT", "/admin/equipes", d),
+    wrike: lien => call("POST", "/wrike", { lien }),
     tenues: code => call("GET", `/rencontres/${code}/tenues?limite=3`),
     creerTenue: (code, d) => call("POST", `/rencontres/${code}/tenues`, d),
     sujets: code => call("GET", "/sujets" + qs({ rencontre: code })),
@@ -620,6 +656,10 @@ function httpApi(base) {
     marquerProcedureDeployee: (id, fait) => call("PUT", `/ecarts/${id}/procedure-deployee`, { fait }),
     projetsAC: () => call("GET", "/amelioration/projets"),
     majProjetAC: d => call("PUT", "/amelioration/projets", d),
+    lecons: () => call("GET", "/connaissances/lecons"),
+    majLecon: d => call("PUT", "/connaissances/lecons", d),
+    methodes: () => call("GET", "/connaissances/methodes"),
+    majMethode: d => call("PUT", "/connaissances/methodes", d),
     envoyerAC: (id, motif) => call("POST", `/ecarts/${id}/groupe-ac`, { motif }),
     demandesAC: () => call("GET", "/amelioration/demandes"),
     deciderDemande: (id, d) => call("POST", `/amelioration/demandes/${id}/decision`, d),
@@ -943,7 +983,41 @@ function demoApi() {
         actions: mine.map(a => ({ id: a.id, ecartId: a.ecartId, texte: a.texte, echeance: a.echeance, statut: a.statut, enRetard: a.enRetard, noEcart: a.noEcart })).sort((a, b) => (a.echeance || "9").localeCompare(b.echeance || "9")),
         ractions: [], ecarts: S.ecarts.filter(e => e.statut === "Ouvert" && teams.includes(e.equipeCourante)).map(e => { const v = vEcart(e); return { id: e.id, no: v.no, titre: v.titre, equipe: eq(e.equipeCourante).nom, date: e.dateEcart }; }) }); },
     marquerLues: ids => { (S.notifs || []).forEach(n => { if (n.personneId === userId && (!ids || ids.includes(n.id))) n.lue = true; }); save(); return wait(null); },
-    rencontres: () => wait(RENCONTRES),
+    rencontres: () => wait(RENCONTRES.filter(r => r.actif !== false)),
+    wrike: lien => { const id = (/[?&#]id=(\d+)/.exec(lien || "") || [])[1]; if (!id) return fail("Lien Wrike non reconnu. Copiez le lien du projet (Copier le lien) : il contient « open.htm?id= ».");
+      const j = n => iso(-n);
+      return wait({ configure: true, demo: true, titre: "Projet 26-121 · Panneaux de distribution (démonstration)", permalink: lien, genre: "projet",
+        projet: { statut: "Vert", debut: j(-20), fin: j(25), responsables: ["Gary Doyon"] },
+        taches: [["Dessins d'exécution révision B", "Terminée", "Completed", -6, ["Coordonnateur dessin"]], ["Commande des disjoncteurs", "En cours", "Active", -2, ["Achats"]],
+          ["Assemblage mécanique", "En cours", "Active", 4, ["Contremaître Panneaux"]], ["Filage des sections 1 à 3", "À faire", "Active", 10, ["Chef d'équipe Panneaux"]],
+          ["Test et inspection", "À faire", "Active", 18, ["Contremaître Panneaux"]], ["Expédition", "Reportée", "Deferred", 25, []]]
+          .map(([titre, statut, groupe, e, resp]) => ({ titre, statut, groupe, importance: "Normal", debut: null, echeance: j(e), responsables: resp, lien })), lu: new Date().toISOString() }); },
+    rencontresAdmin: () => { if (!pers(userId).admin) return fail("Réservé à l'administrateur du DMS."); return wait(RENCONTRES.map(r => Object.assign({ actif: true }, r)).sort((a, b) => (b.actif !== false) - (a.actif !== false))); },
+    majRencontre: d => { try {
+        if (!pers(userId).admin) throw new Error("Réservé à l'administrateur du DMS.");
+        const nom = (d.nom || "").trim(); if (!nom) throw new Error("Donnez un nom à la rencontre."); if (!eq(d.equipe)) throw new Error("Choisissez l'équipe (le niveau) de la rencontre.");
+        const pts = (d.points || []); if (!pts.length) throw new Error("Une rencontre a au moins un point.");
+        pts.forEach((p, i) => { if (!(p.titre || "").trim()) throw new Error(`Le point ${i + 1} n'a pas de titre.`); const l = (p.lien || "").trim();
+          if (l && !/^https?:\/\//i.test(l)) throw new Error(`Le lien du point ${i + 1} doit commencer par https://.`); if (p.bloc === "lien" && !l) throw new Error(`Le point ${i + 1} affiche un lien : inscrivez l'adresse.`); });
+        const points = pts.map((p, i) => ({ ordre: i + 1, titre: p.titre.trim(), dureeMin: Math.max(0, Number(p.dureeMin) || 0), bloc: p.bloc || "libre", lien: (p.lien || "").trim() || null }));
+        const champs = { nom, equipe: d.equipe, dept: d.dept || null, frequence: (d.frequence || "").trim(), participants: (d.participants || "").trim(), actif: d.actif !== false, points, dureeMin: points.reduce((s, p) => s + p.dureeMin, 0) };
+        let r = d.code ? RENCONTRES.find(x => x.code === d.code) : null;
+        if (d.code && !r) throw new Error("Rencontre introuvable.");
+        if (r) Object.assign(r, champs); else { let code = nom.normalize("NFD").replace(/[^A-Za-z0-9]/g, "").slice(0, 6).toUpperCase() || "R"; while (RENCONTRES.some(x => x.code === code)) code += Math.floor(Math.random() * 9) + 1; r = Object.assign({ code }, champs); RENCONTRES.push(r); }
+        return wait(r.code); } catch (err) { return fail(err.message); } },
+    majEquipe: d => { try {
+        if (!pers(userId).admin) throw new Error("Réservé à l'administrateur du DMS.");
+        const code = (d.code || "").trim().toUpperCase(); if (!/^[A-Z0-9-]{2,12}$/.test(code)) throw new Error("Le code de l'équipe : 2 à 12 lettres, chiffres ou tirets (ex. T1-PAN).");
+        if (!(d.nom || "").trim()) throw new Error("Donnez un nom à l'équipe."); const st = Number(d.strate); if (!(st >= 1 && st <= 4)) throw new Error("Le niveau va de T1 à T4.");
+        if (d.parent) { const p = eq(d.parent); if (d.parent === code) throw new Error("Une équipe ne peut pas escalader vers elle-même."); if (!p || p.strate <= st) throw new Error("L'escalade se fait vers une équipe d'un niveau plus haut."); }
+        let t = eq(code);
+        if (d.nouveau) { if (t) throw new Error("Ce code d'équipe existe déjà."); t = { code }; REF.equipes.push(t); }
+        else { if (!t) throw new Error("Équipe introuvable.");
+          if (d.actif === false && S.ecarts.some(e => e.equipeCourante === code && e.statut === "Ouvert")) throw new Error("Cette équipe a encore des écarts ouverts. Réglez-les ou escaladez-les avant de la désactiver.");
+          if (d.actif === false && REF.equipes.some(x => x.parent === code && x.actif !== false)) throw new Error("D'autres équipes escaladent vers celle-ci. Changez leur escalade avant de la désactiver."); }
+        const depts = (d.depts || []).length ? d.depts : d.dept ? [d.dept] : st >= 3 ? REF.departements.map(x => x.code) : [];
+        Object.assign(t, { nom: d.nom.trim(), strate: st, dept: d.dept || null, depts, parent: d.parent || null, actif: d.actif !== false });
+        return wait(code); } catch (err) { return fail(err.message); } },
     tenues: code => wait(S.tenues.filter(t => t.rencontre === code).slice(-3).reverse()),
     creerTenue: (code, d) => { S.tenues.push({ id: ++S.seq.t, rencontre: code, debut: d.debut, dureeMin: d.dureeMin, decisions: d.decisions || "Aucune décision notée.", animeePar: pers(userId).nom }); save(); return wait({ ok: true }); },
     sujets: code => wait(S.sujets.filter(s => !code || s.rencontre === code)),
@@ -1113,6 +1187,41 @@ function demoApi() {
         let d = ec(de); if (d.recidiveDe) d = ec(d.recidiveDe); need(d.id !== e.id, "Un écart ne peut pas être sa propre récidive.");
         need(d.typeId === e.typeId, "Une récidive est du même type d'écart."); need(d.dateEcart <= e.dateEcart, "L'écart d'origine doit être plus ancien."); e.recidiveDe = d.id; return null; }),
       marquerProcedureDeployee: (id, fait) => run(() => { const e = ec(id); need(e.procedureModifiee, "Cet écart ne modifie aucune procédure."); e.procedureDeployeeLe = fait ? today() : null; return null; }),
+      lecons: () => { const L = S.lecons || (S.lecons = []); const cl = (() => { try { peutClasser(); return true; } catch (e) { return false; } })();
+        return wait({ peutValider: cl, moi: userId, lecons: L.map(l => { const t = l.typeId ? type(l.typeId) : null, c = l.causeTypeId ? AC().causes.find(x => x.id === l.causeTypeId) : null, j = l.projetId ? AC().projets.find(x => x.id === l.projetId) : null;
+          return Object.assign({}, l, { type: t ? t.nom : null, cat: t ? t.cat : null, causeType: c ? c.nom : null, noEcart: l.ecartId ? no(l.ecartId) : null, projet: j ? j.titre : null,
+            auteur: pers(l.creePar).nom, validePar: l.validePar ? pers(l.validePar).nom : null, methode: l.methodeId ? ((S.methodes || []).find(m => m.id === l.methodeId) || {}).titre || null : null }); })
+          .sort((a, b) => (b.statut === "proposee") - (a.statut === "proposee") || (b.valideLe || b.creeLe).localeCompare(a.valideLe || a.creeLe)) }); },
+      majLecon: d => run(() => { const L = S.lecons || (S.lecons = []); const cl = (() => { try { peutClasser(); return true; } catch (e) { return false; } })();
+        const l = d.id ? L.find(x => x.id === Number(d.id)) : null; if (d.id) need(l, "Leçon introuvable.");
+        if (l) need(cl || (l.creePar === userId && l.statut === "proposee"), "Seuls l'auteur (avant validation) et le groupe d'amélioration continue peuvent modifier cette leçon.");
+        const st = d.statut || (l ? l.statut : "proposee"); need(["proposee", "validee", "archivee"].includes(st), "Statut de leçon inconnu.");
+        need(st === (l ? l.statut : "proposee") || cl, "La validation des leçons est réservée au groupe d'amélioration continue.");
+        need((d.titre || "").trim(), "Donnez un titre à la leçon.");
+        need((d.solutionMoyen || "").trim() || (d.solutionLong || "").trim(), "Une leçon demande une solution à moyen ou à long terme. Un écart réglé seulement à court terme reste dans le registre des écarts.");
+        const tx = k => (d[k] || "").trim() || null, now = new Date().toISOString();
+        const champs = { titre: d.titre.trim(), dept: d.dept || null, typeId: d.typeId ? Number(d.typeId) : null, causeTypeId: d.causeTypeId ? Number(d.causeTypeId) : null,
+          probleme: tx("probleme"), cause: tx("cause"), solutionCourt: tx("solutionCourt"), solutionMoyen: tx("solutionMoyen"), solutionLong: tx("solutionLong"), procedure: tx("procedure"), motsCles: tx("motsCles"),
+          methodeId: d.methodeId ? Number(d.methodeId) : null, ecartId: d.ecartId ? Number(d.ecartId) : (l ? l.ecartId : null), projetId: d.projetId ? Number(d.projetId) : (l ? l.projetId : null), statut: st, majLe: now };
+        if (st === "validee" && (!l || l.statut !== "validee")) Object.assign(champs, { validePar: userId, valideLe: now });
+        if (st === "proposee") Object.assign(champs, { validePar: null, valideLe: null });
+        if (l) { Object.assign(l, champs); return l.id; }
+        S.seqLecon = (S.seqLecon || 0) + 1; L.push(Object.assign({ id: S.seqLecon, creePar: userId, creeLe: now, validePar: null, valideLe: null }, champs)); return S.seqLecon; }),
+      methodes: () => { const L = S.methodes || (S.methodes = []); const cl = (() => { try { peutClasser(); return true; } catch (e) { return false; } })();
+        return wait({ peutModifier: cl, moi: userId, methodes: L.map(m => Object.assign({}, m, { responsable: m.responsableId ? pers(m.responsableId).nom : m.responsableTexte,
+            revueDue: m.statut === "en_vigueur" && !!m.prochaineRevue && m.prochaineRevue < today(), nbLecons: (S.lecons || []).filter(l => l.methodeId === m.id && l.statut === "validee").length }))
+          .sort((a, b) => (b.statut === "en_vigueur") - (a.statut === "en_vigueur") || a.titre.localeCompare(b.titre)) }); },
+      majMethode: d => run(() => { const L = S.methodes || (S.methodes = []); const cl = (() => { try { peutClasser(); return true; } catch (e) { return false; } })();
+        const m = d.id ? L.find(x => x.id === Number(d.id)) : null; if (d.id) need(m, "Méthode introuvable.");
+        need(m ? (cl || m.responsableId === userId) : cl, m ? "Seuls le responsable de la méthode, le groupe d'amélioration continue et l'administrateur peuvent la modifier." : "L'ajout de méthodes est réservé au groupe d'amélioration continue et à l'administrateur.");
+        need((d.titre || "").trim(), "Donnez un titre à la méthode."); const lien = (d.lien || "").trim();
+        if (lien) need(/^(https?:\/\/|file:|\\\\)/i.test(lien), "Le lien doit commencer par https://, file: ou \\\\serveur.");
+        need((d.etapes || "").trim() || (d.resume || "").trim() || lien, "Inscrivez au moins un résumé, des étapes ou un lien vers le document.");
+        const r = resp(d), tx = k => (d[k] || "").trim() || null;
+        const champs = { titre: d.titre.trim(), genre: d.genre || "standard", dept: d.dept || null, poste: tx("poste"), resume: tx("resume"), etapes: tx("etapes"), lien: lien || null, version: tx("version"),
+          reviseLe: d.reviseLe || null, prochaineRevue: d.prochaineRevue || null, responsableId: r.responsableId, responsableTexte: r.responsableTexte, statut: d.statut || "en_vigueur", motsCles: tx("motsCles"), majLe: new Date().toISOString() };
+        if (m) { Object.assign(m, champs); return m.id; }
+        S.seqMethode = (S.seqMethode || 0) + 1; L.push(Object.assign({ id: S.seqMethode, creeLe: new Date().toISOString() }, champs)); return S.seqMethode; }),
       projetsAC: () => wait(AC().projets.map(j => Object.assign({}, j, { responsable: j.responsableId ? pers(j.responsableId).nom : j.responsableTexte,
           nbActions: AC().sousActions.filter(a => a.projetId === j.id && a.statut !== "annule").length, nbFaites: AC().sousActions.filter(a => a.projetId === j.id && a.statut === "fait").length,
           nbRetard: AC().sousActions.filter(a => a.projetId === j.id && !["fait", "annule"].includes(a.statut) && a.echeance && a.echeance < today()).length,
@@ -1283,6 +1392,13 @@ function supabaseApi(cfg) {
     moi: () => rpc("moi"),
     referentiels: () => rpc("referentiels"),
     rencontres: () => rpc("rencontres"),
+    rencontresAdmin: () => rpc("rencontres_admin"),
+    majRencontre: d => rpc("maj_rencontre", { p: d }),
+    majEquipe: d => rpc("maj_equipe", { p: d }),
+    wrike: async lien => { if (!sb.functions) throw new Error("Connexion Wrike non offerte dans ce mode.");
+      const { data, error } = await sb.functions.invoke("wrike", { body: { lien } });
+      if (error) { let m = error.message; try { const j = await error.context.json(); m = j.erreur || m; } catch (e) {} throw new Error(m); }
+      if (data && data.erreur && data.configure !== false) throw new Error(data.erreur); return data; },
     ecarts: async f => { f = f || {}; let q = sb.from("v_ecart").select("*");
       if (f.dept) q = q.eq("dept", f.dept);
       if (f.statut === "actifs") q = q.neq("statut", "Ferme"); else if (f.statut) q = q.eq("statut", f.statut);
@@ -1387,6 +1503,10 @@ function supabaseApi(cfg) {
     marquerProcedureDeployee: (id, fait) => rpc("marquer_procedure_deployee", { p_ecart: Number(id), p_fait: !!fait }),
     projetsAC: () => rpc("projets_ac"),
     majProjetAC: d => rpc("maj_projet_ac", { p: d }),
+    lecons: () => rpc("lecons"),
+    majLecon: d => rpc("maj_lecon", { p: d }),
+    methodes: () => rpc("methodes"),
+    majMethode: d => rpc("maj_methode", { p: d }),
     envoyerAC: (id, motif) => rpc("envoyer_ac", { p_ecart: Number(id), p_motif: motif }),
     demandesAC: () => rpc("demandes_ac"),
     deciderDemande: (id, d) => rpc("decider_demande", { p_id: Number(id), p: d }),
@@ -2475,13 +2595,15 @@ async function acNouvelEcart() {
   const typeSel = $("#n-type"); if (!typeSel) return;
   const desc = $("#n-desc"); const zone = document.createElement("div"); zone.className = "full"; zone.id = "n-recid";
   (desc.closest("label") || desc).after(zone);
+  const zl = document.createElement("div"); zl.className = "full"; zl.id = "n-lecons"; zone.after(zl);
   const tous = await Api.ecarts({});
   const lire = () => ({ typeId: typeSel.value, poste: ($("#n-poste") || {}).value, noFab: ($("#n-fab") || {}).value, dept: (eq(($("#n-team") || {}).value) || {}).dept, dateEcart: ($("#n-date") || {}).value });
   const maj = () => { const z = $("#n-recid"); if (z) z.innerHTML = recidHtml(semblables(tous, lire(), null)); };
   ["#n-type", "#n-poste", "#n-fab", "#n-team", "#n-date"].forEach(s => { const el = $(s); if (el) { el.addEventListener("change", maj); el.addEventListener("input", maj); } });
-  typeSel.addEventListener("change", () => ctSync(typeSel.value));
-  const cat = $("#n-cat"); if (cat) cat.addEventListener("change", () => { ctSync($("#n-type").value); maj(); });
-  ctSync(typeSel.value); maj();
+  const lecT = () => { const t = $("#n-type"); if (t && typeof lecPourType === "function") lecPourType(t.value); };
+  typeSel.addEventListener("change", () => { ctSync(typeSel.value); lecT(); });
+  const cat = $("#n-cat"); if (cat) cat.addEventListener("change", () => { ctSync($("#n-type").value); maj(); lecT(); });
+  ctSync(typeSel.value); maj(); lecT();
 }
 /* Après l'enregistrement d'un écart (création ou traitement) : cause précise et récidive */
 async function acApresEnregistrement(id) {
@@ -2557,7 +2679,7 @@ document.addEventListener("change", async ev => {
 
 /* ---------- Espace du groupe d'amélioration continue ---------- */
 const AC_BLOCS = ["ac_recus", "recurrences", "a_classer", "projets", "procedures"];
-async function acCharger() { const [ecarts, projets, demandes] = await Promise.all([Api.ecarts({}), Api.projetsAC ? Api.projetsAC() : [], Api.demandesAC ? Api.demandesAC() : [], acRefCauses()]); return { ecarts, projets, demandes }; }
+async function acCharger() { const [ecarts, projets, demandes, lec] = await Promise.all([Api.ecarts({}), Api.projetsAC ? Api.projetsAC() : [], Api.demandesAC ? Api.demandesAC() : [], Api.lecons ? Api.lecons() : null, acRefCauses()]); return { ecarts, projets, demandes, lec }; }
 const acCleCause = e => e.causeTypeId ? "ct:" + e.causeTypeId : e.cause ? "ac:" + e.typeId : "nd:" + e.typeId;
 function acRecurrences(ac) {
   const jours = ui.acJours || 90, dept = ui.acDept || "", tri = ui.acTri || "nb", lim = isoPlus(-jours);
@@ -2621,7 +2743,13 @@ function acProcedures(ac) {
 }
 function acBloc(b, ac) {
   if (!ac) return `<div class="empty">Chargement…</div>`;
-  return b === "ac_recus" ? acRecus(ac) : b === "recurrences" ? acRecurrences(ac) : b === "a_classer" ? acAClasser(ac) : b === "projets" ? acProjets(ac) : acProcedures(ac);
+  return b === "ac_recus" ? acRecus(ac) : b === "recurrences" ? acRecurrences(ac) : b === "a_classer" ? acAClasser(ac) : b === "projets" ? acProjets(ac) : acProcedures(ac) + acLeconsBarre(ac);
+}
+function acLeconsBarre(ac) {
+  if (!ac.lec) return "";
+  const n = ac.lec.lecons.filter(l => l.statut === "proposee").length, v = ac.lec.lecons.filter(l => l.statut === "validee").length;
+  return `<div class="notice ${n ? "warn" : "info"} small" style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+    <span><strong>Centre des connaissances :</strong> ${n} leçon(s) à valider · ${v} validée(s)</span><a class="btn small" href="#lecons">Ouvrir</a></div>`;
 }
 function acProjetForm(j, pre) {
   j = j || Object.assign({ etape: "P", statut: "actif" }, pre || {});
@@ -2755,7 +2883,7 @@ async function vProjetAC() {
   const procs = lies.filter(e => e.procedureModifiee);
   const typeNom = id => ((REF.types || []).find(t => t.id === id) || {}).nom || "";
   return `<div class="a3"><div class="row between no-print" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-act="ac-retour">← Groupe d'amélioration continue</button>
-      <div class="row" style="gap:6px"><span class="small muted">Enregistré automatiquement</span><button class="btn" type="button" data-act="a3-print">Imprimer l'A3</button></div></div>
+      <div class="row" style="gap:6px"><span class="small muted">Enregistré automatiquement</span>${j.statut === "termine" && Api.lecons ? `<button class="btn" type="button" data-act="l-de-projet" data-id="${j.id}">Tirer une leçon</button>` : ""}<button class="btn" type="button" data-act="a3-print">Imprimer l'A3</button></div></div>
     <div class="a3-head"><div style="flex:1;min-width:240px"><div class="small muted">A3 · Projet d'amélioration · Groupe AC</div><input class="a3-titre" data-a3="titre" value="${esc(j.titre)}" maxlength="120" ${ro} aria-label="Titre du projet"></div>
       <div class="a3-meta"><label>Responsable<input data-a3="responsable" list="dl-pers" value="${esc(j.responsable || "")}" ${ro}></label>
         <label>Échéance<input type="date" data-a3="echeance" value="${esc(j.echeance || "")}" ${ro}></label>
@@ -2848,6 +2976,402 @@ function a3PrintHtml(j, ecarts) {
 
 </script>
 <script>
+/* Centre des connaissances : leçons tirées des écarts et des projets d'amélioration.
+   Règle : une leçon porte une solution à moyen ou à long terme. Un écart réglé seulement
+   à court terme reste dans le registre des écarts. Les leçons proposées sont validées par
+   le groupe d'amélioration continue avant d'être montrées à tous. */
+
+let LEC = null;
+async function lecCharger(force) {
+  if (!Api.lecons) return { lecons: [], peutValider: false, moi: null };
+  if (!LEC || force) LEC = await Api.lecons();
+  return LEC;
+}
+const lecTxt = l => acNorm([l.titre, l.probleme, l.cause, l.solutionCourt, l.solutionMoyen, l.solutionLong, l.procedure, l.motsCles, l.type, l.causeType, l.noEcart, l.projet].join(" "));
+const lecPeutModifier = (d, l) => d.peutValider || (l.creePar === d.moi && l.statut === "proposee");
+const LEC_HORIZONS = [
+  ["solutionCourt", "Court terme", "Ce qu'on a fait tout de suite pour contenir le problème."],
+  ["solutionMoyen", "Moyen terme", "La correction durable, dans les semaines qui suivent."],
+  ["solutionLong", "Long terme", "Le changement de standard, de conception, de fournisseur ou de processus."]
+];
+
+function lecCarte(l, d, court) {
+  const chips = [l.dept ? deptNom(l.dept) : "Usine", l.type ? `${l.cat ? l.cat + " · " : ""}${l.type}` : "", l.causeType || ""].filter(Boolean);
+  const hz = LEC_HORIZONS.filter(([k]) => l[k]).map(([k, t]) => `<div class="lec-h" data-h="${k}"><div class="lec-ht">${t}</div><div>${esc(l[k])}</div></div>`).join("");
+  const src = [l.ecartId ? `<button class="lien-act" type="button" data-act="detail" data-id="${l.ecartId}">${esc(l.noEcart || "Écart")}</button>` : "",
+    l.projetId ? `<button class="lien-act" type="button" data-act="l-projet" data-id="${l.projetId}">Projet : ${esc(l.projet || "")}</button>` : ""].filter(Boolean).join(" · ");
+  const etat = l.statut === "proposee" ? `<span class="pill warn">À valider</span>` : l.statut === "archivee" ? `<span class="pill">Archivée</span>` : "";
+  return `<article class="lec" data-st="${l.statut}">
+    <div class="row between" style="gap:8px;align-items:flex-start"><div><h3 style="margin:0">${esc(l.titre)} ${etat}</h3>
+      <div class="lec-chips">${chips.map(c => `<span class="lec-chip">${esc(c)}</span>`).join("")}</div></div>
+      ${lecPeutModifier(d, l) ? `<button class="btn small" type="button" data-act="l-edit" data-id="${l.id}">${d.peutValider && l.statut === "proposee" ? "Réviser et valider" : "Modifier"}</button>` : ""}</div>
+    ${l.probleme ? `<p style="margin:6px 0 0"><strong>Problème :</strong> ${esc(l.probleme)}</p>` : ""}
+    ${l.cause && !court ? `<p style="margin:4px 0 0"><strong>Cause :</strong> ${esc(l.cause)}</p>` : ""}
+    ${court ? "" : `<div class="lec-hz">${hz}</div>`}
+    ${l.methodeId && !court ? `<p class="small" style="margin:6px 0 0"><strong>Méthode :</strong> <button class="lien-act" type="button" data-act="l-m-voir" data-id="${l.methodeId}">${esc(l.methode || "voir")}</button></p>` : ""}
+    ${l.procedure && !court ? `<p class="small" style="margin:6px 0 0"><strong>Procédure ou standard :</strong> ${esc(l.procedure)}</p>` : ""}
+    <div class="small muted" style="margin-top:6px">${src ? src + " · " : ""}Proposée par ${esc(l.auteur || "—")} le ${fmtD((l.creeLe || "").slice(0, 10))}${l.valideLe ? ` · validée par ${esc(l.validePar || "")} le ${fmtD(l.valideLe.slice(0, 10))}` : ""}</div>
+  </article>`;
+}
+
+async function vLecons() {
+  if (!Api.lecons) return `<div class="empty">Le centre des connaissances n'est pas offert dans ce mode.</div>`;
+  const d = await lecCharger(true);
+  const f = ui.lecF || (ui.lecF = { q: "", dept: "", cat: "", arch: false });
+  const vue = Api.methodes && ui.lecVue === "methodes" ? "methodes" : "lecons";
+  const M = Api.methodes ? await metCharger(true) : null;
+  const q = acNorm(f.q);
+  const filtre = l => (!q || q.split(/\s+/).every(m => lecTxt(l).includes(m))) && (!f.dept || l.dept === f.dept) && (!f.cat || l.cat === f.cat);
+  const valides = d.lecons.filter(l => l.statut === "validee" && filtre(l));
+  const prop = d.lecons.filter(l => l.statut === "proposee" && (d.peutValider || l.creePar === d.moi));
+  const arch = d.lecons.filter(l => l.statut === "archivee" && filtre(l));
+  const tete = `<div class="row between" style="margin-bottom:6px;gap:8px;flex-wrap:wrap"><div><h2 style="margin:0">Centre des connaissances</h2>
+      <div class="muted small">Ce qu'EBI a appris et la bonne façon de faire, au même endroit.</div></div>
+      ${vue === "methodes" ? (M && M.peutModifier ? `<button class="btn primary" type="button" data-act="l-m-new">+ Ajouter une méthode</button>` : "") : `<button class="btn primary" type="button" data-act="l-new">+ Proposer une leçon</button>`}</div>
+    ${M ? `<div class="seg" role="tablist" style="margin:10px 0 0"><button type="button" role="tab" data-act="l-vue" data-v="lecons" aria-selected="${vue === "lecons"}">Leçons apprises (${d.lecons.filter(l => l.statut === "validee").length})</button><button type="button" role="tab" data-act="l-vue" data-v="methodes" aria-selected="${vue === "methodes"}">Bonnes méthodes (${M.methodes.filter(m => m.statut === "en_vigueur").length})</button></div>` : ""}
+    <form id="f-lec" class="filters" role="search" style="margin:10px 0">
+      <input id="lf-q" type="search" placeholder="${vue === "methodes" ? "Chercher : titre, poste, étape, mot-clé" : "Chercher : poste, FAB, cause, solution, mot-clé"}" value="${esc(f.q)}" aria-label="Chercher" style="flex:1;min-width:220px">
+      <select id="lf-dept" aria-label="Département">${opt([["", "Tous les départements"], ...REF.departements.map(x => [x.code, x.nom])], f.dept)}</select>
+      ${vue === "methodes" ? `<select id="lf-cat" aria-label="Type">${opt([["", "Tous les types"], ...MET_GENRES], f.cat)}</select>` : `<select id="lf-cat" aria-label="Catégorie">${opt([["", "Toutes les catégories"], ["S", "Sécurité"], ["Q", "Qualité"], ["C", "Coûts"], ["D", "Délais"], ["P", "Personnel"]], f.cat)}</select>`}
+    </form>`;
+  if (vue === "methodes") return tete + metListe(M, f, d);
+  return tete + `
+    ${prop.length ? `<div class="card" style="margin-bottom:14px"><h3>${d.peutValider ? "Leçons à valider" : "Mes leçons en attente de validation"} (${prop.length})</h3>
+      <p class="small muted" style="margin-top:2px">${d.peutValider ? "Révisez le texte, vérifiez qu'il y a bien une solution à moyen ou long terme, puis validez." : "Le groupe d'amélioration continue les révise avant de les montrer à tous."}</p>
+      ${prop.map(l => lecCarte(l, d, true)).join("")}</div>` : ""}
+    ${d.peutValider ? await lecCandidatsHtml(d) : ""}
+    <div class="muted small" style="margin:4px 0 8px">${valides.length} leçon(s)${q || f.dept || f.cat ? " trouvée(s)" : ""}.</div>
+    ${valides.length ? valides.map(l => lecCarte(l, d)).join("") : `<div class="empty">${d.lecons.some(l => l.statut === "validee") ? "Aucune leçon ne correspond à la recherche." : "Aucune leçon validée pour l'instant. Proposez la première à partir d'un écart réglé ou d'un projet terminé."}</div>`}
+    ${arch.length ? `<details style="margin-top:14px"><summary class="small">Leçons archivées (${arch.length})</summary>${arch.map(l => lecCarte(l, d)).join("")}</details>` : ""}`;
+}
+
+/* ---------- Bonnes méthodes : procédures, standards, instructions ---------- */
+let MET = null;
+async function metCharger(force) { if (!Api.methodes) return null; if (!MET || force) MET = await Api.methodes(); return MET; }
+const MET_GENRES = [["procedure", "Procédure"], ["standard", "Standard de travail"], ["instruction", "Instruction de travail"], ["formulaire", "Formulaire ou gabarit"], ["pratique", "Bonne pratique"]];
+const metGenre = g => (MET_GENRES.find(x => x[0] === g) || [, "Méthode"])[1];
+const metTxt = m => acNorm([m.titre, m.poste, m.resume, m.etapes, m.motsCles, m.responsable, metGenre(m.genre)].join(" "));
+const metPeut = (M, m) => M.peutModifier || (m.responsableId && m.responsableId === M.moi);
+function metEtapes(t) {
+  const l = (t || "").split(/\n+/).map(x => x.replace(/^\s*(\d+[.)]|[-•*])\s*/, "").trim()).filter(Boolean);
+  return l.length > 1 ? `<ol class="met-et">${l.map(x => `<li>${esc(x)}</li>`).join("")}</ol>` : l.length ? `<p style="margin:6px 0 0">${esc(l[0])}</p>` : "";
+}
+function metCarte(m, M, d) {
+  const lec = d ? d.lecons.filter(l => l.methodeId === m.id && l.statut === "validee") : [];
+  const chips = [metGenre(m.genre), m.dept ? deptNom(m.dept) : "Toute l'usine", m.poste || ""].filter(Boolean);
+  const st = m.statut === "brouillon" ? `<span class="pill">Brouillon</span>` : m.statut === "retiree" ? `<span class="pill">Retirée</span>` : m.revueDue ? `<span class="pill bad">Revue due</span>` : "";
+  return `<article class="lec met" data-st="${m.statut}">
+    <div class="row between" style="gap:8px;align-items:flex-start"><div><h3 style="margin:0">${esc(m.titre)}${m.version ? ` <span class="small muted">· version ${esc(m.version)}</span>` : ""} ${st}</h3>
+      <div class="lec-chips">${chips.map(c => `<span class="lec-chip">${esc(c)}</span>`).join("")}</div></div>
+      <div class="row" style="gap:6px">${m.lien ? `<a class="btn small" href="${esc(m.lien)}" target="_blank" rel="noopener">Ouvrir le document</a>` : ""}${metPeut(M, m) ? `<button class="btn small" type="button" data-act="l-m-edit" data-id="${m.id}">Modifier</button>` : ""}</div></div>
+    ${m.resume ? `<p style="margin:6px 0 0">${esc(m.resume)}</p>` : ""}
+    ${metEtapes(m.etapes)}
+    ${lec.length ? `<div class="small" style="margin-top:6px"><strong>Leçons qui ont mené à cette méthode :</strong> ${lec.map(l => esc(l.titre)).join(" · ")}</div>` : ""}
+    <div class="small muted" style="margin-top:6px">Responsable : ${esc(m.responsable || "à nommer")}${m.reviseLe ? ` · révisée le ${fmtD(m.reviseLe)}` : ""}${m.prochaineRevue ? ` · prochaine revue le ${fmtD(m.prochaineRevue)}` : ""}</div>
+  </article>`;
+}
+function metListe(M, f, d) {
+  const q = acNorm(f.q);
+  const ok = m => (!q || q.split(/\s+/).every(w => metTxt(m).includes(w))) && (!f.dept || m.dept === f.dept || !m.dept) && (!f.cat || m.genre === f.cat);
+  const actives = M.methodes.filter(m => m.statut !== "retiree" && ok(m)), ret = M.methodes.filter(m => m.statut === "retiree" && ok(m));
+  const dues = M.methodes.filter(m => m.revueDue).length;
+  return `${dues ? `<div class="notice warn small" style="margin-bottom:10px">${dues} méthode(s) ont dépassé leur date de revue.</div>` : ""}
+    <div class="muted small" style="margin:4px 0 8px">${actives.length} méthode(s)${q || f.dept || f.cat ? " trouvée(s)" : ""}.</div>
+    ${actives.length ? actives.map(m => metCarte(m, M, d)).join("") : `<div class="empty">${M.methodes.length ? "Aucune méthode ne correspond à la recherche." : "Aucune méthode pour l'instant." + (M.peutModifier ? " Ajoutez la première avec « + Ajouter une méthode »." : " Le groupe d'amélioration continue les ajoute.")}</div>`}
+    ${ret.length ? `<details style="margin-top:14px"><summary class="small">Méthodes retirées (${ret.length})</summary>${ret.map(m => metCarte(m, M, d)).join("")}</details>` : ""}`;
+}
+async function metForm(m) {
+  const M = await metCharger();
+  const v = Object.assign({ titre: "", genre: "standard", dept: "", poste: "", resume: "", etapes: "", lien: "", version: "", reviseLe: "", prochaineRevue: "", responsable: "", statut: "en_vigueur", motsCles: "" }, m || {});
+  modal(`<h2>${m ? "Modifier la méthode" : "Ajouter une méthode"}</h2>
+  <form id="f-methode" class="form">
+    <label class="full" for="me-t">Titre<input id="me-t" maxlength="140" value="${esc(v.titre)}" placeholder="Ex. Affichage du dessin révisé au poste de filage"></label>
+    <label for="me-g">Type<select id="me-g">${opt(MET_GENRES, v.genre)}</select></label>
+    <label for="me-d">Département<select id="me-d">${opt([["", "Toute l'usine"], ...REF.departements.map(x => [x.code, x.nom])], v.dept || "")}</select></label>
+    <label class="full" for="me-p">Poste, zone ou équipement<input id="me-p" maxlength="120" value="${esc(v.poste || "")}"></label>
+    <label class="full" for="me-r">Résumé (à quoi ça sert, en une ou deux phrases)<textarea id="me-r" rows="2" maxlength="600">${esc(v.resume || "")}</textarea></label>
+    <label class="full" for="me-e">Étapes (une par ligne)<textarea id="me-e" rows="6" maxlength="4000">${esc(v.etapes || "")}</textarea></label>
+    <label class="full" for="me-l">Lien vers le document officiel (SharePoint, serveur)<input id="me-l" maxlength="500" value="${esc(v.lien || "")}" placeholder="https://ebi.sharepoint.com/…"></label>
+    <label for="me-v">Version<input id="me-v" maxlength="20" value="${esc(v.version || "")}" placeholder="Ex. B"></label>
+    <label for="me-rs">Responsable<input id="me-rs" list="dl-pers" maxlength="80" value="${esc(v.responsable || "")}"></label>
+    <label for="me-rl">Révisée le<input id="me-rl" type="date" value="${esc(v.reviseLe || "")}"></label>
+    <label for="me-pr">Prochaine revue<input id="me-pr" type="date" value="${esc(v.prochaineRevue || "")}"></label>
+    <label class="full" for="me-k">Mots-clés<input id="me-k" maxlength="200" value="${esc(v.motsCles || "")}"></label>
+    <label for="me-s">Statut<select id="me-s">${opt([["en_vigueur", "En vigueur"], ["brouillon", "Brouillon"], ["retiree", "Retirée"]], v.statut)}</select></label>
+    <datalist id="dl-pers">${(REF.personnes || []).map(p => `<option value="${esc(p.nom)}">`).join("")}</datalist>
+    <div class="full" id="me-msg"></div>
+    <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div>
+  </form>`);
+  $("#f-methode").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const p = { id: m ? m.id : null, titre: $("#me-t").value, genre: $("#me-g").value, dept: $("#me-d").value, poste: $("#me-p").value, resume: $("#me-r").value, etapes: $("#me-e").value,
+      lien: $("#me-l").value, version: $("#me-v").value, responsable: $("#me-rs").value, reviseLe: $("#me-rl").value, prochaineRevue: $("#me-pr").value, motsCles: $("#me-k").value, statut: $("#me-s").value };
+    try { await Api.majMethode(p); await metCharger(true); closeModal(); render(); } catch (err) { formErr("me-msg", err.message); }
+  });
+}
+
+/* Pistes pour le groupe AC : projets terminés et écarts qui ont changé une procédure, sans leçon */
+async function lecCandidatsHtml(d) {
+  const [ecarts, projets, actions] = await Promise.all([Api.ecarts({}), Api.projetsAC ? Api.projetsAC() : [], Api.actions({})]);
+  const mtlt = new Set(actions.filter(a => a.ecartId && (a.horizon === "MT" || a.horizon === "LT")).map(a => a.ecartId));
+  const avecE = new Set(d.lecons.map(l => l.ecartId).filter(Boolean)), avecP = new Set(d.lecons.map(l => l.projetId).filter(Boolean));
+  const pj = projets.filter(j => j.statut === "termine" && !avecP.has(j.id));
+  const ec = ecarts.filter(e => e.solution && (mtlt.has(e.id) || e.procedureModifiee) && !avecE.has(e.id)).slice(0, 15);
+  if (!pj.length && !ec.length) return "";
+  return `<details class="card" style="margin-bottom:14px"><summary><strong>Pistes de leçons</strong> <span class="small muted">· ${pj.length} projet(s) terminé(s) et ${ec.length} écart(s) réglé(s) avec une action à moyen ou long terme, sans leçon</span></summary>
+    <ul class="small" style="margin:8px 0 0;padding-left:18px">
+      ${pj.map(j => `<li>Projet : ${esc(j.titre)} <button class="btn small" type="button" data-act="l-de-projet" data-id="${j.id}">Tirer une leçon</button></li>`).join("")}
+      ${ec.map(e => `<li>${esc(e.no)} · ${esc(e.titre)} ${e.procedureModifiee ? `<span class="muted">(${esc(e.procedureNom || "procédure modifiée")})</span>` : ""} <button class="btn small" type="button" data-act="l-de-ecart" data-id="${e.id}">Tirer une leçon</button></li>`).join("")}
+    </ul></details>`;
+}
+
+async function lecForm(l, pre) {
+  const d = await lecCharger(); await acRefCauses(); const M = await metCharger();
+  const v = Object.assign({ titre: "", dept: "", typeId: "", causeTypeId: "", probleme: "", cause: "", solutionCourt: "", solutionMoyen: "", solutionLong: "", procedure: "", motsCles: "", statut: "proposee" }, pre || {}, l || {});
+  const types = (REF.types || []).filter(t => t.actif !== false || t.id === Number(v.typeId));
+  const ta = (id, k, rows, ph, max) => `<textarea id="${id}" rows="${rows}" maxlength="${max || 1500}" placeholder="${esc(ph || "")}">${esc(v[k] || "")}</textarea>`;
+  const src = v.ecartId || v.projetId ? `<div class="full small muted">Source : ${v.ecartId ? esc(v.noEcart || "écart " + v.ecartId) : ""}${v.ecartId && v.projetId ? " · " : ""}${v.projetId ? "projet " + esc(v.projet || "") : ""}</div>` : "";
+  modal(`<h2>${l ? (d.peutValider && l.statut === "proposee" ? "Réviser la leçon" : "Modifier la leçon") : "Proposer une leçon"}</h2>
+  <form id="f-lecon" class="form">
+    ${src}
+    <label class="full" for="le-t">Titre (ce qu'on a appris, en une ligne)<input id="le-t" maxlength="140" value="${esc(v.titre)}" placeholder="Ex. Vérifier la révision du dessin avant de commencer le filage"></label>
+    <label for="le-d">Département<select id="le-d">${opt([["", "Toute l'usine"], ...REF.departements.map(x => [x.code, x.nom])], v.dept || "")}</select></label>
+    <label for="le-ty">Type d'écart<select id="le-ty">${opt([["", "Aucun en particulier"], ...types.map(t => [String(t.id), `${t.cat} · ${t.nom}`])], String(v.typeId || ""))}</select></label>
+    <label class="full" for="le-ct">Cause précise<select id="le-ct">${ctOptions(v.typeId, v.causeTypeId ? Number(v.causeTypeId) : null)}</select></label>
+    <label class="full" for="le-p">Problème<textarea id="le-p" rows="2" maxlength="600">${esc(v.probleme || "")}</textarea></label>
+    <label class="full" for="le-c">Cause<textarea id="le-c" rows="2" maxlength="600">${esc(v.cause || "")}</textarea></label>
+    ${LEC_HORIZONS.map(([k, t, aide], i) => `<label class="full" for="le-h${i}">Solution à ${t.toLowerCase()} <span class="small muted">· ${aide}</span>${ta("le-h" + i, k, 2)}</label>`).join("")}
+    <div class="full small muted">Une leçon demande une solution à moyen ou à long terme. Un écart réglé seulement à court terme reste dans le registre des écarts.</div>
+    ${M ? `<label class="full" for="le-m">Méthode ou standard lié (bibliothèque)<select id="le-m">${opt([["", "Aucune"], ...M.methodes.filter(x => x.statut !== "retiree" || x.id === v.methodeId).map(x => [String(x.id), x.titre + (x.version ? " · v. " + x.version : "")])], String(v.methodeId || ""))}</select></label>` : ""}
+    <label class="full" for="le-pr">Procédure ou standard touché (texte libre)<input id="le-pr" maxlength="200" value="${esc(v.procedure || "")}"></label>
+    <label class="full" for="le-k">Mots-clés pour la recherche<input id="le-k" maxlength="200" value="${esc(v.motsCles || "")}" placeholder="Ex. roulements, fournisseur, 75 HP"></label>
+    ${d.peutValider ? `<label for="le-s">Statut<select id="le-s">${opt([["proposee", "À valider"], ["validee", "Validée (visible par tous)"], ["archivee", "Archivée"]], v.statut)}</select></label>` : ""}
+    <div class="full" id="le-msg"></div>
+    <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button>
+      ${d.peutValider && (!l || l.statut === "proposee") ? `<button class="btn" type="submit" data-st="proposee">Enregistrer sans valider</button><button class="btn primary" type="submit" data-st="validee">Valider la leçon</button>` : `<button class="btn primary" type="submit">${l ? "Enregistrer" : "Proposer la leçon"}</button>`}</div>
+  </form>`);
+  $("#le-ty").addEventListener("change", () => { $("#le-ct").innerHTML = ctOptions($("#le-ty").value, null); });
+  $("#f-lecon").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const btn = ev.submitter, st = btn && btn.dataset.st ? btn.dataset.st : ($("#le-s") ? $("#le-s").value : v.statut);
+    const p = { id: l ? l.id : null, titre: $("#le-t").value, dept: $("#le-d").value, typeId: $("#le-ty").value, causeTypeId: $("#le-ct").value,
+      probleme: $("#le-p").value, cause: $("#le-c").value, solutionCourt: $("#le-h0").value, solutionMoyen: $("#le-h1").value, solutionLong: $("#le-h2").value,
+      procedure: $("#le-pr").value, methodeId: $("#le-m") ? $("#le-m").value : (v.methodeId || null), motsCles: $("#le-k").value, ecartId: v.ecartId || null, projetId: v.projetId || null, statut: d.peutValider ? st : (l ? l.statut : "proposee") };
+    if (!p.solutionMoyen.trim() && !p.solutionLong.trim()) { formErr("le-msg", "Inscrivez une solution à moyen ou à long terme. Un écart réglé seulement à court terme reste dans le registre des écarts."); return; }
+    try { if (btn) btn.disabled = true; await Api.majLecon(p); await lecCharger(true); closeModal();
+      if (route() === "lecons") render(); else alertOk(p.statut === "validee" ? "La leçon est validée et visible dans le centre des connaissances." : "Merci. La leçon est proposée au groupe d'amélioration continue."); }
+    catch (err) { if (btn) btn.disabled = false; formErr("le-msg", err.message); }
+  });
+}
+const alertOk = m => modal(`<h2>C'est fait</h2><p>${esc(m)}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="close" type="button">Fermer</button><a class="btn primary" href="#lecons" data-act="close">Voir le centre des connaissances</a></div>`);
+
+async function lecDeEcart(id) {
+  const e = await Api.ecart(Number(id)); if (!e) return;
+  const h = k => (e.actions || []).filter(a => a.horizon === k && a.statut !== "Annule").map(a => a.texte).join(" ; ");
+  lecForm(null, { titre: "", dept: e.dept, typeId: e.typeId, causeTypeId: e.causeTypeId, probleme: e.description || e.titre, cause: [e.cause, e.causeDetail].filter(Boolean).join(" : "),
+    solutionCourt: [e.solution, h("CT")].filter(Boolean).join(" ; "), solutionMoyen: h("MT"), solutionLong: [h("LT"), e.procedureModifiee && e.procedureNom ? "Procédure modifiée : " + e.procedureNom : ""].filter(Boolean).join(" ; "), procedure: e.procedureNom || "", motsCles: [e.poste, e.noFab].filter(Boolean).join(", "), ecartId: e.id, noEcart: e.no });
+}
+async function lecDeProjet(id) {
+  const j = Api.projetDetail ? await Api.projetDetail(Number(id)) : null; if (!j) return;
+  lecForm(null, { titre: j.titre, dept: j.dept, causeTypeId: j.causeTypeId, typeId: ((REF.causeTypes || []).find(c => c.id === j.causeTypeId) || {}).typeId || "",
+    probleme: j.probleme, cause: j.causeRacine, solutionMoyen: j.contreMesure || (j.actions || []).filter(a => a.statut === "fait").map(a => a.texte).join(" ; "), solutionLong: j.standardisation || "", motsCles: "", projetId: j.id, projet: j.titre });
+}
+
+/* Dans « Documenter un écart » : les leçons déjà validées pour ce type d'écart */
+async function lecPourType(typeId) {
+  const z = $("#n-lecons"); if (!z) return;
+  if (!typeId || !Api.lecons) { z.innerHTML = ""; return; }
+  const d = await lecCharger(); const l = d.lecons.filter(x => x.statut === "validee" && x.typeId === Number(typeId)).slice(0, 3);
+  z.innerHTML = l.length ? `<div class="notice info small"><strong>Déjà vécu : ${l.length} leçon(s) sur ce type d'écart</strong><ul style="margin:4px 0 0;padding-left:18px">${l.map(x => `<li>${esc(x.titre)}${x.solutionMoyen || x.solutionLong ? ` <span class="muted">→ ${esc((x.solutionMoyen || x.solutionLong).slice(0, 120))}</span>` : ""}</li>`).join("")}</ul></div>` : "";
+}
+
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='l-']"); if (!a) return;
+  const act = a.dataset.act;
+  try {
+    if (act === "l-new") await lecForm(null);
+    else if (act === "l-edit") { const d = await lecCharger(); const l = d.lecons.find(x => x.id === Number(a.dataset.id)); if (l) await lecForm(l); }
+    else if (act === "l-de-ecart") await lecDeEcart(a.dataset.id);
+    else if (act === "l-de-projet") await lecDeProjet(a.dataset.id);
+    else if (act === "l-vue") { ui.lecVue = a.dataset.v; if (ui.lecF) ui.lecF.cat = ""; render(); }
+    else if (act === "l-m-new") await metForm(null);
+    else if (act === "l-m-edit") { const M = await metCharger(); const m = M.methodes.find(x => x.id === Number(a.dataset.id)); if (m) await metForm(m); }
+    else if (act === "l-m-voir") { const M = await metCharger(true); const m = M.methodes.find(x => x.id === Number(a.dataset.id)); if (m) modal(metCarte(m, M, null) + `<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" type="button" data-act="close">Fermer</button></div>`); }
+    else if (act === "l-projet") { if (typeof acOuvrirA3 === "function") acOuvrirA3(Number(a.dataset.id)); }
+  } catch (err) { alertBox(err.message); }
+});
+document.addEventListener("submit", ev => { if (ev.target.id === "f-lec") ev.preventDefault(); });
+document.addEventListener("input", ev => {
+  if (!["lf-q", "lf-dept", "lf-cat"].includes(ev.target.id)) return;
+  ui.lecF = { q: $("#lf-q").value, dept: $("#lf-dept").value, cat: $("#lf-cat").value };
+  clearTimeout(lecCharger.t); lecCharger.t = setTimeout(async () => { const pos = $("#lf-q").selectionStart; await render(); const q = $("#lf-q"); if (q && ev.target.id === "lf-q") { q.focus(); q.setSelectionRange(pos, pos); } }, 250);
+});
+
+</script>
+<script>
+/* Structure du DMS, modifiable par l'administrateur directement dans le site :
+   rencontres publiques (points, durées, ordre, liens) et équipes (niveaux, escalade).
+   Les questions des tournées gemba se modifient dans Gemba > Grilles de vérification.
+   Rien n'est supprimé : une rencontre ou une équipe qui a un historique est désactivée. */
+
+const ST_BLOCS = [
+  ["securite", "Sécurité : croix et écarts S"], ["sqcdp-Q", "Qualité : écarts et actions"], ["sqcdp-C", "Coûts : écarts et actions"],
+  ["sqcdp-D", "Délais : écarts et actions"], ["sqcdp-P", "Personnel : écarts et actions"], ["plan", "Plan de la journée"],
+  ["kpi", "Indicateurs SQCDP"], ["ecarts", "Écarts à traiter à ce niveau"], ["retours", "Solutions reçues des autres niveaux"],
+  ["actions", "Actions dues ou en retard"], ["sujets", "Sujets suivis"], ["charge", "Charge et carnet de commandes"],
+  ["pareto", "Pareto des écarts du mois"], ["apercu", "Vue d'ensemble des niveaux"], ["libre", "Discussion libre"],
+  ["lien", "Lien externe (Wrike, Power BI, SharePoint)"],
+  ["ac_recus", "Groupe AC : écarts reçus"], ["recurrences", "Groupe AC : récurrences"], ["a_classer", "Groupe AC : causes à classer"],
+  ["projets", "Groupe AC : projets"], ["procedures", "Groupe AC : procédures à déployer"]
+];
+const stBlocNom = b => (ST_BLOCS.find(x => x[0] === b) || [, b])[1];
+
+/* Lien d'un point de rencontre : Wrike, Power BI ou autre */
+function lienPoint(url) {
+  if (!url) return "";
+  const u = String(url), wr = /wrike\.com/i.test(u), pb = /powerbi\.com/i.test(u);
+  return `<div style="margin-top:8px">${wr && Api.wrike ? `<button class="btn small primary" type="button" data-act="st-wrike" data-lien="${esc(u)}">Voir les tâches Wrike ici</button> ` : ""}<a class="btn small" href="${esc(u)}" target="_blank" rel="noopener">${wr ? "Ouvrir dans Wrike" : pb ? "Ouvrir le rapport Power BI" : "Ouvrir le lien"}</a>
+    ${wr ? `<div class="wr-zone"></div>` : ""}</div>`;
+}
+const WR_ORDRE = { Active: 0, Deferred: 1, Completed: 2, Cancelled: 3 };
+function wrikeHtml(d, tout) {
+  if (d.configure === false) return `<div class="notice warn small" style="margin-top:8px">${esc(d.erreur)}</div>`;
+  const auj = isoToday(), fini = t => t.groupe === "Completed" || t.groupe === "Cancelled";
+  const l = d.taches.slice().sort((a, b) => (WR_ORDRE[a.groupe] ?? 9) - (WR_ORDRE[b.groupe] ?? 9) || (a.echeance || "9").localeCompare(b.echeance || "9"));
+  const actives = l.filter(t => !fini(t)), retard = actives.filter(t => t.echeance && t.echeance < auj), vues = tout ? l : actives;
+  return `<div class="wr card" style="margin-top:8px;padding:10px 12px">
+    <div class="row between" style="gap:8px;flex-wrap:wrap"><div><strong>${esc(d.titre)}</strong>${d.projet ? ` <span class="small muted">· ${esc(d.projet.statut || "")}${d.projet.fin ? " · fin prévue le " + fmtD(d.projet.fin) : ""}${d.projet.responsables && d.projet.responsables.filter(Boolean).length ? " · " + esc(d.projet.responsables.filter(Boolean).join(", ")) : ""}</span>` : ""}</div>
+      <span class="small"><strong>${actives.filter(t => t.groupe === "Active").length}</strong> en cours · <strong class="${retard.length ? "wr-late" : ""}">${retard.length}</strong> en retard · ${l.length - actives.length} terminée(s)</span></div>
+    ${vues.length ? `<div class="scroll"><table class="t" style="margin-top:6px"><thead><tr><th>Tâche</th><th>Responsable</th><th>Échéance</th><th>Statut</th></tr></thead><tbody>
+      ${vues.map(t => `<tr${fini(t) ? ' class="muted"' : ""}><td>${t.lien ? `<a href="${esc(t.lien)}" target="_blank" rel="noopener">${esc(t.titre)}</a>` : esc(t.titre)}</td><td class="small">${esc((t.responsables || []).join(", ") || "—")}</td>
+        <td class="num ${!fini(t) && t.echeance && t.echeance < auj ? "wr-late" : ""}">${t.echeance ? fmtD(t.echeance) : "—"}</td><td class="small">${esc(t.statut || "")}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty small">Aucune tâche en cours.</div>`}
+    <div class="row between small muted" style="margin-top:6px"><span>Lu dans Wrike à ${new Date(d.lu).toLocaleTimeString("fr-CA", { hour: "2-digit", minute: "2-digit" })}${d.demo ? " · données de démonstration" : ""}</span>
+      <span><label class="check" style="display:inline-flex"><input type="checkbox" data-wr-tout ${tout ? "checked" : ""}> Afficher les terminées</label> <button class="btn small" type="button" data-act="st-wrike" data-lien="${esc(d.permalink || "")}">Actualiser</button></span></div></div>`;
+}
+const WR_CACHE = {};
+async function wrikeCharger(bouton) {
+  const bloc = bouton.closest(".wr-zone") || bouton.parentElement.querySelector(".wr-zone"); if (!bloc) return;
+  const lien = bouton.dataset.lien; bloc.innerHTML = `<div class="muted small" style="margin-top:8px">Lecture dans Wrike…</div>`;
+  try { const d = await Api.wrike(lien); WR_CACHE[lien] = d; bloc.dataset.lien = lien; bloc.innerHTML = wrikeHtml(d, false); }
+  catch (err) { bloc.innerHTML = `<div class="notice bad small" style="margin-top:8px">${esc(err.message)}</div>`; }
+}
+document.addEventListener("change", ev => { if (!ev.target.matches("[data-wr-tout]")) return; const z = ev.target.closest(".wr-zone"); if (z && WR_CACHE[z.dataset.lien]) z.innerHTML = wrikeHtml(WR_CACHE[z.dataset.lien], ev.target.checked); });
+
+async function vStructure() {
+  if (!ME.admin) return `<div class="error">Réservé à l'administrateur du DMS.</div>`;
+  if (!Api.rencontresAdmin) return `<div class="empty">La modification de la structure n'est pas offerte dans ce mode.</div>`;
+  const [rens, ref] = await Promise.all([Api.rencontresAdmin(), Api.referentiels()]); REF = ref;
+  const eqNom = c => (REF.equipes.find(t => t.code === c) || {}).nom || c;
+  return `<div class="row between" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><div><a class="btn small" href="#admin">← Administration</a>
+      <h2 style="margin:8px 0 0">Structure du DMS</h2><div class="muted small">Rencontres et équipes. Chaque changement est inscrit au journal. Rien n'est supprimé : on désactive.</div></div></div>
+    <div class="card"><div class="row between"><h3>Rencontres</h3><button class="btn small primary" type="button" data-act="st-r-new">+ Nouvelle rencontre</button></div>
+      <div class="scroll"><table class="t" style="margin-top:6px"><thead><tr><th>Rencontre</th><th>Niveau</th><th>Quand</th><th class="num">Durée</th><th class="num">Points</th><th>État</th><th></th></tr></thead><tbody>
+      ${rens.map(r => `<tr${r.actif ? "" : ' class="muted"'}><td>${esc(r.nom)}</td><td>${esc(eqNom(r.equipe))}</td><td class="small">${esc(r.frequence || "")}</td><td class="num">${r.dureeMin} min</td>
+        <td class="num">${(r.points || []).length}</td><td>${r.actif ? `<span class="pill ok">Active</span>` : `<span class="pill">Désactivée</span>`}</td>
+        <td><button class="btn small" type="button" data-act="st-r-edit" data-code="${esc(r.code)}">Modifier</button></td></tr>`).join("")}
+      </tbody></table></div></div>
+    <div class="card" style="margin-top:14px"><div class="row between"><h3>Équipes et escalade</h3><button class="btn small primary" type="button" data-act="st-e-new">+ Nouvelle équipe</button></div>
+      <div class="scroll"><table class="t" style="margin-top:6px"><thead><tr><th>Code</th><th>Équipe</th><th>Niveau</th><th>Département</th><th>Escalade vers</th><th>État</th><th></th></tr></thead><tbody>
+      ${REF.equipes.slice().sort((a, b) => a.strate - b.strate || a.code.localeCompare(b.code)).map(t => `<tr${t.actif === false ? ' class="muted"' : ""}><td class="small">${esc(t.code)}</td><td>${esc(t.nom)}</td>
+        <td><span class="pill lvl">T${t.strate}</span></td><td class="small">${esc(t.dept ? deptNom(t.dept) : (t.depts || []).map(deptNom).join(", "))}</td>
+        <td>${t.parent ? esc(eqNom(t.parent)) : `<span class="muted small">Dernier niveau</span>`}</td><td>${t.actif === false ? `<span class="pill">Désactivée</span>` : `<span class="pill ok">Active</span>`}</td>
+        <td><button class="btn small" type="button" data-act="st-e-edit" data-code="${esc(t.code)}">Modifier</button></td></tr>`).join("")}
+      </tbody></table></div>
+      <p class="small muted">Les membres d'une équipe se choisissent dans Administration > Personnes.</p></div>
+    <div class="card" style="margin-top:14px"><h3>Questions des tournées gemba</h3><p class="small" style="margin:4px 0 8px">Les grilles et leurs questions se modifient dans l'onglet Gemba, carte « Grilles de vérification ».</p><a class="btn small" href="#gemba">Aller aux grilles gemba</a></div>`;
+}
+
+function stPointRow(p) {
+  p = p || { titre: "", dureeMin: 5, bloc: "libre", lien: "" };
+  return `<div class="st-pt"><span class="st-n"></span>
+    <input class="st-t" maxlength="80" value="${esc(p.titre)}" placeholder="Titre du point" aria-label="Titre du point">
+    <input class="st-d" type="number" min="0" max="120" value="${p.dureeMin || 0}" aria-label="Durée en minutes">
+    <select class="st-b" aria-label="Contenu affiché">${opt(ST_BLOCS, p.bloc || "libre")}</select>
+    <input class="st-l" maxlength="500" value="${esc(p.lien || "")}" placeholder="Lien (facultatif) : https://…" aria-label="Lien du point">
+    <span class="st-btns"><button class="btn small" type="button" data-act="st-up" aria-label="Monter">↑</button><button class="btn small" type="button" data-act="st-down" aria-label="Descendre">↓</button><button class="btn small" type="button" data-act="st-del" aria-label="Retirer le point">✕</button></span></div>`;
+}
+function stRenum() {
+  const rows = [...document.querySelectorAll(".st-pt")];
+  rows.forEach((r, i) => { r.querySelector(".st-n").textContent = i + 1; });
+  const tot = rows.reduce((s, r) => s + (Number(r.querySelector(".st-d").value) || 0), 0); const z = $("#sr-tot"); if (z) z.textContent = tot + " min";
+}
+async function stRencontreForm(code) {
+  const rens = await Api.rencontresAdmin(); const r = code ? rens.find(x => x.code === code) : null;
+  const v = Object.assign({ nom: "", equipe: "", dept: "", frequence: "", participants: "", actif: true, points: [] }, r || {});
+  const eqs = REF.equipes.filter(t => t.actif !== false || t.code === v.equipe);
+  modal(`<h2>${r ? "Modifier la rencontre" : "Nouvelle rencontre"}</h2>
+  <form id="f-st-r" class="form">
+    <label class="full" for="sr-n">Nom<input id="sr-n" maxlength="80" value="${esc(v.nom)}" placeholder="Ex. Revue des projets Vision"></label>
+    <label for="sr-e">Niveau (équipe)<select id="sr-e">${opt([["", "Choisir"], ...eqs.map(t => [t.code, `T${t.strate} · ${t.nom}`])], v.equipe || "")}</select></label>
+    <label for="sr-d">Département<select id="sr-d">${opt([["", "Toute l'usine"], ...REF.departements.map(x => [x.code, x.nom])], v.dept || "")}</select></label>
+    <label class="full" for="sr-f">Quand (jour, heure, endroit)<input id="sr-f" maxlength="120" value="${esc(v.frequence || "")}" placeholder="Ex. Mardi · 14 h 00 · salle de conférence"></label>
+    <label class="full" for="sr-p">Participants<input id="sr-p" maxlength="200" value="${esc(v.participants || "")}"></label>
+    <div class="full"><div class="row between"><strong>Ordre du jour</strong><span class="small muted">Durée totale : <strong id="sr-tot"></strong></span></div>
+      <div class="st-head small muted"><span>#</span><span>Titre</span><span>Min</span><span>Ce que le point affiche</span><span>Lien</span><span></span></div>
+      <div id="sr-pts">${(v.points.length ? v.points : [null]).map(stPointRow).join("")}</div>
+      <button class="btn small" type="button" data-act="st-add" style="margin-top:6px">+ Ajouter un point</button>
+      <div class="small muted" style="margin-top:6px">Un lien Wrike, Power BI ou SharePoint s'ouvre d'un clic pendant la rencontre. Le contenu « Lien externe » affiche seulement ce bouton.</div></div>
+    <label class="check full" for="sr-a"><input type="checkbox" id="sr-a" ${v.actif ? "checked" : ""}> Rencontre active (décocher pour la retirer des rencontres sans perdre son historique)</label>
+    <div class="full" id="sr-msg"></div>
+    <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div>
+  </form>`);
+  stRenum();
+  $("#sr-pts").addEventListener("input", stRenum);
+  $("#f-st-r").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const points = [...document.querySelectorAll(".st-pt")].map(x => ({ titre: x.querySelector(".st-t").value, dureeMin: Number(x.querySelector(".st-d").value) || 0, bloc: x.querySelector(".st-b").value, lien: x.querySelector(".st-l").value }));
+    const d = { code: r ? r.code : null, nom: $("#sr-n").value, equipe: $("#sr-e").value, dept: $("#sr-d").value, frequence: $("#sr-f").value, participants: $("#sr-p").value, actif: $("#sr-a").checked, points };
+    try { await Api.majRencontre(d); RENC = await Api.rencontres(); closeModal(); render(); } catch (err) { formErr("sr-msg", err.message); }
+  });
+}
+async function stEquipeForm(code) {
+  const t = code ? REF.equipes.find(x => x.code === code) : null;
+  const v = Object.assign({ code: "", nom: "", strate: 1, dept: "", depts: [], parent: "", actif: true }, t || {});
+  const parents = s => REF.equipes.filter(x => x.strate > s && x.code !== v.code && (x.actif !== false || x.code === v.parent));
+  modal(`<h2>${t ? "Modifier l'équipe" : "Nouvelle équipe"}</h2>
+  <form id="f-st-e" class="form">
+    <label for="se-c">Code<input id="se-c" maxlength="12" value="${esc(v.code)}" ${t ? "disabled" : ""} placeholder="Ex. T1-BOB"></label>
+    <label for="se-n">Nom<input id="se-n" maxlength="60" value="${esc(v.nom)}" placeholder="Ex. Bobinage plancher"></label>
+    <label for="se-s">Niveau<select id="se-s">${opt([["1", "T1 · Équipe"], ["2", "T2 · Département"], ["3", "T3 · Usine"], ["4", "T4 · Direction"]], String(v.strate))}</select></label>
+    <label for="se-d">Département<select id="se-d">${opt([["", "Plusieurs ou aucun"], ...REF.departements.map(x => [x.code, x.nom])], v.dept || "")}</select></label>
+    <div class="full"><div class="small muted" style="margin-bottom:4px">Départements couverts (pour un T2 ou plus)</div>${REF.departements.map(x => `<label class="check" style="display:inline-flex;margin-right:12px"><input type="checkbox" class="se-ds" value="${x.code}" ${(v.depts || []).includes(x.code) ? "checked" : ""}> ${esc(x.nom)}</label>`).join("")}</div>
+    <label class="full" for="se-p">Escalade vers<select id="se-p">${opt([["", "Aucune (dernier niveau)"], ...parents(v.strate).map(x => [x.code, `T${x.strate} · ${x.nom}`])], v.parent || "")}</select></label>
+    <label class="check full" for="se-a"><input type="checkbox" id="se-a" ${v.actif !== false ? "checked" : ""}> Équipe active</label>
+    <div class="full" id="se-msg"></div>
+    <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div>
+  </form>`);
+  $("#se-s").addEventListener("change", () => { const s = Number($("#se-s").value), cur = $("#se-p").value;
+    $("#se-p").innerHTML = opt([["", "Aucune (dernier niveau)"], ...parents(s).map(x => [x.code, `T${x.strate} · ${x.nom}`])], parents(s).some(x => x.code === cur) ? cur : ""); });
+  $("#f-st-e").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const d = { code: t ? t.code : $("#se-c").value.trim().toUpperCase(), nouveau: !t, nom: $("#se-n").value, strate: Number($("#se-s").value), dept: $("#se-d").value,
+      depts: [...document.querySelectorAll(".se-ds:checked")].map(x => x.value), parent: $("#se-p").value, actif: $("#se-a").checked };
+    try { await Api.majEquipe(d); REF = await Api.referentiels(); closeModal(); render(); } catch (err) { formErr("se-msg", err.message); }
+  });
+}
+
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-act^='st-']"); if (!a) return;
+  const act = a.dataset.act;
+  try {
+    if (act === "st-wrike") await wrikeCharger(a);
+    else if (act === "st-r-new") await stRencontreForm(null);
+    else if (act === "st-r-edit") await stRencontreForm(a.dataset.code);
+    else if (act === "st-e-new") await stEquipeForm(null);
+    else if (act === "st-e-edit") await stEquipeForm(a.dataset.code);
+    else if (act === "st-add") { $("#sr-pts").insertAdjacentHTML("beforeend", stPointRow(null)); MODAL_SALE = true; stRenum(); const l = [...document.querySelectorAll(".st-t")]; l[l.length - 1].focus(); }
+    else if (["st-up", "st-down", "st-del"].includes(act)) {
+      const row = a.closest(".st-pt"); MODAL_SALE = true;
+      if (act === "st-del") { if (document.querySelectorAll(".st-pt").length > 1) row.remove(); }
+      else if (act === "st-up" && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+      else if (act === "st-down" && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+      stRenum();
+    }
+  } catch (err) { alertBox(err.message); }
+});
+
+</script>
+<script>
 /* Portail DMS EBI — interface. Toute donnée passe par window.Api (js/api.js). */
 "use strict";
 const $ = s => document.querySelector(s);
@@ -2860,7 +3384,7 @@ const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
 const STATUT = { Ouvert: "Ouvert", RetourT1: "Retour au T1", Ferme: "Fermé", Annule: "Annulé" };
 const ASTATUT = { AFaire: "À faire", EnCours: "En cours", Fait: "Fait", Annule: "Annulé" };
 const SSTATUT = { ADecider: "À décider", Planifie: "Planifié", EnCours: "En cours", Termine: "Terminé" };
-const ROUTES = [["accueil", "Accueil"], ["rencontres", "Rencontres"], ["ecarts", "Écarts"], ["fab", "Fiches FAB"], ["actions", "Actions"], ["gemba", "Gemba"], ["tableaux", "Tableaux de bord"], ["journal", "Journal"], ["admin", "Administration"]];
+const ROUTES = [["accueil", "Accueil"], ["rencontres", "Rencontres"], ["ecarts", "Écarts"], ["fab", "Fiches FAB"], ["actions", "Actions"], ["gemba", "Gemba"], ["lecons", "Connaissances"], ["tableaux", "Tableaux de bord"], ["journal", "Journal"], ["admin", "Administration"]];
 
 let REF = null, ME = null, RENC = null;
 const ui = { meeting: null, run: null, fE: { dept: "", statut: "actifs", strate: "", cat: "", q: "", vue: "registre", etiquette: "", annee: "" }, fA: { responsable: "", statut: "ouvertes" }, tbDept: "", tbMesure: "heures", tbJours: 28, tbVue: "dms", pbi: null };
@@ -2872,7 +3396,7 @@ const myTeams = () => ME.equipes || [];
 const myDepts = () => { const t = myTeams().map(eq).filter(Boolean); if (t.some(x => x.strate >= 3)) return REF.departements.map(d => d.code); return [...new Set(t.flatMap(x => x.depts || [x.dept]))]; };
 const inTeamScope = (e, t) => t.strate === 1 ? e.equipeOrigine === t.code : t.strate === 2 ? t.depts.includes(e.dept) : true;
 const sev = e => { const h = e.minutes / 60; if (e.cat === "S" || h >= 4 || e.cout >= 2000) return 3; if (h >= 1 || e.cout >= 500) return 2; return 1; };
-const ROUTES_CACHEES = ["projet"];
+const ROUTES_CACHEES = ["projet", "structure"];
 const route = () => { const h = location.hash.slice(1); return ROUTES.some(r => r[0] === h) || ROUTES_CACHEES.includes(h) ? h : "accueil"; };
 
 /* ---------- Démarrage ---------- */
@@ -2923,7 +3447,7 @@ async function render() {
   const seq = ++renderSeq; const app = $("#app");
   if (!app.innerHTML) app.innerHTML = `<div class="loading">Chargement…</div>`;
   try {
-    const html = await ({ accueil: vAccueil, rencontres: vRencontres, ecarts: vEcarts, actions: vActions, fab: vFab, projet: typeof vProjetAC === "function" ? vProjetAC : () => "", gemba: vGemba, tableaux: vTableaux, journal: vJournal, admin: vAdmin }[route()])();
+    const html = await ({ accueil: vAccueil, rencontres: vRencontres, ecarts: vEcarts, actions: vActions, fab: vFab, projet: typeof vProjetAC === "function" ? vProjetAC : () => "", gemba: vGemba, lecons: typeof vLecons === "function" ? vLecons : () => "", structure: typeof vStructure === "function" ? vStructure : () => "", tableaux: vTableaux, journal: vJournal, admin: vAdmin }[route()])();
     if (seq === renderSeq) app.innerHTML = html;
   } catch (err) { if (seq === renderSeq) app.innerHTML = `<div class="error">${esc(err.message)}</div>`; }
   if (typeof majCloche === "function" && Date.now() - (render.cloche || 0) > 15000) { render.cloche = Date.now(); majCloche(); }
@@ -2968,7 +3492,7 @@ async function vRencontres() {
   const head = `<div class="meet-head"><div><h2>${esc(m.nom)}</h2><div class="meta"><span>${esc(m.frequence)}</span><span>${m.dureeMin} min</span><span>Strate T${t.strate} : ${esc(t.nom)}</span></div><div class="meta"><span>Participants : ${esc(m.participants)}</span></div></div>
    <div class="row">${run ? `<div class="timer num ${el > m.dureeMin * 60 ? "over" : ""}" id="timer">${mmss(el)}</div><span class="muted small">/ ${m.dureeMin}:00</span><button class="btn" data-act="next" type="button">Point suivant</button><button class="btn primary" data-act="close-meet" type="button">Clore la rencontre</button>` : `<button class="btn primary" data-act="start-meet" type="button">Démarrer la rencontre</button>`}</div></div>`;
   const items = m.points.map((p, i) => { const cls = run ? (i < run.idx ? "done" : i === run.idx ? "current" : "") : "";
-    return `<div class="ag ${cls}"><div class="ag-h"><span class="ag-n">${i + 1}</span><span class="ag-t">${esc(p.titre)}</span><span class="muted small num">${p.dureeMin} min</span></div><div class="ag-b">${bloc(p.bloc, ctx)}</div></div>`; }).join("");
+    return `<div class="ag ${cls}"><div class="ag-h"><span class="ag-n">${i + 1}</span><span class="ag-t">${esc(p.titre)}</span><span class="muted small num">${p.dureeMin} min</span></div><div class="ag-b">${bloc(p.bloc, ctx)}${typeof lienPoint === "function" ? lienPoint(p.lien) : ""}</div></div>`; }).join("");
   const cr = tenues.length ? tenues.map(c => `<div class="small"><strong>${fmtD(c.debut)}</strong> · ${c.dureeMin} min · ${esc(c.animeePar || "")} · ${esc(c.decisions)}</div>`).join("") : `<div class="muted small">Aucun compte rendu pour l'instant.</div>`;
   return `<div class="layout-meet"><aside class="meet-list" aria-label="Structure des rencontres">${list}</aside><section>${head}${avisH}${typeof slotPbi === "function" ? slotPbi(m.code) : ""}<div class="agenda">${items}</div><div class="card" style="margin-top:14px"><h3>Derniers comptes rendus</h3><div class="grid" style="gap:6px;margin-top:6px">${cr}</div></div></section></div>`;
 }
@@ -3192,6 +3716,7 @@ async function vAdmin() {
   const [ref, kpi] = await Promise.all([Api.referentiels(), Api.kpi("")]); REF = ref; const b = ref.bareme;
   const fic = typeof carteFichiers === "function" ? await carteFichiers() : "";
   return `<h2>Administration</h2>
+  ${Api.rencontresAdmin ? `<div class="card" style="margin-top:12px"><div class="row between" style="gap:8px;flex-wrap:wrap"><div><h3>Structure : rencontres et équipes</h3><p class="small muted" style="margin:2px 0 0">Modifier les points des rencontres, leur ordre, leur durée et leurs liens (Wrike, Power BI), créer une rencontre ou une équipe, changer l'escalade.</p></div><a class="btn primary" href="#structure">Modifier la structure</a></div></div>` : ""}
   ${fic ? `<div style="margin-top:12px">${fic}</div>` : ""}
   <div class="two" style="margin-top:12px"><div class="card"><h3>Barème</h3><p class="small muted">Sous le barème, l'écart se règle sur place sans fiche. L'enregistrement est refusé par le serveur.</p>
    <form id="f-bareme" class="form"><label for="b-min">Minutes perdues (minimum)<input id="b-min" type="number" min="0" value="${b.minutesMin}"></label><label for="b-cout">Coût direct (minimum, $)<input id="b-cout" type="number" min="0" value="${b.coutMin}"></label>
@@ -3212,8 +3737,21 @@ async function vAdmin() {
 }
 
 /* ---------- Fenêtres ---------- */
-function modal(html) { $("#modal-root").innerHTML = `<div class="overlay" data-act="overlay"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`; const f = document.querySelector(".modal input,.modal select,.modal textarea"); if (f) f.focus(); }
-const closeModal = () => { $("#modal-root").innerHTML = ""; };
+let MODAL_SALE = false;
+function modal(html) { MODAL_SALE = false; $("#modal-root").innerHTML = `<div class="overlay" data-act="overlay"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`; const f = document.querySelector(".modal input,.modal select,.modal textarea"); if (f) f.focus(); }
+const closeModal = () => { MODAL_SALE = false; $("#modal-root").innerHTML = ""; };
+/* Une fenêtre où l'on a commencé à écrire ne se ferme qu'avec ses boutons du bas */
+function modalGarde(abandon) {
+  const m = $(".modal"); if (!m) return; let g = $("#modal-garde");
+  if (!g) { g = document.createElement("div"); g.id = "modal-garde"; m.prepend(g); }
+  g.className = "notice warn modal-garde";
+  g.innerHTML = abandon
+    ? `<span>Ce que tu as écrit sera perdu.</span><span class="row" style="gap:6px"><button class="btn small" type="button" data-act="garde-ok">Continuer à écrire</button><button class="btn small danger" type="button" data-act="close-force">Abandonner</button></span>`
+    : `<span>Pour fermer cette fenêtre, utilise les boutons du bas.</span>`;
+  g.scrollIntoView({ block: "nearest" });
+}
+function fermerModal(force) { if (force || !MODAL_SALE) closeModal(); else modalGarde(true); }
+document.addEventListener("input", ev => { const t = ev.target; if (t.closest && t.closest("#modal-root") && t.matches("textarea,input:not([type=checkbox]):not([type=radio]):not([type=search])") && String(t.value || "").trim()) MODAL_SALE = true; });
 const formErr = (id, m) => { const el = document.getElementById(id); if (el) el.innerHTML = `<div class="notice bad">${esc(m)}</div>`; };
 /* Un seul écran : l'écart, sa cause, ses actions et la suite (caucus, régler, escalader) */
 function detailsHtml(e) {
@@ -3255,7 +3793,7 @@ function lireDetails() {
     suite: suiteActive(), solution: ($("#d-sol") || {}).value || "", raison: ($("#d-raison") || {}).value || "", texte: ($("#d-texte") || {}).value || "" };
 }
 function openNew(team, cat, pre) {
-  const t1 = REF.equipes.filter(t => t.strate === 1); const def = team || (myTeams().find(c => eq(c) && eq(c).strate === 1)) || "T1-PAN";
+  const t1 = REF.equipes.filter(t => t.strate === 1 && t.actif !== false); const def = team || (myTeams().find(c => eq(c) && eq(c).strate === 1)) || "T1-PAN";
   modal(`<h2>Documenter un écart</h2><form id="f-new" class="form">
   <label for="n-team">Équipe qui a vu l'écart<select id="n-team">${opt(t1.map(t => [t.code, t.nom]), def)}</select></label>
   <label for="n-date">Date<input id="n-date" type="date" value="${isoToday()}" max="${isoToday()}"></label>
@@ -3272,7 +3810,7 @@ function openNew(team, cat, pre) {
   ${typeof champsCreation === "function" ? champsCreation() : ""}
   <div class="full" id="n-suite"></div>
   <div class="full" id="n-msg"></div>
-  <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit" id="n-save">Enregistrer</button></div></form>`);
+  <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Abandonner l'écart</button><button class="btn primary" type="submit" id="n-save">Enregistrer</button></div></form>`);
   const suite = () => { const cur = suiteActive(); $("#n-suite").innerHTML = `<div class="form">${suiteHtml(eq($("#n-team").value), document.querySelector('input[name="suite"]') ? cur : "caucus", true)}</div>`; majSuite($("#n-save"), true); };
   const upd = () => { const cat = $("#n-cat").value, sel = $("#n-type"), cur = sel.value;
     sel.innerHTML = REF.types.filter(t => t.cat === cat && t.actif).map(t => `<option value="${t.id}" ${String(t.id) === cur ? "selected" : ""}>${esc(t.nom)}</option>`).join("");
@@ -3313,7 +3851,7 @@ async function openDetail(id, focusAction) {
   ${typeof filHtml === "function" && Api.commentaires ? await filHtml(e) : `<h3 style="margin-top:10px">Historique</h3><div class="timeline">${e.mouvements.map(m => `<div><span class="muted num">${fmtD(m.date)}</span> · ${esc(m.texte)} <span class="muted small">(${esc(m.par)})</span></div>`).join("")}</div>`}
   ${Api.journal ? await (async () => { const [a, b] = await Promise.all([Api.journal({ table: "ecart", lignes: [e.id], limite: 200 }), e.actions.length ? Api.journal({ table: "action", lignes: e.actions.map(x => x.id), limite: 200 }) : []]);
     const l = [...a, ...b].sort((x, y) => (y.le || "").localeCompare(x.le || "")); return `<details class="journal-det"><summary>Détail des modifications (${l.length}) : qui, quand, avant et après</summary>${journalTable(l)}</details>`; })() : ""}
-  <div class="row" style="justify-content:flex-end;margin-top:14px">${e.statut === "Ouvert" ? `${t.parent ? `<button class="btn" data-act="escalader" data-id="${e.id}" type="button">Escalader</button>` : ""}<button class="btn primary" data-act="regler" data-id="${e.id}" type="button">Régler</button>` : ""}${Api.envoyerAC ? `<button class="btn" data-act="ac-envoyer" data-id="${e.id}" type="button" title="Le groupe d'amélioration continue décidera s'il en fait un projet">Envoyer au groupe AC</button>` : ""}<button class="btn" data-act="close" type="button">Fermer</button></div>`);
+  <div class="row" style="justify-content:flex-end;margin-top:14px">${e.statut === "Ouvert" ? `${t.parent ? `<button class="btn" data-act="escalader" data-id="${e.id}" type="button">Escalader</button>` : ""}<button class="btn primary" data-act="regler" data-id="${e.id}" type="button">Régler</button>` : ""}${Api.envoyerAC ? `<button class="btn" data-act="ac-envoyer" data-id="${e.id}" type="button" title="Le groupe d'amélioration continue décidera s'il en fait un projet">Envoyer au groupe AC</button>` : ""}${Api.lecons && e.solution && ((e.actions || []).some(a => a.horizon === "MT" || a.horizon === "LT") || e.procedureModifiee) ? `<button class="btn" data-act="l-de-ecart" data-id="${e.id}" type="button" title="Pour une solution à moyen ou long terme">Tirer une leçon</button>` : ""}<button class="btn" data-act="close" type="button">Fermer</button></div>`);
 }
 async function openCsv() {
   const url = Api.exportCsvUrl(); if (url) { location.href = url; return; }
@@ -3347,10 +3885,12 @@ function openClose() {
 /* ---------- Événements ---------- */
 document.addEventListener("click", async ev => {
   const a = ev.target.closest("[data-act]"); if (!a) return; const act = a.dataset.act;
-  if (act === "overlay") { if (ev.target === a) closeModal(); return; }
+  if (act === "overlay") { if (ev.target === a) { if (MODAL_SALE) modalGarde(false); else closeModal(); } return; }
+  if (act === "close-force") { closeModal(); return; }
+  if (act === "garde-ok") { const g = $("#modal-garde"); if (g) g.remove(); return; }
   if (a.tagName === "SELECT" || a.type === "checkbox" || a.type === "number") return;
   try {
-    if (act === "close") closeModal();
+    if (act === "close") fermerModal();
     else if (act === "new") openNew(a.dataset.team || "", a.dataset.cat || "");
     else if (act === "ra-new") await raNew(a.dataset.code, a.dataset.cat);
     else if (act === "ra-edit") await raEdit(Number(a.dataset.id), a.dataset.code);
@@ -3398,7 +3938,7 @@ document.addEventListener("submit", async ev => {
   if (ev.target.id === "f-type") { ev.preventDefault(); try { await Api.creerType({ cat: $("#nt-cat").value, nom: $("#nt-nom").value }); REF = await Api.referentiels(); render(); } catch (err) { alertBox(err.message); } }
 });
 const alertBox = m => modal(`<h2>Erreur</h2><div class="notice bad">${esc(m)}</div><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" data-act="close" type="button">Fermer</button></div>`);
-document.addEventListener("keydown", ev => { if (ev.key === "Escape" && $(".overlay")) closeModal();
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && $(".overlay")) { if (MODAL_SALE) modalGarde(false); else closeModal(); }
   if ((ev.key === "Enter" || ev.key === " ") && ev.target.matches && ev.target.matches('[data-act="kpi"]')) { ev.preventDefault(); ev.target.click(); } });
 window.addEventListener("hashchange", render);
 setInterval(() => { if (!ui.run || route() !== "rencontres") return; const el = $("#timer"); if (!el) return; const m = RENC.find(r => r.code === ui.run.code); const s = Math.floor((Date.now() - ui.run.start) / 1000); el.textContent = mmss(s); el.classList.toggle("over", s > m.dureeMin * 60); }, 1000);
