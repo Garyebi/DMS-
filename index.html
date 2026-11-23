@@ -525,6 +525,7 @@ header.top .who{flex-wrap:wrap}
 #f-st-r label,#f-st-e label{min-width:0}
 #f-st-r select,#f-st-e select{max-width:100%;min-width:0;width:100%}
 .wr-late{color:var(--bad);font-weight:700}
+main select{max-width:100%}
 
 </style>
 </head>
@@ -551,7 +552,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.15.0", dateVersion: "22 novembre 2026"
+  version: "0.16.0", dateVersion: "22 novembre 2026"
 };
 
 </script>
@@ -587,6 +588,7 @@ function httpApi(base) {
     creerEcartComplet: d => call("POST", "/ecarts", d),
     traiterEcart: (id, d) => call("POST", `/ecarts/${id}/traitement`, d),
     escalader: (id, d) => call("POST", `/ecarts/${id}/escalade`, d),
+    transfererEcart: (id, vers, texte) => call("POST", `/ecarts/${id}/transfert`, { vers, texte }),
     regler: (id, d) => call("POST", `/ecarts/${id}/reglement`, d),
     retourLu: id => call("POST", `/ecarts/${id}/retour-lu`, {}),
     actions: f => call("GET", "/actions" + qs(f)),
@@ -692,13 +694,14 @@ function demoApi() {
   const fail = m => new Promise((res, rej) => setTimeout(() => rej(new Error(m)), 60));
 
   const REF = {
-    departements: [{ code: "PAN", nom: "Panneaux" }, { code: "MOT", nom: "Moteurs" }, { code: "VIS", nom: "Vision" }, { code: "DES", nom: "Dessin" }],
+    departements: [{ code: "PAN", nom: "Panneaux" }, { code: "MOT", nom: "Moteurs" }, { code: "VIS", nom: "Vision" }, { code: "DES", nom: "Conception et dessin" }],
     equipes: [
       { code: "T1-PAN", nom: "Panneaux plancher", strate: 1, dept: "PAN", parent: "T2-PAN" },
       { code: "T1-MOT", nom: "Moteurs plancher", strate: 1, dept: "MOT", parent: "T2-MOT" },
       { code: "T1-VIS", nom: "Vision", strate: 1, dept: "VIS", parent: "T2-VIS" },
-      { code: "T1-DES", nom: "Dessin", strate: 1, dept: "DES", parent: "T2-PAN" },
-      { code: "T2-PAN", nom: "Panneaux (contremaître, coordonnateur, directeur)", strate: 2, dept: "PAN", depts: ["PAN", "DES"], parent: "T3" },
+      { code: "T1-DES", nom: "Conception et dessin (dessinateurs, chargés de projet)", strate: 1, dept: "DES", parent: "T2-DES" },
+      { code: "T2-PAN", nom: "Panneaux (contremaître, coordonnateur, directeur)", strate: 2, dept: "PAN", depts: ["PAN"], parent: "T3" },
+      { code: "T2-DES", nom: "Conception et dessin (chargés de projet, coordonnateur dessin, directeur)", strate: 2, dept: "DES", depts: ["DES"], parent: "T3" },
       { code: "T2-MOT", nom: "Moteurs (coordonnateur, directeur)", strate: 2, dept: "MOT", depts: ["MOT"], parent: "T3" },
       { code: "T2-VIS", nom: "Vision (responsable, directeur)", strate: 2, dept: "VIS", depts: ["VIS"], parent: "T3" },
       { code: "T3", nom: "Comité de direction", strate: 3, dept: null, parent: "T4" },
@@ -709,7 +712,7 @@ function demoApi() {
     causes: ["Main-d'œuvre", "Méthode", "Matière", "Machine", "Milieu", "Mesure"],
     raisons: ["Dépasse l'autorité du niveau", "Demande un autre département", "Coût au-delà du budget du niveau", "Écart récurrent", "Risque pour un client ou une livraison"],
     personnes: [
-      { id: 1, nom: "Gary Doyon", prenom: "Gary", role: "Directeur de production", equipes: ["T2-PAN", "T2-MOT", "T2-VIS", "T3"], admin: true },
+      { id: 1, nom: "Gary Doyon", prenom: "Gary", role: "Directeur de production", equipes: ["T2-PAN", "T2-MOT", "T2-VIS", "T2-DES", "T3"], admin: true },
       { id: 2, nom: "Chef d'équipe Panneaux", role: "Chef d'équipe", equipes: ["T1-PAN"] },
       { id: 3, nom: "Contremaître Panneaux", role: "Contremaître", equipes: ["T1-PAN", "T2-PAN"] },
       { id: 4, nom: "Coordonnateur Panneaux", role: "Coordonnateur", equipes: ["T2-PAN"] },
@@ -736,12 +739,15 @@ function demoApi() {
     { code: "RP-MOT", dept: "MOT", equipe: "T2-MOT", nom: "Revue de production · Moteurs", frequence: "Mardi · 14 h 00", dureeMin: 45, participants: "Directeur de production, coordonnateur, planificatrice, achats", points: [["Sécurité : croix du département", 5, "securite"], ["Qualité", 5, "sqcdp-Q"], ["Coûts", 5, "sqcdp-C"], ["Délais : efficacité réelle vs standard", 5, "sqcdp-D"], ["Personnel", 5, "sqcdp-P"], ["Charge et carnet de commandes", 7, "charge"], ["Pareto des écarts du mois", 5, "pareto"], ["Actions et procédures à modifier", 5, "actions"], ["Sujets suivis", 3, "sujets"]] },
     { code: "KO-VIS", dept: "VIS", equipe: "T1-VIS", nom: "Kick-off du matin · Vision", frequence: "Chaque jour · 7 h 15", dureeMin: 10, participants: "Équipe Vision", points: [["Sécurité", 2, "securite"], ["Qualité", 2, "sqcdp-Q"], ["Coûts", 1, "sqcdp-C"], ["Délais : plan de la journée et KPI d'hier", 3, "sqcdp-D"], ["Personnel", 1, "sqcdp-P"], ["Solutions reçues des autres niveaux", 1, "retours"]] },
     { code: "CA-VIS", dept: "VIS", equipe: "T2-VIS", nom: "Caucus et revue · Vision", frequence: "Mercredi · 10 h 00", dureeMin: 30, participants: "Responsable Vision, directeur de production", points: [["Sécurité : croix du département", 5, "securite"], ["Qualité", 4, "sqcdp-Q"], ["Coûts", 3, "sqcdp-C"], ["Délais", 4, "sqcdp-D"], ["Personnel", 3, "sqcdp-P"], ["Charge et projets", 6, "charge"], ["Actions et sujets suivis", 5, "sujets"]] },
-    { code: "KO-DES", dept: "DES", equipe: "T1-DES", nom: "Kick-off · Dessin", frequence: "Chaque jour · 8 h 00", dureeMin: 10, participants: "Dessinateurs, coordonnateur dessin", points: [["Qualité : erreurs de dessin", 3, "sqcdp-Q"], ["Coûts", 1, "sqcdp-C"], ["Délais : priorités de dessin du jour", 4, "sqcdp-D"], ["Personnel", 1, "sqcdp-P"], ["Solutions reçues des autres niveaux", 1, "retours"]] },
+    { code: "KO-DES", dept: "DES", equipe: "T1-DES", nom: "Kick-off du matin · Conception et dessin", frequence: "Chaque jour · 8 h 00", dureeMin: 10, participants: "Dessinateurs, coordonnateur dessin", points: [["Qualité : erreurs de dessin", 3, "sqcdp-Q"], ["Coûts", 1, "sqcdp-C"], ["Délais : priorités de dessin du jour", 4, "sqcdp-D"], ["Personnel", 1, "sqcdp-P"], ["Solutions reçues des autres niveaux", 1, "retours"]] },
     { code: "RP-USI", dept: null, equipe: "T3", nom: "Revue de production hebdomadaire · Usine", frequence: "Hebdomadaire · jour et heure à confirmer", dureeMin: 60, participants: "Directeur de production, coordonnateurs et contremaîtres de Panneaux, Moteurs et Vision", points: [["Sécurité : croix combinée et par département", 10, "securite"], ["KPI SQCDP des trois départements", 15, "kpi"], ["Charge et carnet de commandes", 10, "charge"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions dues ou en retard", 10, "actions"], ["Sujets suivis", 5, "sujets"]] },
     { code: "CD", dept: null, equipe: "T3", nom: "Comité de direction", frequence: "Lundi · 10 h 00", dureeMin: 60, participants: "Comité de direction", points: [["KPI SQCDP de l'entreprise", 15, "kpi"], ["Écarts escaladés des départements", 15, "ecarts"], ["Pareto des écarts du mois", 10, "pareto"], ["Actions dues ou en retard", 10, "actions"], ["Sujets suivis", 10, "sujets"]] },
     { code: "AC", dept: null, equipe: "AC", nom: "Groupe d'amélioration continue", frequence: "Aux deux semaines · jour et heure à confirmer", dureeMin: 60, participants: "À confirmer : directeur de production, coordonnateurs, contremaîtres", points: [["Écarts envoyés au groupe", 10, "ac_recus"], ["Récurrences des 90 derniers jours", 10, "recurrences"], ["Causes à classer", 10, "a_classer"], ["Projets d'amélioration (PDCA)", 20, "projets"], ["Procédures modifiées à déployer", 5, "procedures"], ["Sujets suivis", 5, "sujets"]] },
     { code: "VP", dept: null, equipe: "T4", nom: "Revue VP (sur demande)", frequence: "Sur demande", dureeMin: 30, participants: "Les deux VP, directeur de production", points: [["Vue d'ensemble des strates", 10, "apercu"], ["Écarts escaladés au T4", 10, "ecarts"], ["Sujets suivis", 10, "sujets"]] }
   ].map(r => Object.assign(r, { points: r.points.map(([titre, dureeMin, bloc], i) => ({ ordre: i + 1, titre, dureeMin, bloc })) }));
+  { const ca = RENCONTRES.find(r => r.code === "CA-PAN"), rp = RENCONTRES.find(r => r.code === "RP-PAN"), k = RENCONTRES.findIndex(r => r.code === "KO-DES");
+    RENCONTRES.splice(k + 1, 0, Object.assign({}, ca, { code: "CA-DES", dept: "DES", equipe: "T2-DES", nom: "Caucus de département · Conception et dessin", frequence: "À confirmer", participants: "Coordonnateur dessin, chargés de projet, directeur de production" }),
+      Object.assign({}, rp, { code: "RP-DES", dept: "DES", equipe: "T2-DES", nom: "Revue de production · Conception et dessin", frequence: "À confirmer", participants: "Directeur de production, coordonnateur dessin, chargés de projet, coordonnateur Panneaux" })); }
   const PLAN = {
     "T1-PAN": ["Projet 26-114 : terminer le filage des 3 sections, test vendredi", "Projet 26-121 : démarrer l'assemblage mécanique", "Projet 26-109 : corrections du test d'hier avant expédition 14 h"],
     "T1-MOT": ["Rebobinage moteur 150 HP, client minier, priorité 1", "3 moteurs 25 HP à l'assemblage, sortie prévue 15 h", "Attente de roulements pour le moteur 75 HP (achats)"],
@@ -897,11 +903,17 @@ function demoApi() {
         need((d.texte || "").trim(), "Indiquez ce que le niveau suivant doit décider.");
         e.equipeCourante = from.parent; e.mouvements.push({ date: today(), genre: "Escalade", texte: `Escaladé de ${from.nom} vers ${eq(from.parent).nom} (${d.raison}) : ${d.texte.trim()}`, par: pers(userId).nom });
         save(); return wait(vEcart(e)); } catch (err) { return fail(err.message); } },
+    transfererEcart: (id, vers, texte) => { try {
+        const e = S.ecarts.find(x => x.id === Number(id)); need(e && e.statut === "Ouvert", "Seul un écart ouvert se transfère.");
+        const from = eq(e.equipeCourante), to = eq(vers); need(to && to.actif !== false, "Équipe de destination introuvable."); need(to.code !== from.code, "L'écart est déjà dans cette équipe.");
+        need(to.strate === from.strate, "Le transfert se fait vers une équipe du même niveau. Pour monter d'un niveau, escaladez."); need((texte || "").trim(), "Indiquez ce que l'autre équipe doit faire.");
+        e.equipeCourante = to.code; if (to.dept) e.dept = to.dept; e.mouvements.push({ date: today(), genre: "Transfert", texte: `Transféré de ${from.nom} vers ${to.nom} : ${texte.trim()}`, par: pers(userId).nom });
+        save(); return wait(vEcart(e)); } catch (err) { return fail(err.message); } },
     regler: (id, d) => { try {
         const e = S.ecarts.find(x => x.id === Number(id)); need(e && e.statut === "Ouvert", "Seul un écart ouvert se règle.");
         need(d.cause && (d.solution || "").trim() && (d.causeDetail || "").trim(), "Cause, détail de la cause et solution sont obligatoires.");
         const s = eq(e.equipeCourante).strate;
-        Object.assign(e, { cause: d.cause, causeDetail: d.causeDetail.trim(), solution: d.solution.trim(), strateReglement: s, dateReglement: today(), procedureModifiee: !!d.procedureModifiee, procedureNom: d.procedureModifiee ? (d.procedureNom || "À nommer") : null, collaborateurs: d.collaborateurs || [], statut: s > 1 ? "RetourT1" : "Ferme" });
+        Object.assign(e, { cause: d.cause, causeDetail: d.causeDetail.trim(), solution: d.solution.trim(), strateReglement: s, dateReglement: today(), procedureModifiee: !!d.procedureModifiee, procedureNom: d.procedureModifiee ? (d.procedureNom || "À nommer") : null, collaborateurs: d.collaborateurs || [], statut: s > 1 || e.equipeCourante !== e.equipeOrigine ? "RetourT1" : "Ferme" });
         (d.actions || []).filter(a => (a.texte || "").trim()).forEach(a => S.actions.push({ id: ++S.seq.a, ecartId: e.id, sujetId: null, horizon: a.horizon, texte: a.texte.trim(), responsable: a.responsable, echeance: a.echeance, statut: "AFaire" }));
         e.mouvements.push({ date: today(), genre: "Reglement", texte: `Réglé au T${s} : ${e.solution}`, par: pers(userId).nom });
         save(); return wait(vEcart(e)); } catch (err) { return fail(err.message); } },
@@ -1444,6 +1456,7 @@ function supabaseApi(cfg) {
     retirerRapport: id => rpc("retirer_rapport", { p_id: Number(id) }),
     traiterEcart: (id, d) => rpc("traiter_ecart", { p_id: Number(id), p: d }),
     escalader: (id, d) => rpc("escalader_ecart", { p_id: Number(id), p_raison: d.raison, p_texte: d.texte }),
+    transfererEcart: (id, vers, texte) => rpc("transferer_ecart", { p_id: Number(id), p_vers: vers, p_texte: texte }),
     regler: (id, d) => rpc("regler_ecart", { p_id: Number(id), p: d }),
     retourLu: id => rpc("retour_lu", { p_id: Number(id) }),
     actions: async f => { f = f || {}; let q = sb.from("v_action").select("*");
@@ -2623,7 +2636,7 @@ function acMentions(txt) {
   });
   return [...out];
 }
-const FIL_ICO = { creation: "✚", Escalade: "↑", Reglement: "✔", RetourLu: "↓", Note: "•", commentaire: "💬", action: "▸" };
+const FIL_ICO = { creation: "✚", Escalade: "↑", Transfert: "→", Reglement: "✔", RetourLu: "↓", Note: "•", commentaire: "💬", action: "▸" };
 async function filHtml(e) {
   if (!Api.commentaires) return "";
   const [coms, jA] = await Promise.all([Api.commentaires(e.id), Api.journal && e.actions.length ? Api.journal({ table: "action", lignes: e.actions.map(x => x.id), limite: 200 }) : []]);
@@ -3475,7 +3488,7 @@ async function vAccueil() {
 
 /* ---------- Rencontres ---------- */
 async function vRencontres() {
-  const groups0 = [["PAN", "Panneaux"], ["MOT", "Moteurs"], ["VIS", "Vision"], ["DES", "Dessin"], [null, "Direction"]];
+  const groups0 = [["PAN", "Panneaux"], ["MOT", "Moteurs"], ["VIS", "Vision"], ["DES", "Conception et dessin"], [null, "Direction"]];
   const aside = suitesAside() + groups0.map(([g, l]) => { const rs = RENC.filter(r => r.dept === g && eq(r.equipe)); return rs.length ? `<div class="dept">${l}</div>` + rs.map(r => `<button type="button" class="meet-item" data-act="meet" data-code="${r.code}" aria-pressed="${!ui.suite && ui.meeting === r.code}"><span class="n">${esc(r.nom)}</span> <span class="pill lvl">T${eq(r.equipe).strate}</span><div class="f">${esc(r.frequence)} · ${r.dureeMin} min</div></button>`).join("") : ""; }).join("");
   if (ui.suite) { const h = await vSuite(aside); if (h) return h; }
   const m = RENC.find(r => r.code === ui.meeting);
@@ -3548,7 +3561,7 @@ function bloc(b, { m, t, ecarts, actions, sujets, kpi, ractions, ac }) {
       + `<div class="row between" style="margin:10px 0 8px"><span class="muted small">${l.length ? l.length + " écart(s) " + L + " à traiter à ce niveau, les plus graves d'abord." : "Aucun écart " + L + " à traiter à ce niveau."}</span><button class="btn small" data-act="new" data-team="${t.strate === 1 ? t.code : ""}" data-cat="${L}" type="button">+ Documenter un écart ${L}</button></div>`
       + l.map(e => ecartCard(e, true)).join("") + ractPoint(L, m, ractions, ecarts); }
   if (b === "securite") { const l = scope.filter(e => e.cat === "S" && e.statut !== "Ferme"); const jsa = kpi.filter(k => depts.includes(k.dept) && k.nom === "Jours sans accident");
-    return (typeof slotCroix === "function" ? `<div style="margin-bottom:10px">${slotCroix(depts.filter(d => d !== "DES" || depts.length === 1), null, true)}</div>` : "") + `<div class="row" style="margin-bottom:8px">${jsa.map(k => `<span class="pill ${kpiState(k) === "ok" ? "ok" : "warn"}">${esc(deptNom(k.dept))} : ${nf(last(k), 0)} jours sans accident</span>`).join(" ")}</div>` + ((sk => sk.length ? `<div style="margin-bottom:10px">${kpiTiles(sk, depts.length > 1)}</div>` : "")(kpi.filter(k => depts.includes(k.dept) && k.cat === "S" && k.nom !== "Jours sans accident")))
+    return (typeof slotCroix === "function" ? `<div style="margin-bottom:10px">${slotCroix(depts, null, true)}</div>` : "") + `<div class="row" style="margin-bottom:8px">${jsa.map(k => `<span class="pill ${kpiState(k) === "ok" ? "ok" : "warn"}">${esc(deptNom(k.dept))} : ${nf(last(k), 0)} jours sans accident</span>`).join(" ")}</div>` + ((sk => sk.length ? `<div style="margin-bottom:10px">${kpiTiles(sk, depts.length > 1)}</div>` : "")(kpi.filter(k => depts.includes(k.dept) && k.cat === "S" && k.nom !== "Jours sans accident")))
       + (t.strate <= 2 ? `<div class="row" style="justify-content:flex-end;margin-bottom:8px"><button class="btn small" data-act="new" data-team="${t.strate === 1 ? t.code : ""}" data-cat="S" type="button">+ Documenter un écart S</button></div>` : "")
       + (l.length ? l.map(e => ecartCard(e, e.equipeCourante === t.code)).join("") : `<div class="empty">Aucun écart de sécurité ouvert.</div>`) + ractPoint("S", m, ractions, ecarts); }
   if (b === "ecarts") { const l = ecarts.filter(e => e.equipeCourante === t.code && e.statut === "Ouvert").sort((a, c) => sev(c) - sev(a));
@@ -3606,7 +3619,7 @@ function ecartCard(e, withActs) { const t = eq(e.equipeCourante);
   return `<div class="ecart sev${sev(e)}"><div class="stripe"></div><div class="body"><div class="row" style="gap:8px"><span class="sq">${e.cat}</span><span class="title">${esc(e.titre)}</span>${e.equipeCourante !== e.equipeOrigine ? `<span class="pill lvl">Escaladé depuis ${esc(eq(e.equipeOrigine).nom)}</span>` : ""}</div>
   <div class="meta"><span>${e.no}</span><span>${fmtD(e.dateEcart)} (${e.ageJours} j)</span><span class="num">${e.minutes} min perdues</span>${e.cout ? `<span class="num">${e.cout.toLocaleString("fr-CA")} $</span>` : ""}<span>${esc(deptNom(e.dept))}</span>${e.nbActionsOuvertes ? `<span>${e.nbActionsOuvertes} action(s) ouverte(s)</span>` : ""}${e.recidiveDe ? `<span class="pill bad">Récidive</span>` : ""}${e.nbRecidives ? `<span class="pill bad">${e.nbRecidives} récidive(s)</span>` : ""}${e.nbCommentaires ? `<span>💬 ${e.nbCommentaires}</span>` : ""}</div>
   <div class="small" style="margin-top:3px">${esc(e.description)}</div></div>
-  <div class="acts">${withActs && e.statut === "Ouvert" ? `<button class="btn small primary" data-act="regler" data-id="${e.id}" type="button">Régler à ce niveau</button>${t.parent ? `<button class="btn small" data-act="escalader" data-id="${e.id}" type="button">Escalader au T${t.strate + 1}</button>` : ""}` : ""}<button class="btn small" data-act="detail" data-id="${e.id}" type="button">Ouvrir</button></div></div>`; }
+  <div class="acts">${withActs && e.statut === "Ouvert" ? `<button class="btn small primary" data-act="regler" data-id="${e.id}" type="button">Régler à ce niveau</button>${t.parent ? `<button class="btn small" data-act="escalader" data-id="${e.id}" type="button">Escalader au T${t.strate + 1}</button>` : ""}${REF.equipes.some(x => x.strate === t.strate && x.code !== t.code && x.actif !== false && x.code !== "AC") ? `<button class="btn small" data-act="transferer" data-id="${e.id}" type="button">Transférer</button>` : ""}` : ""}<button class="btn small" data-act="detail" data-id="${e.id}" type="button">Ouvrir</button></div></div>`; }
 function actionsTable(list) {
   return `<div class="scroll"><table class="t"><thead><tr><th>Action</th><th>Horizon</th><th>Responsable</th><th>Échéance</th><th>Statut</th><th>Écart</th></tr></thead><tbody>${list.map(a => `<tr><td>${a.ecartId ? `<button type="button" class="lien-act" data-act="ouvrir-action" data-ecart="${a.ecartId}" data-id="${a.id}" title="Ouvrir l'écart et cette action">${esc(a.texte)}</button>` : esc(a.texte)}${a.resultat ? `<div class="small muted">${esc(a.resultat)}</div>` : ""}</td><td><span class="pill neutral">${a.horizon}</span></td><td>${esc(a.responsable)}</td><td class="num">${a.enRetard ? `<span class="pill bad">${fmtD(a.echeance)} · en retard</span>` : fmtD(a.echeance)}</td><td>${a.statut === "Fait" ? `<span class="pill ok">Fait</span>` : `<select data-act="act-statut" data-id="${a.id}" aria-label="Statut de l'action">${["AFaire", "EnCours", "Fait"].map(s => `<option value="${s}" ${a.statut === s ? "selected" : ""}>${ASTATUT[s]}</option>`).join("")}</select>`}</td><td>${a.ecartId ? `<button class="btn small" data-act="detail" data-id="${a.ecartId}" type="button">${a.noEcart}</button>` : ""}</td></tr>`).join("")}</tbody></table></div>`;
 }
@@ -3702,7 +3715,7 @@ async function vTableaux() {
   <select id="tb-mesure" aria-label="Mesure du Pareto">${opt([["heures", "Pareto en heures perdues"], ["cout", "Pareto en coût ($)"], ["nombre", "Pareto en nombre d'écarts"]], ui.tbMesure)}</select></div>
   <div class="kpis" style="margin-bottom:14px"><div class="kpi"><div class="k-l">Écarts documentés</div><div class="k-v num">${per.length}</div></div><div class="kpi"><div class="k-l">Heures perdues</div><div class="k-v num">${nf(h)} h</div></div><div class="kpi"><div class="k-l">Coût direct</div><div class="k-v num">${c.toLocaleString("fr-CA")} $</div></div><div class="kpi ${open.length > 10 ? "warn" : ""}"><div class="k-l">Écarts non fermés</div><div class="k-v num">${open.length}</div></div></div>
   <div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Indicateurs SQCDP</h3>${kpiTiles(kpi, !dep)}</div>
-  ${typeof slotCroix === "function" ? `<div class="card" style="margin-bottom:14px">${slotCroix(dep ? [dep] : REF.departements.map(d => d.code).filter(c => c !== "DES"), null, true)}</div>` : ""}
+  ${typeof slotCroix === "function" ? `<div class="card" style="margin-bottom:14px">${slotCroix(dep ? [dep] : REF.departements.map(d => d.code), null, true)}</div>` : ""}
   <div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Pareto par type d'écart</h3>${paretoBars(per, ui.tbMesure)}</div>
   <div class="two"><div class="card"><h3 style="margin-bottom:8px">Heures perdues par département</h3><div class="bars">${byDept.map(([d, hh, n]) => `<div class="bar" style="grid-template-columns:100px 1fr 70px 80px"><span>${esc(d)}</span><span class="track"><span class="fill" style="width:${(hh / mxD * 100).toFixed(1)}%"></span></span><span class="num" style="text-align:right">${nf(hh)} h</span><span class="num muted" style="text-align:right">${n} écart(s)</span></div>`).join("")}</div></div>
   <div class="card"><h3 style="margin-bottom:8px">Âge des écarts non fermés</h3><table class="t"><tbody>${buckets.map(([l, n]) => `<tr><td>${l}</td><td class="num" style="text-align:right">${n}</td></tr>`).join("")}</tbody></table>
@@ -3775,22 +3788,27 @@ function suiteHtml(t, defaut, nouveau) {
   const up = t && t.parent ? eq(t.parent) : null;
   const choix = [[nouveau ? "caucus" : "enregistrer", nouveau ? "Présenter au prochain kick-off de l'équipe" : `Enregistrer seulement (reste ouvert au T${t.strate})`], ["regler", `Régler maintenant au T${t ? t.strate : 1}`]];
   if (up) choix.push(["escalader", `Escalader au T${up.strate} : ${up.nom}`]);
+  const pairs = t ? REF.equipes.filter(x => x.strate === t.strate && x.code !== t.code && x.actif !== false && x.code !== "AC") : [];
+  if (pairs.length) choix.push(["transferer", "Transférer à une autre équipe du même niveau (ex. Conception et dessin)"]);
+  const versDef = t && t.dept && t.dept !== "DES" ? (pairs.find(x => x.dept === "DES") || pairs[0]) : pairs[0];
   return `<div class="full section-t">Suite</div>
   <div class="full grid" style="gap:6px">${choix.map(([v, l]) => `<label class="check" for="s-${v}"><input type="radio" name="suite" id="s-${v}" value="${v}" ${v === defaut ? "checked" : ""}>${esc(l)}</label>`).join("")}</div>
   <div class="full" id="z-regler" hidden><div class="form"><label class="full" for="d-sol">Solution retenue<input id="d-sol" maxlength="200"></label>
    <div class="full notice info">${t && t.strate > 1 ? "La solution redescendra au T1 qui a vu l'écart, qui confirmera l'avoir lue à l'équipe." : "Réglé au T1 : l'écart sera fermé."}</div></div></div>
-  <div class="full" id="z-escalader" hidden><div class="form"><label for="d-raison">Pourquoi on escalade<select id="d-raison">${opt(REF.raisons.map(r => [r, r]), "")}</select></label><label for="d-texte">Ce que le niveau suivant doit décider<input id="d-texte" maxlength="200"></label></div></div>`;
+  <div class="full" id="z-escalader" hidden><div class="form"><label for="d-raison">Pourquoi on escalade<select id="d-raison">${opt(REF.raisons.map(r => [r, r]), "")}</select></label><label for="d-texte">Ce que le niveau suivant doit décider<input id="d-texte" maxlength="200"></label></div></div>
+  ${pairs.length ? `<div class="full" id="z-transferer" hidden><div class="form"><label for="d-vers">Équipe qui doit régler l'écart<select id="d-vers">${opt(pairs.map(x => [x.code, x.nom]), versDef ? versDef.code : "")}</select></label><label for="d-ttexte">Ce que l'autre équipe doit faire<input id="d-ttexte" maxlength="200" placeholder="Ex. corriger la cote de la vue 3 et réémettre le dessin"></label>
+    <div class="full notice info">La solution reviendra à l'équipe qui a vu l'écart, qui confirmera l'avoir lue à l'équipe.</div></div></div>` : ""}`;
 }
 function suiteActive() { const r = document.querySelector('input[name="suite"]:checked'); return r ? r.value : "caucus"; }
 function majSuite(btn, nouveau) {
-  const s = suiteActive(); $("#z-regler").hidden = s !== "regler"; $("#z-escalader").hidden = s !== "escalader";
-  btn.textContent = s === "regler" ? (nouveau ? "Enregistrer et régler" : "Régler") : s === "escalader" ? (nouveau ? "Enregistrer et escalader" : "Escalader") : "Enregistrer";
+  const s = suiteActive(); $("#z-regler").hidden = s !== "regler"; $("#z-escalader").hidden = s !== "escalader"; if ($("#z-transferer")) $("#z-transferer").hidden = s !== "transferer";
+  btn.textContent = s === "regler" ? (nouveau ? "Enregistrer et régler" : "Régler") : s === "escalader" ? (nouveau ? "Enregistrer et escalader" : "Escalader") : s === "transferer" ? (nouveau ? "Enregistrer et transférer" : "Transférer") : "Enregistrer";
 }
 function lireDetails() {
   return { cause: $("#d-cause").value, causeDetail: $("#d-cd").value.trim(), procedureModifiee: $("#d-proc").checked, procedureNom: $("#d-pn").value.trim(),
     collaborateurs: [...document.querySelectorAll(".d-col:checked:not(:disabled)")].map(x => x.value),
     actions: [...document.querySelectorAll("#d-acts .act-row")].map(r => ({ horizon: r.querySelector(".a-h").value, texte: r.querySelector(".a-t").value.trim(), responsable: r.querySelector(".a-r").value, echeance: r.querySelector(".a-e").value || isoPlus(7) })).filter(a => a.texte),
-    suite: suiteActive(), solution: ($("#d-sol") || {}).value || "", raison: ($("#d-raison") || {}).value || "", texte: ($("#d-texte") || {}).value || "" };
+    suite: suiteActive(), solution: ($("#d-sol") || {}).value || "", raison: ($("#d-raison") || {}).value || "", texte: ($("#d-texte") || {}).value || "", vers: ($("#d-vers") || {}).value || "", texteTransfert: ($("#d-ttexte") || {}).value || "" };
 }
 function openNew(team, cat, pre) {
   const t1 = REF.equipes.filter(t => t.strate === 1 && t.actif !== false); const def = team || (myTeams().find(c => eq(c) && eq(c).strate === 1)) || "T1-PAN";
@@ -3824,8 +3842,9 @@ function openNew(team, cat, pre) {
   if (pre && pre.desc) $("#n-desc").value = pre.desc;
   if (typeof acNouvelEcart === "function") acNouvelEcart();
   $("#f-new").addEventListener("submit", async ev => { ev.preventDefault();
-    try { $("#n-save").disabled = true; const r = await Api.creerEcartComplet(Object.assign({ equipeOrigine: $("#n-team").value, dateEcart: $("#n-date").value, typeId: Number($("#n-type").value), poste: $("#n-poste").value, noFab: $("#n-fab").value.trim() || null, minutes: Number($("#n-min").value) || 0, cout: Number($("#n-cout").value) || 0, description: $("#n-desc").value }, lireDetails()));
-      const nid = r && typeof r === "object" ? r.id : r; if (nid && pre && pre.onCree) await pre.onCree(nid); if (nid && typeof acApresEnregistrement === "function") await acApresEnregistrement(nid); const errs = nid && typeof apresCreation === "function" ? await apresCreation(nid, "n-msg") : [];
+    try { const det = lireDetails(), tr = det.suite === "transferer"; if (tr) { if (!det.texteTransfert.trim()) throw new Error("Indiquez ce que l'autre équipe doit faire."); det.suite = "caucus"; }
+      $("#n-save").disabled = true; const r = await Api.creerEcartComplet(Object.assign({ equipeOrigine: $("#n-team").value, dateEcart: $("#n-date").value, typeId: Number($("#n-type").value), poste: $("#n-poste").value, noFab: $("#n-fab").value.trim() || null, minutes: Number($("#n-min").value) || 0, cout: Number($("#n-cout").value) || 0, description: $("#n-desc").value }, det));
+      const nid = r && typeof r === "object" ? r.id : r; if (nid && tr) await Api.transfererEcart(nid, det.vers, det.texteTransfert); if (nid && pre && pre.onCree) await pre.onCree(nid); if (nid && typeof acApresEnregistrement === "function") await acApresEnregistrement(nid); const errs = nid && typeof apresCreation === "function" ? await apresCreation(nid, "n-msg") : [];
       closeModal(); render(); if (errs.length) alertBox("L'écart est enregistré, mais : " + errs.join(" · ")); } catch (err) { $("#n-save").disabled = false; formErr("n-msg", err.message); } });
 }
 async function openTraiter(id, suite) {
@@ -3835,7 +3854,8 @@ async function openTraiter(id, suite) {
   <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">Annuler</button><button class="btn primary" type="submit" id="t-save">Enregistrer</button></div></form>`);
   $("#f-tr").addEventListener("change", ev => { if (ev.target.name === "suite") majSuite($("#t-save"), false); }); majSuite($("#t-save"), false);
   $("#f-tr").addEventListener("submit", async ev => { ev.preventDefault();
-    try { const d = lireDetails(); await Api.traiterEcart(id, d); if (typeof acApresEnregistrement === "function") await acApresEnregistrement(id); if (ui.run && d.suite !== "enregistrer") ui.run.traites++; closeModal(); render(); } catch (err) { formErr("t-msg", err.message); } });
+    try { const d = lireDetails(), tr = d.suite === "transferer"; if (tr) { if (!d.texteTransfert.trim()) throw new Error("Indiquez ce que l'autre équipe doit faire."); d.suite = "enregistrer"; }
+      await Api.traiterEcart(id, d); if (tr) await Api.transfererEcart(id, d.vers, d.texteTransfert); if (typeof acApresEnregistrement === "function") await acApresEnregistrement(id); if (ui.run && d.suite !== "enregistrer") ui.run.traites++; closeModal(); render(); } catch (err) { formErr("t-msg", err.message); } });
 }
 async function openDetail(id, focusAction) {
   const e = await Api.ecart(id); const t = eq(e.equipeCourante);
@@ -3897,6 +3917,7 @@ document.addEventListener("click", async ev => {
     else if (act === "detail") await openDetail(a.dataset.id);
     else if (act === "regler") await openTraiter(a.dataset.id, "regler");
     else if (act === "escalader") await openTraiter(a.dataset.id, "escalader");
+    else if (act === "transferer") await openTraiter(a.dataset.id, "transferer");
     else if (act === "kpi") await openKpi(a.dataset.code);
     else if (act === "kpi-effacer") { await Api.saisirKpi(a.dataset.code, { date: a.dataset.date, valeur: null }); await openKpi(a.dataset.code); render(); }
     else if (act === "add-act") $("#d-acts").insertAdjacentHTML("beforeend", actRowHtml("MT"));
