@@ -548,6 +548,9 @@ header.top .theme-btn:hover{border-color:#7fb2f0}
   :root:not([data-theme="light"]) .lec.met{border-left-color:var(--accent)}
   :root:not([data-theme="light"]) .lec-h[data-h="solutionLong"]{border-top-color:#8fb8ee}
 }
+.lec.pm{border-left-color:var(--accent)}
+.lec.pm[data-st="a_faire"]{border-left-color:var(--line)}
+.lec.pm[data-st="en_cours"]{border-left-color:var(--warn)}
 
 </style>
 </head>
@@ -574,7 +577,7 @@ window.DMS_CONFIG = {
   supabaseUrl: "https://dagrypfvgkkgmeupbvar.supabase.co",
   supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZ3J5cGZ2Z2trZ21ldXBidmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MDE3NTQsImV4cCI6MjExMDM3Nzc1NH0.ZnG3MdwvgwbvYBXWxHgJ9ikNaaZDyeJvpDVuD5gtomk",
   apiBase: "/api",
-  version: "0.16.1", dateVersion: "23 novembre 2026"
+  version: "0.17.0", dateVersion: "27 novembre 2026"
 };
 
 </script>
@@ -684,6 +687,9 @@ function httpApi(base) {
     majLecon: d => call("PUT", "/connaissances/lecons", d),
     methodes: () => call("GET", "/connaissances/methodes"),
     majMethode: d => call("PUT", "/connaissances/methodes", d),
+    postmortems: () => call("GET", "/connaissances/postmortems"),
+    postmortemEcarts: id => call("GET", `/connaissances/postmortems/${id}/ecarts`),
+    majPostmortem: d => call("PUT", "/connaissances/postmortems", d),
     envoyerAC: (id, motif) => call("POST", `/ecarts/${id}/groupe-ac`, { motif }),
     demandesAC: () => call("GET", "/amelioration/demandes"),
     deciderDemande: (id, d) => call("POST", `/amelioration/demandes/${id}/decision`, d),
@@ -716,7 +722,7 @@ function demoApi() {
   const fail = m => new Promise((res, rej) => setTimeout(() => rej(new Error(m)), 60));
 
   const REF = {
-    departements: [{ code: "PAN", nom: "Panneaux" }, { code: "MOT", nom: "Moteurs" }, { code: "VIS", nom: "Vision" }, { code: "DES", nom: "Conception et dessin" }],
+    departements: [{ code: "PAN", nom: "Panneaux" }, { code: "MOT", nom: "Moteurs" }, { code: "VIS", nom: "Vision" }, { code: "DES", nom: "Conception et dessin" }, { code: "PRJ", nom: "Projets et chantiers" }],
     equipes: [
       { code: "T1-PAN", nom: "Panneaux plancher", strate: 1, dept: "PAN", parent: "T2-PAN" },
       { code: "T1-MOT", nom: "Moteurs plancher", strate: 1, dept: "MOT", parent: "T2-MOT" },
@@ -724,6 +730,8 @@ function demoApi() {
       { code: "T1-DES", nom: "Conception et dessin (dessinateurs, chargés de projet)", strate: 1, dept: "DES", parent: "T2-DES" },
       { code: "T2-PAN", nom: "Panneaux (contremaître, coordonnateur, directeur)", strate: 2, dept: "PAN", depts: ["PAN"], parent: "T3" },
       { code: "T2-DES", nom: "Conception et dessin (chargés de projet, coordonnateur dessin, directeur)", strate: 2, dept: "DES", depts: ["DES"], parent: "T3" },
+      { code: "T1-PRJ", nom: "Chantier (installation, mise en service)", strate: 1, dept: "PRJ", depts: ["PRJ"], parent: "T2-PRJ" },
+      { code: "T2-PRJ", nom: "Gestion de projets (chargés de projet, directeur)", strate: 2, dept: "PRJ", depts: ["PRJ"], parent: "T3" },
       { code: "T2-MOT", nom: "Moteurs (coordonnateur, directeur)", strate: 2, dept: "MOT", depts: ["MOT"], parent: "T3" },
       { code: "T2-VIS", nom: "Vision (responsable, directeur)", strate: 2, dept: "VIS", depts: ["VIS"], parent: "T3" },
       { code: "T3", nom: "Comité de direction", strate: 3, dept: null, parent: "T4" },
@@ -769,7 +777,12 @@ function demoApi() {
   ].map(r => Object.assign(r, { points: r.points.map(([titre, dureeMin, bloc], i) => ({ ordre: i + 1, titre, dureeMin, bloc })) }));
   { const ca = RENCONTRES.find(r => r.code === "CA-PAN"), rp = RENCONTRES.find(r => r.code === "RP-PAN"), k = RENCONTRES.findIndex(r => r.code === "KO-DES");
     RENCONTRES.splice(k + 1, 0, Object.assign({}, ca, { code: "CA-DES", dept: "DES", equipe: "T2-DES", nom: "Caucus de département · Conception et dessin", frequence: "À confirmer", participants: "Coordonnateur dessin, chargés de projet, directeur de production" }),
-      Object.assign({}, rp, { code: "RP-DES", dept: "DES", equipe: "T2-DES", nom: "Revue de production · Conception et dessin", frequence: "À confirmer", participants: "Directeur de production, coordonnateur dessin, chargés de projet, coordonnateur Panneaux" })); }
+      Object.assign({}, rp, { code: "RP-DES", dept: "DES", equipe: "T2-DES", nom: "Revue de production · Conception et dessin", frequence: "À confirmer", participants: "Directeur de production, coordonnateur dessin, chargés de projet, coordonnateur Panneaux" }));
+    const pts = l => l.map(([titre, dureeMin, bloc], i) => ({ ordre: i + 1, titre, dureeMin, bloc }));
+    RENCONTRES.splice(k + 3, 0, { code: "CA-PRJ", nom: "Caucus chantier · Projets et chantiers", equipe: "T1-PRJ", dept: "PRJ", frequence: "À confirmer (hebdomadaire)", dureeMin: 15, participants: "Techniciens de chantier et de mise en service, chargés de projet",
+        points: pts([["Sécurité au chantier", 2, "securite"], ["Qualité : défauts trouvés au chantier", 4, "sqcdp-Q"], ["Délais : livraisons et attentes", 4, "sqcdp-D"], ["Coûts : extras et retours", 3, "sqcdp-C"], ["Solutions reçues des autres niveaux", 2, "retours"]]) },
+      { code: "RP-PRJ", nom: "Revue des écarts de projets et chantiers", equipe: "T2-PRJ", dept: "PRJ", frequence: "À confirmer (hebdomadaire)", dureeMin: 45, participants: "Chargés de projet, directeur de production, coordonnateurs, service",
+        points: pts([["Sécurité au chantier", 3, "securite"], ["Écarts à traiter à ce niveau", 10, "ecarts"], ["Qualité : défauts, portée, changements client", 5, "sqcdp-Q"], ["Coûts : extras et retours en garantie", 5, "sqcdp-C"], ["Délais : livraisons et information client", 4, "sqcdp-D"], ["Projets à risque et post-mortems", 10, "postmortems"], ["Actions dues ou en retard", 5, "actions"], ["Sujets suivis", 3, "sujets"]]) }); }
   const PLAN = {
     "T1-PAN": ["Projet 26-114 : terminer le filage des 3 sections, test vendredi", "Projet 26-121 : démarrer l'assemblage mécanique", "Projet 26-109 : corrections du test d'hier avant expédition 14 h"],
     "T1-MOT": ["Rebobinage moteur 150 HP, client minier, priorité 1", "3 moteurs 25 HP à l'assemblage, sortie prévue 15 h", "Attente de roulements pour le moteur 75 HP (achats)"],
@@ -1224,7 +1237,7 @@ function demoApi() {
       lecons: () => { const L = S.lecons || (S.lecons = []); const cl = (() => { try { peutClasser(); return true; } catch (e) { return false; } })();
         return wait({ peutValider: cl, moi: userId, lecons: L.map(l => { const t = l.typeId ? type(l.typeId) : null, c = l.causeTypeId ? AC().causes.find(x => x.id === l.causeTypeId) : null, j = l.projetId ? AC().projets.find(x => x.id === l.projetId) : null;
           return Object.assign({}, l, { type: t ? t.nom : null, cat: t ? t.cat : null, causeType: c ? c.nom : null, noEcart: l.ecartId ? no(l.ecartId) : null, projet: j ? j.titre : null,
-            auteur: pers(l.creePar).nom, validePar: l.validePar ? pers(l.validePar).nom : null, methode: l.methodeId ? ((S.methodes || []).find(m => m.id === l.methodeId) || {}).titre || null : null }); })
+            auteur: pers(l.creePar).nom, validePar: l.validePar ? pers(l.validePar).nom : null, methode: l.methodeId ? ((S.methodes || []).find(m => m.id === l.methodeId) || {}).titre || null : null, postmortem: l.postmortemId ? (p => p ? p.noProjet + ' · ' + p.titre : null)((S.postmortems || []).find(p => p.id === l.postmortemId)) : null }); })
           .sort((a, b) => (b.statut === "proposee") - (a.statut === "proposee") || (b.valideLe || b.creeLe).localeCompare(a.valideLe || a.creeLe)) }); },
       majLecon: d => run(() => { const L = S.lecons || (S.lecons = []); const cl = (() => { try { peutClasser(); return true; } catch (e) { return false; } })();
         const l = d.id ? L.find(x => x.id === Number(d.id)) : null; if (d.id) need(l, "Leçon introuvable.");
@@ -1236,11 +1249,34 @@ function demoApi() {
         const tx = k => (d[k] || "").trim() || null, now = new Date().toISOString();
         const champs = { titre: d.titre.trim(), dept: d.dept || null, typeId: d.typeId ? Number(d.typeId) : null, causeTypeId: d.causeTypeId ? Number(d.causeTypeId) : null,
           probleme: tx("probleme"), cause: tx("cause"), solutionCourt: tx("solutionCourt"), solutionMoyen: tx("solutionMoyen"), solutionLong: tx("solutionLong"), procedure: tx("procedure"), motsCles: tx("motsCles"),
-          methodeId: d.methodeId ? Number(d.methodeId) : null, ecartId: d.ecartId ? Number(d.ecartId) : (l ? l.ecartId : null), projetId: d.projetId ? Number(d.projetId) : (l ? l.projetId : null), statut: st, majLe: now };
+          methodeId: d.methodeId ? Number(d.methodeId) : null, postmortemId: d.postmortemId ? Number(d.postmortemId) : (l ? l.postmortemId : null), ecartId: d.ecartId ? Number(d.ecartId) : (l ? l.ecartId : null), projetId: d.projetId ? Number(d.projetId) : (l ? l.projetId : null), statut: st, majLe: now };
         if (st === "validee" && (!l || l.statut !== "validee")) Object.assign(champs, { validePar: userId, valideLe: now });
         if (st === "proposee") Object.assign(champs, { validePar: null, valideLe: null });
         if (l) { Object.assign(l, champs); return l.id; }
         S.seqLecon = (S.seqLecon || 0) + 1; L.push(Object.assign({ id: S.seqLecon, creePar: userId, creeLe: now, validePar: null, valideLe: null }, champs)); return S.seqLecon; }),
+      postmortems: () => { const L = S.postmortems || (S.postmortems = []); const cl = (() => { try { peutClasser(); return true; } catch (e) { return false; } })();
+        const nr = t => (String(t || "").replace(/^\s*(fab|projet|proj|no)\s*[#:.-]?\s*/i, "").replace(/\s+/g, "").toLowerCase()) || null;
+        const refs = p => [p.noProjet, ...String(p.fabs || "").split(/[,;\s]+/)].map(nr).filter(Boolean);
+        const des = p => S.ecarts.filter(e => e.statut !== "Annule" && refs(p).includes(nr(e.noFab)));
+        const recent = S.ecarts.filter(e => e.statut !== "Annule" && e.noFab && e.dateEcart >= iso(90)); const grp = {};
+        recent.forEach(e => { const k = nr(e.noFab); (grp[k] = grp[k] || []).push(e); });
+        return wait({ peutModifier: cl, moi: userId,
+          postmortems: L.map(p => { const e = des(p); return Object.assign({}, p, { responsable: p.responsableId ? pers(p.responsableId).nom : p.responsableTexte, nbEcarts: e.length,
+            heures: Math.round(e.reduce((a, x) => a + (x.minutes || 0), 0) / 6) / 10, cout: e.reduce((a, x) => a + (x.cout || 0), 0), nbLecons: (S.lecons || []).filter(l => l.postmortemId === p.id).length }); }),
+          projetsARisque: Object.values(grp).filter(g => g.length >= 2).map(g => ({ ref: g[0].noFab, nb: g.length, heures: Math.round(g.reduce((a, x) => a + (x.minutes || 0), 0) / 6) / 10,
+            cout: g.reduce((a, x) => a + (x.cout || 0), 0), ouverts: g.filter(x => x.statut === "Ouvert").length, postmortemId: (L.find(p => refs(p).includes(nr(g[0].noFab))) || {}).id || null })).sort((a, b) => b.nb - a.nb) }); },
+      postmortemEcarts: id => { const p = (S.postmortems || []).find(x => x.id === Number(id)); if (!p) return fail("Post-mortem introuvable.");
+        const nr = t => (String(t || "").replace(/^\s*(fab|projet|proj|no)\s*[#:.-]?\s*/i, "").replace(/\s+/g, "").toLowerCase()) || null;
+        const refs = [p.noProjet, ...String(p.fabs || "").split(/[,;\s]+/)].map(nr).filter(Boolean);
+        return wait(S.ecarts.filter(e => e.statut !== "Annule" && refs.includes(nr(e.noFab))).map(e => ({ id: e.id, no: no(e.id), date: e.dateEcart, type: type(e.typeId).nom, cat: type(e.typeId).cat,
+          description: e.description, noFab: e.noFab, statut: e.statut, minutes: e.minutes, cout: e.cout, cause: e.causeDetail, solution: e.solution }))); },
+      majPostmortem: d => run(() => { const L = S.postmortems || (S.postmortems = []); const m = d.id ? L.find(x => x.id === Number(d.id)) : null; if (d.id) need(m, "Post-mortem introuvable.");
+        need((d.noProjet || "").trim(), "Inscrivez le numéro de projet."); need((d.titre || "").trim(), "Donnez un nom au projet (ex. client et équipement).");
+        const st = d.statut || "a_faire"; if (st === "complete") { need((d.mal || "").trim() || (d.bien || "").trim(), "Un post-mortem complété dit au moins ce qui a bien ou mal fonctionné."); need((d.actionsFutures || "").trim(), "Un post-mortem complété dit ce qu'on fera autrement au prochain projet."); }
+        const r = resp(d), tx = k => (d[k] || "").trim() || null;
+        const c = { noProjet: d.noProjet.trim(), fabs: tx("fabs"), titre: d.titre.trim(), client: tx("client"), dept: d.dept || null, dateDebut: d.dateDebut || null, dateFin: d.dateFin || null,
+          responsableId: r.responsableId, responsableTexte: r.responsableTexte, resume: tx("resume"), bien: tx("bien"), mal: tx("mal"), causes: tx("causes"), actionsFutures: tx("actionsFutures"), statut: st, majLe: new Date().toISOString() };
+        if (m) { Object.assign(m, c); return m.id; } S.seqPm = (S.seqPm || 0) + 1; L.push(Object.assign({ id: S.seqPm, creePar: userId, creeLe: new Date().toISOString() }, c)); return S.seqPm; }),
       methodes: () => { const L = S.methodes || (S.methodes = []); const cl = (() => { try { peutClasser(); return true; } catch (e) { return false; } })();
         return wait({ peutModifier: cl, moi: userId, methodes: L.map(m => Object.assign({}, m, { responsable: m.responsableId ? pers(m.responsableId).nom : m.responsableTexte,
             revueDue: m.statut === "en_vigueur" && !!m.prochaineRevue && m.prochaineRevue < today(), nbLecons: (S.lecons || []).filter(l => l.methodeId === m.id && l.statut === "validee").length }))
@@ -1542,6 +1578,9 @@ function supabaseApi(cfg) {
     majLecon: d => rpc("maj_lecon", { p: d }),
     methodes: () => rpc("methodes"),
     majMethode: d => rpc("maj_methode", { p: d }),
+    postmortems: () => rpc("postmortems"),
+    postmortemEcarts: id => rpc("postmortem_ecarts", { p_id: Number(id) }),
+    majPostmortem: d => rpc("maj_postmortem", { p: d }),
     envoyerAC: (id, motif) => rpc("envoyer_ac", { p_ecart: Number(id), p_motif: motif }),
     demandesAC: () => rpc("demandes_ac"),
     deciderDemande: (id, d) => rpc("decider_demande", { p_id: Number(id), p: d }),
@@ -2538,7 +2577,7 @@ async function avisBandeau(depts) {
 async function vFab() {
   if (!Api.avisFab) return `<div class="empty">Les fiches FAB ne sont pas offertes dans ce mode.</div>`;
   const fab = fabNorm(ui.fab);
-  const recherche = `<form id="f-fab" class="row" style="gap:8px;margin-bottom:14px"><input id="fab-in" value="${esc(fab)}" placeholder="No de FAB, ex. 26-130-01" aria-label="Numéro de FAB" style="max-width:260px">
+  const recherche = `<form id="f-fab" class="row" style="gap:8px;margin-bottom:14px"><input id="fab-in" value="${esc(fab)}" placeholder="No de FAB ou de projet" aria-label="Numéro de FAB ou de projet" style="max-width:260px">
     <button class="btn primary" type="submit">Voir la fiche</button>${fab ? `<button class="btn" type="button" data-act="fab-open" data-fab="">Tous les avis actifs</button>` : ""}
     <span style="flex:1"></span><button class="btn" type="button" data-act="fab-new" data-fab="${esc(fab)}">+ Avis sur une FAB</button></form>`;
   if (!fab) {
@@ -3043,6 +3082,7 @@ function lecCarte(l, d, court) {
     ${l.probleme ? `<p style="margin:6px 0 0"><strong>Problème :</strong> ${esc(l.probleme)}</p>` : ""}
     ${l.cause && !court ? `<p style="margin:4px 0 0"><strong>Cause :</strong> ${esc(l.cause)}</p>` : ""}
     ${court ? "" : `<div class="lec-hz">${hz}</div>`}
+    ${l.postmortemId && !court ? `<p class="small" style="margin:6px 0 0"><strong>Post-mortem :</strong> <button class="lien-act" type="button" data-act="l-pm-open" data-id="${l.postmortemId}">${esc(l.postmortem || "voir")}</button></p>` : ""}
     ${l.methodeId && !court ? `<p class="small" style="margin:6px 0 0"><strong>Méthode :</strong> <button class="lien-act" type="button" data-act="l-m-voir" data-id="${l.methodeId}">${esc(l.methode || "voir")}</button></p>` : ""}
     ${l.procedure && !court ? `<p class="small" style="margin:6px 0 0"><strong>Procédure ou standard :</strong> ${esc(l.procedure)}</p>` : ""}
     <div class="small muted" style="margin-top:6px">${src ? src + " · " : ""}Proposée par ${esc(l.auteur || "—")} le ${fmtD((l.creeLe || "").slice(0, 10))}${l.valideLe ? ` · validée par ${esc(l.validePar || "")} le ${fmtD(l.valideLe.slice(0, 10))}` : ""}</div>
@@ -3053,8 +3093,9 @@ async function vLecons() {
   if (!Api.lecons) return `<div class="empty">Le centre des connaissances n'est pas offert dans ce mode.</div>`;
   const d = await lecCharger(true);
   const f = ui.lecF || (ui.lecF = { q: "", dept: "", cat: "", arch: false });
-  const vue = Api.methodes && ui.lecVue === "methodes" ? "methodes" : "lecons";
+  const vue = Api.methodes && ui.lecVue === "methodes" ? "methodes" : Api.postmortems && ui.lecVue === "postmortems" ? "postmortems" : "lecons";
   const M = Api.methodes ? await metCharger(true) : null;
+  const PM = Api.postmortems ? await pmCharger(true) : null;
   const q = acNorm(f.q);
   const filtre = l => (!q || q.split(/\s+/).every(m => lecTxt(l).includes(m))) && (!f.dept || l.dept === f.dept) && (!f.cat || l.cat === f.cat);
   const valides = d.lecons.filter(l => l.statut === "validee" && filtre(l));
@@ -3062,14 +3103,15 @@ async function vLecons() {
   const arch = d.lecons.filter(l => l.statut === "archivee" && filtre(l));
   const tete = `<div class="row between" style="margin-bottom:6px;gap:8px;flex-wrap:wrap"><div><h2 style="margin:0">Centre des connaissances</h2>
       <div class="muted small">Ce qu'EBI a appris et la bonne façon de faire, au même endroit.</div></div>
-      ${vue === "methodes" ? (M && M.peutModifier ? `<button class="btn primary" type="button" data-act="l-m-new">+ Ajouter une méthode</button>` : "") : `<button class="btn primary" type="button" data-act="l-new">+ Proposer une leçon</button>`}</div>
-    ${M ? `<div class="seg" role="tablist" style="margin:10px 0 0"><button type="button" role="tab" data-act="l-vue" data-v="lecons" aria-selected="${vue === "lecons"}">Leçons apprises (${d.lecons.filter(l => l.statut === "validee").length})</button><button type="button" role="tab" data-act="l-vue" data-v="methodes" aria-selected="${vue === "methodes"}">Bonnes méthodes (${M.methodes.filter(m => m.statut === "en_vigueur").length})</button></div>` : ""}
+      ${vue === "postmortems" ? (PM && PM.peutModifier ? `<button class="btn primary" type="button" data-act="l-pm-new">+ Nouveau post-mortem</button>` : "") : vue === "methodes" ? (M && M.peutModifier ? `<button class="btn primary" type="button" data-act="l-m-new">+ Ajouter une méthode</button>` : "") : `<button class="btn primary" type="button" data-act="l-new">+ Proposer une leçon</button>`}</div>
+    ${M ? `<div class="seg" role="tablist" style="margin:10px 0 0"><button type="button" role="tab" data-act="l-vue" data-v="lecons" aria-selected="${vue === "lecons"}">Leçons apprises (${d.lecons.filter(l => l.statut === "validee").length})</button><button type="button" role="tab" data-act="l-vue" data-v="methodes" aria-selected="${vue === "methodes"}">Bonnes méthodes (${M.methodes.filter(m => m.statut === "en_vigueur").length})</button>${PM ? `<button type="button" role="tab" data-act="l-vue" data-v="postmortems" aria-selected="${vue === "postmortems"}">Post-mortems de projets (${PM.postmortems.length})</button>` : ""}</div>` : ""}
     <form id="f-lec" class="filters" role="search" style="margin:10px 0">
-      <input id="lf-q" type="search" placeholder="${vue === "methodes" ? "Chercher : titre, poste, étape, mot-clé" : "Chercher : poste, FAB, cause, solution, mot-clé"}" value="${esc(f.q)}" aria-label="Chercher" style="flex:1;min-width:220px">
+      <input id="lf-q" type="search" placeholder="${vue === "postmortems" ? "Chercher : no de projet ou de FAB, client, problème" : vue === "methodes" ? "Chercher : titre, poste, étape, mot-clé" : "Chercher : poste, FAB, cause, solution, mot-clé"}" value="${esc(f.q)}" aria-label="Chercher" style="flex:1;min-width:220px">
       <select id="lf-dept" aria-label="Département">${opt([["", "Tous les départements"], ...REF.departements.map(x => [x.code, x.nom])], f.dept)}</select>
-      ${vue === "methodes" ? `<select id="lf-cat" aria-label="Type">${opt([["", "Tous les types"], ...MET_GENRES], f.cat)}</select>` : `<select id="lf-cat" aria-label="Catégorie">${opt([["", "Toutes les catégories"], ["S", "Sécurité"], ["Q", "Qualité"], ["C", "Coûts"], ["D", "Délais"], ["P", "Personnel"]], f.cat)}</select>`}
+      ${vue === "postmortems" ? `<select id="lf-cat" aria-label="Statut">${opt([["", "Tous les statuts"], ...PM_STATUTS], f.cat)}</select>` : vue === "methodes" ? `<select id="lf-cat" aria-label="Type">${opt([["", "Tous les types"], ...MET_GENRES], f.cat)}</select>` : `<select id="lf-cat" aria-label="Catégorie">${opt([["", "Toutes les catégories"], ["S", "Sécurité"], ["Q", "Qualité"], ["C", "Coûts"], ["D", "Délais"], ["P", "Personnel"]], f.cat)}</select>`}
     </form>`;
   if (vue === "methodes") return tete + metListe(M, f, d);
+  if (vue === "postmortems") return tete + pmListe(PM, f, d);
   return tete + `
     ${prop.length ? `<div class="card" style="margin-bottom:14px"><h3>${d.peutValider ? "Leçons à valider" : "Mes leçons en attente de validation"} (${prop.length})</h3>
       <p class="small muted" style="margin-top:2px">${d.peutValider ? "Révisez le texte, vérifiez qu'il y a bien une solution à moyen ou long terme, puis validez." : "Le groupe d'amélioration continue les révise avant de les montrer à tous."}</p>
@@ -3145,6 +3187,93 @@ async function metForm(m) {
   });
 }
 
+/* ---------- Post-mortems de projets ---------- */
+let PMD = null;
+async function pmCharger(force) { if (!Api.postmortems) return null; if (!PMD || force) PMD = await Api.postmortems(); return PMD; }
+const PM_STATUTS = [["a_faire", "À faire"], ["en_cours", "En cours"], ["complete", "Complété"]];
+const pmStatut = s => (PM_STATUTS.find(x => x[0] === s) || [, s])[1];
+const pmTxt = p => acNorm([p.noProjet, p.fabs, p.titre, p.client, p.resume, p.bien, p.mal, p.causes, p.actionsFutures, p.responsable].join(" "));
+const argent = n => (Number(n) || 0).toLocaleString("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+function pmCarte(p) {
+  const pill = p.statut === "complete" ? `<span class="pill ok">Complété</span>` : p.statut === "en_cours" ? `<span class="pill warn">En cours</span>` : `<span class="pill">À faire</span>`;
+  return `<article class="lec pm" data-st="${p.statut}">
+    <div class="row between" style="gap:8px;align-items:flex-start"><div><h3 style="margin:0">Projet ${esc(p.noProjet)} · ${esc(p.titre)} ${pill}</h3>
+      <div class="lec-chips">${[p.client, p.dept ? deptNom(p.dept) : "", p.responsable ? "Responsable : " + p.responsable : ""].filter(Boolean).map(c => `<span class="lec-chip">${esc(c)}</span>`).join("")}</div></div>
+      <button class="btn small" type="button" data-act="l-pm-open" data-id="${p.id}">Ouvrir</button></div>
+    <div class="row small" style="gap:14px;margin-top:6px"><span><strong>${p.nbEcarts}</strong> écart(s)</span><span><strong>${p.heures}</strong> h perdues</span><span><strong>${argent(p.cout)}</strong> en coûts directs</span><span><strong>${p.nbLecons}</strong> leçon(s)</span></div>
+    ${p.mal ? `<p style="margin:6px 0 0"><strong>Ce qui a mal fonctionné :</strong> ${esc(p.mal.slice(0, 220))}${p.mal.length > 220 ? "…" : ""}</p>` : ""}
+    ${p.actionsFutures ? `<p style="margin:4px 0 0"><strong>Au prochain projet :</strong> ${esc(p.actionsFutures.slice(0, 220))}${p.actionsFutures.length > 220 ? "…" : ""}</p>` : ""}
+  </article>`;
+}
+function pmRisque(P) {
+  const r = (P.projetsARisque || []).slice(0, 8);
+  if (!r.length) return "";
+  return `<div class="card" style="margin-bottom:14px"><h3>Projets avec des écarts répétés (90 derniers jours)</h3>
+    <p class="small muted" style="margin:2px 0 8px">Deux écarts ou plus sur le même numéro de projet ou de FAB. Un post-mortem évite de les revivre au prochain projet.</p>
+    <div class="scroll"><table class="t"><thead><tr><th>Projet ou FAB</th><th class="num">Écarts</th><th class="num">Ouverts</th><th class="num">Heures</th><th class="num">Coûts</th><th></th></tr></thead><tbody>
+    ${r.map(x => `<tr><td>${esc(x.ref)}</td><td class="num">${x.nb}</td><td class="num">${x.ouverts}</td><td class="num">${x.heures}</td><td class="num">${argent(x.cout)}</td>
+      <td>${x.postmortemId ? `<button class="btn small" type="button" data-act="l-pm-open" data-id="${x.postmortemId}">Voir le post-mortem</button>` : P.peutModifier ? `<button class="btn small" type="button" data-act="l-pm-new" data-ref="${esc(x.ref)}">Créer le post-mortem</button>` : ""}</td></tr>`).join("")}
+    </tbody></table></div></div>`;
+}
+function pmListe(P, f, d) {
+  const q = acNorm(f.q);
+  const ok = p => (!q || q.split(/\s+/).every(w => pmTxt(p).includes(w))) && (!f.dept || p.dept === f.dept) && (!f.cat || p.statut === f.cat);
+  const l = P.postmortems.filter(ok);
+  return `${pmRisque(P)}<div class="muted small" style="margin:4px 0 8px">${l.length} post-mortem(s)${q || f.dept || f.cat ? " trouvé(s)" : ""}.</div>
+    ${l.length ? l.map(pmCarte).join("") : `<div class="empty">${P.postmortems.length ? "Aucun post-mortem ne correspond à la recherche." : "Aucun post-mortem pour l'instant. Commencez par un projet de la liste des écarts répétés."}</div>`}`;
+}
+async function pmForm(p, pre) {
+  const P = await pmCharger(); const v = Object.assign({ noProjet: "", fabs: "", titre: "", client: "", dept: "", dateDebut: "", dateFin: "", responsable: "", resume: "", bien: "", mal: "", causes: "", actionsFutures: "", statut: "a_faire" }, pre || {}, p || {});
+  const peut = P.peutModifier || (p && (p.creePar === P.moi || p.responsableId === P.moi)) || !p;
+  const ecarts = p ? await Api.postmortemEcarts(p.id) : [];
+  const lecs = p ? ((await lecCharger(true)).lecons || []).filter(l => l.postmortemId === p.id) : [];
+  const ta = (id, k, rows, ph) => `<textarea id="${id}" rows="${rows}" maxlength="3000" placeholder="${esc(ph || "")}" ${peut ? "" : "readonly"}>${esc(v[k] || "")}</textarea>`;
+  modal(`<h2>${p ? "Post-mortem · projet " + esc(p.noProjet) : "Nouveau post-mortem de projet"}</h2>
+  <form id="f-pm" class="form">
+    <label for="pm-no">No de projet<input id="pm-no" maxlength="40" value="${esc(v.noProjet)}" placeholder="Ex. 14722"></label>
+    <label for="pm-t">Nom du projet<input id="pm-t" maxlength="140" value="${esc(v.titre)}" placeholder="Ex. Panneaux de distribution, usine du client"></label>
+    <label for="pm-c">Client<input id="pm-c" maxlength="120" value="${esc(v.client || "")}"></label>
+    <label for="pm-d">Département principal<select id="pm-d">${opt([["", "Plusieurs"], ...REF.departements.map(x => [x.code, x.nom])], v.dept || "")}</select></label>
+    <label class="full" for="pm-f">Autres numéros de FAB du projet (séparés par des virgules)<input id="pm-f" maxlength="400" value="${esc(v.fabs || "")}" placeholder="Ex. 14722, 14723, 14731"></label>
+    <label for="pm-dd">Début<input id="pm-dd" type="date" value="${esc(v.dateDebut || "")}"></label>
+    <label for="pm-df">Fin (livraison ou mise en service)<input id="pm-df" type="date" value="${esc(v.dateFin || "")}"></label>
+    <label for="pm-r">Responsable du post-mortem<input id="pm-r" list="dl-pers-pm" maxlength="80" value="${esc(v.responsable || "")}"></label>
+    <label for="pm-s">Statut<select id="pm-s">${opt(PM_STATUTS, v.statut)}</select></label>
+    <datalist id="dl-pers-pm">${(REF.personnes || []).map(x => `<option value="${esc(x.nom)}">`).join("")}</datalist>
+    ${p ? `<div class="full"><strong>Écarts du projet (${ecarts.length})</strong> <span class="small muted">· réunis automatiquement par numéro de projet ou de FAB</span>
+      ${ecarts.length ? `<div class="scroll" style="max-height:220px"><table class="t" style="margin-top:4px"><thead><tr><th>Écart</th><th>Date</th><th>Type</th><th>Ce qui s'est passé</th><th class="num">Min</th><th>Statut</th></tr></thead><tbody>
+        ${ecarts.map(e => `<tr><td><button class="lien-act" type="button" data-act="detail" data-id="${e.id}">${esc(e.no)}</button></td><td class="small">${fmtD(e.date)}</td><td class="small">${esc((e.cat ? e.cat + " · " : "") + (e.type || ""))}</td><td class="small">${esc(e.description || "")}</td><td class="num">${e.minutes || 0}</td><td class="small">${esc(e.statut)}</td></tr>`).join("")}
+        </tbody></table></div>` : `<div class="small muted">Aucun écart inscrit avec ce numéro. Ajoutez les numéros de FAB du projet ci-dessus.</div>`}</div>` : ""}
+    <label class="full" for="pm-re">Résumé du projet<textarea id="pm-re" rows="2" maxlength="1500" ${peut ? "" : "readonly"}>${esc(v.resume || "")}</textarea></label>
+    <label class="full" for="pm-b">Ce qui a bien fonctionné (à refaire)${ta("pm-b", "bien", 3)}</label>
+    <label class="full" for="pm-m">Ce qui a mal fonctionné${ta("pm-m", "mal", 3)}</label>
+    <label class="full" for="pm-ca">Causes principales${ta("pm-ca", "causes", 2)}</label>
+    <label class="full" for="pm-a">Ce qu'on fera autrement au prochain projet${ta("pm-a", "actionsFutures", 3, "Une action par ligne : soumission, dessin, achats, fabrication, chantier…")}</label>
+    ${p ? `<div class="full"><strong>Leçons tirées (${lecs.length})</strong> ${lecs.map(l => `<span class="lec-chip">${esc(l.titre)}</span>`).join(" ")}
+      <button class="btn small" type="button" data-act="l-pm-lecon" data-id="${p.id}" style="margin-left:6px">+ Tirer une leçon de ce post-mortem</button></div>` : ""}
+    <div class="full small muted">Pour passer à « Complété », dites ce qui a bien ou mal fonctionné et ce qu'on fera autrement.</div>
+    <div class="full" id="pm-msg"></div>
+    <div class="full row" style="justify-content:flex-end"><button class="btn" type="button" data-act="close">${peut ? "Annuler" : "Fermer"}</button>${peut ? `<button class="btn primary" type="submit">Enregistrer</button>` : ""}</div>
+  </form>`);
+  $("#f-pm").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const d = { id: p ? p.id : null, noProjet: $("#pm-no").value, titre: $("#pm-t").value, client: $("#pm-c").value, dept: $("#pm-d").value, fabs: $("#pm-f").value, dateDebut: $("#pm-dd").value, dateFin: $("#pm-df").value,
+      responsable: $("#pm-r").value, statut: $("#pm-s").value, resume: $("#pm-re").value, bien: $("#pm-b").value, mal: $("#pm-m").value, causes: $("#pm-ca").value, actionsFutures: $("#pm-a").value };
+    try { const id = await Api.majPostmortem(d); const P2 = await pmCharger(true); closeModal(); render();
+      if (!p) { const n = P2.postmortems.find(x => x.id === id); if (n) setTimeout(() => pmForm(n), 300); } }
+    catch (err) { formErr("pm-msg", err.message); }
+  });
+}
+/* Point de rencontre « Projets à risque et post-mortems » */
+function pmBloc(P) {
+  if (!P) return `<div class="empty small">Post-mortems non offerts dans ce mode.</div>`;
+  const ouverts = P.postmortems.filter(p => p.statut !== "complete");
+  return `${pmRisque(P) || `<div class="small muted">Aucun projet avec des écarts répétés dans les 90 derniers jours.</div>`}
+    <div style="margin-top:8px"><strong>Post-mortems à faire ou en cours (${ouverts.length})</strong></div>
+    ${ouverts.length ? ouverts.map(pmCarte).join("") : `<div class="small muted">Aucun.</div>`}
+    <div class="row" style="margin-top:8px;gap:8px">${P.peutModifier ? `<button class="btn small" type="button" data-act="l-pm-new">+ Nouveau post-mortem</button>` : ""}<a class="btn small" href="#lecons" data-act="l-vue" data-v="postmortems">Tous les post-mortems</a></div>`;
+}
+
 /* Pistes pour le groupe AC : projets terminés et écarts qui ont changé une procédure, sans leçon */
 async function lecCandidatsHtml(d) {
   const [ecarts, projets, actions] = await Promise.all([Api.ecarts({}), Api.projetsAC ? Api.projetsAC() : [], Api.actions({})]);
@@ -3191,7 +3320,7 @@ async function lecForm(l, pre) {
     const btn = ev.submitter, st = btn && btn.dataset.st ? btn.dataset.st : ($("#le-s") ? $("#le-s").value : v.statut);
     const p = { id: l ? l.id : null, titre: $("#le-t").value, dept: $("#le-d").value, typeId: $("#le-ty").value, causeTypeId: $("#le-ct").value,
       probleme: $("#le-p").value, cause: $("#le-c").value, solutionCourt: $("#le-h0").value, solutionMoyen: $("#le-h1").value, solutionLong: $("#le-h2").value,
-      procedure: $("#le-pr").value, methodeId: $("#le-m") ? $("#le-m").value : (v.methodeId || null), motsCles: $("#le-k").value, ecartId: v.ecartId || null, projetId: v.projetId || null, statut: d.peutValider ? st : (l ? l.statut : "proposee") };
+      procedure: $("#le-pr").value, postmortemId: v.postmortemId || null, methodeId: $("#le-m") ? $("#le-m").value : (v.methodeId || null), motsCles: $("#le-k").value, ecartId: v.ecartId || null, projetId: v.projetId || null, statut: d.peutValider ? st : (l ? l.statut : "proposee") };
     if (!p.solutionMoyen.trim() && !p.solutionLong.trim()) { formErr("le-msg", "Inscrivez une solution à moyen ou à long terme. Un écart réglé seulement à court terme reste dans le registre des écarts."); return; }
     try { if (btn) btn.disabled = true; await Api.majLecon(p); await lecCharger(true); closeModal();
       if (route() === "lecons") render(); else alertOk(p.statut === "validee" ? "La leçon est validée et visible dans le centre des connaissances." : "Merci. La leçon est proposée au groupe d'amélioration continue."); }
@@ -3230,6 +3359,13 @@ document.addEventListener("click", async ev => {
     else if (act === "l-de-projet") await lecDeProjet(a.dataset.id);
     else if (act === "l-vue") { ui.lecVue = a.dataset.v; if (ui.lecF) ui.lecF.cat = ""; render(); }
     else if (act === "l-m-new") await metForm(null);
+    else if (act === "l-pm-new") await pmForm(null, a.dataset.ref ? { noProjet: a.dataset.ref } : null);
+    else if (act === "l-pm-open") { const P = await pmCharger(true); const p = P.postmortems.find(x => x.id === Number(a.dataset.id)); if (p) await pmForm(p); }
+    else if (act === "l-pm-lecon") {
+      if ($("#f-pm") && $("#pm-s")) { const d = { id: Number(a.dataset.id), noProjet: $("#pm-no").value, titre: $("#pm-t").value, client: $("#pm-c").value, dept: $("#pm-d").value, fabs: $("#pm-f").value,
+          dateDebut: $("#pm-dd").value, dateFin: $("#pm-df").value, responsable: $("#pm-r").value, statut: $("#pm-s").value, resume: $("#pm-re").value, bien: $("#pm-b").value, mal: $("#pm-m").value, causes: $("#pm-ca").value, actionsFutures: $("#pm-a").value };
+        try { await Api.majPostmortem(d); } catch (err) { formErr("pm-msg", err.message); return; } MODAL_SALE = false; }
+      const P = await pmCharger(true); const p = P.postmortems.find(x => x.id === Number(a.dataset.id)); if (p) lecForm(null, { titre: "", dept: p.dept, probleme: p.mal || p.resume || "", cause: p.causes || "", solutionLong: p.actionsFutures || "", motsCles: [p.noProjet, p.client].filter(Boolean).join(", "), postmortemId: p.id }); }
     else if (act === "l-m-edit") { const M = await metCharger(); const m = M.methodes.find(x => x.id === Number(a.dataset.id)); if (m) await metForm(m); }
     else if (act === "l-m-voir") { const M = await metCharger(true); const m = M.methodes.find(x => x.id === Number(a.dataset.id)); if (m) modal(metCarte(m, M, null) + `<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" type="button" data-act="close">Fermer</button></div>`); }
     else if (act === "l-projet") { if (typeof acOuvrirA3 === "function") acOuvrirA3(Number(a.dataset.id)); }
@@ -3257,7 +3393,7 @@ const ST_BLOCS = [
   ["pareto", "Pareto des écarts du mois"], ["apercu", "Vue d'ensemble des niveaux"], ["libre", "Discussion libre"],
   ["lien", "Lien externe (Wrike, Power BI, SharePoint)"],
   ["ac_recus", "Groupe AC : écarts reçus"], ["recurrences", "Groupe AC : récurrences"], ["a_classer", "Groupe AC : causes à classer"],
-  ["projets", "Groupe AC : projets"], ["procedures", "Groupe AC : procédures à déployer"]
+  ["projets", "Groupe AC : projets"], ["procedures", "Groupe AC : procédures à déployer"], ["postmortems", "Projets à risque et post-mortems"]
 ];
 const stBlocNom = b => (ST_BLOCS.find(x => x[0] === b) || [, b])[1];
 
@@ -3482,7 +3618,7 @@ function renderWho() {
 }
 function renderTabs() {
   $("#tabs").innerHTML = ROUTES.filter(r => (r[0] !== "admin" || ME.admin) && (r[0] !== "journal" || Api.journal)).map(([k, l]) => `<a href="#${k}" ${route() === k ? 'aria-current="page"' : ""}>${l}</a>`).join("")
-    + (Api.avisFab ? `<form id="f-fab-top" class="tab-search" role="search"><input placeholder="Rechercher une FAB" aria-label="Rechercher une FAB" maxlength="30"></form>` : "");
+    + (Api.avisFab ? `<form id="f-fab-top" class="tab-search" role="search"><input placeholder="FAB ou projet" aria-label="Rechercher une FAB ou un projet" maxlength="30"></form>` : "");
 }
 async function render() {
   renderTabs();
@@ -3517,7 +3653,7 @@ async function vAccueil() {
 
 /* ---------- Rencontres ---------- */
 async function vRencontres() {
-  const groups0 = [["PAN", "Panneaux"], ["MOT", "Moteurs"], ["VIS", "Vision"], ["DES", "Conception et dessin"], [null, "Direction"]];
+  const groups0 = [["PAN", "Panneaux"], ["MOT", "Moteurs"], ["VIS", "Vision"], ["DES", "Conception et dessin"], ["PRJ", "Projets et chantiers"], [null, "Direction"]];
   const aside = suitesAside() + groups0.map(([g, l]) => { const rs = RENC.filter(r => r.dept === g && eq(r.equipe)); return rs.length ? `<div class="dept">${l}</div>` + rs.map(r => `<button type="button" class="meet-item" data-act="meet" data-code="${r.code}" aria-pressed="${!ui.suite && ui.meeting === r.code}"><span class="n">${esc(r.nom)}</span> <span class="pill lvl">T${eq(r.equipe).strate}</span><div class="f">${esc(r.frequence)} · ${r.dureeMin} min</div></button>`).join("") : ""; }).join("");
   if (ui.suite) { const h = await vSuite(aside); if (h) return h; }
   const m = RENC.find(r => r.code === ui.meeting);
@@ -3530,7 +3666,8 @@ async function vRencontres() {
   const run = ui.run && ui.run.code === m.code ? ui.run : null;
   const el = run ? Math.floor((Date.now() - run.start) / 1000) : 0;
   const ac = typeof acCharger === "function" && m.points.some(p => AC_BLOCS.includes(p.bloc)) ? await acCharger() : null;
-  const ctx = { m, t, ecarts, actions, sujets, kpi, ractions, ac };
+  const pm = Api.postmortems && m.points.some(p => p.bloc === "postmortems") ? await Api.postmortems() : null;
+  const ctx = { m, t, ecarts, actions, sujets, kpi, ractions, ac, pm };
   const head = `<div class="meet-head"><div><h2>${esc(m.nom)}</h2><div class="meta"><span>${esc(m.frequence)}</span><span>${m.dureeMin} min</span><span>Strate T${t.strate} : ${esc(t.nom)}</span></div><div class="meta"><span>Participants : ${esc(m.participants)}</span></div></div>
    <div class="row">${run ? `<div class="timer num ${el > m.dureeMin * 60 ? "over" : ""}" id="timer">${mmss(el)}</div><span class="muted small">/ ${m.dureeMin}:00</span><button class="btn" data-act="next" type="button">Point suivant</button><button class="btn primary" data-act="close-meet" type="button">Clore la rencontre</button>` : `<button class="btn primary" data-act="start-meet" type="button">Démarrer la rencontre</button>`}</div></div>`;
   const items = m.points.map((p, i) => { const cls = run ? (i < run.idx ? "done" : i === run.idx ? "current" : "") : "";
@@ -3577,8 +3714,9 @@ async function raEdit(id, code) {
     catch (err) { formErr("re-msg", err.message); } });
 }
 const mmss = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-function bloc(b, { m, t, ecarts, actions, sujets, kpi, ractions, ac }) {
+function bloc(b, { m, t, ecarts, actions, sujets, kpi, ractions, ac, pm }) {
   if (typeof AC_BLOCS !== "undefined" && AC_BLOCS.includes(b)) return acBloc(b, ac);
+  if (b === "postmortems") return typeof pmBloc === "function" ? pmBloc(pm) : "";
   const depts = t.strate === 1 ? [t.dept] : t.strate === 2 ? t.depts : REF.departements.map(d => d.code);
   const scope = ecarts.filter(e => inTeamScope(e, t));
   if (b === "kpi") return kpiTiles(kpi.filter(k => depts.includes(k.dept)), depts.length > 1);
@@ -3847,7 +3985,7 @@ function openNew(team, cat, pre) {
   <label for="n-cat">Catégorie SQCDP<select id="n-cat">${opt(REF.categories.map(c => [c.code, c.code + " · " + c.nom]), cat || "Q")}</select></label>
   <label for="n-type">Type d'écart (liste fermée)<select id="n-type"></select></label>
   <label for="n-poste">Poste, projet ou équipement<input id="n-poste" maxlength="60" placeholder="Ex. Projet 26-130, section 2" required></label>
-  <label for="n-fab">No de FAB (facultatif)<input id="n-fab" maxlength="20" placeholder="Lien avec Fidelio"></label>
+  <label for="n-fab">No de FAB ou de projet (facultatif)<input id="n-fab" maxlength="20" placeholder="Ex. 14722 ou le numéro du projet"></label>
   <label for="n-min">Minutes perdues<input id="n-min" type="number" min="0" value="0"></label>
   <label for="n-cout">Coût direct ($)<input id="n-cout" type="number" min="0" value="0"></label>
   <label class="full" for="n-desc">Ce qui s'est passé (140 caractères max.)<input id="n-desc" maxlength="140" placeholder="Un fait observable, pas une opinion" required></label>
